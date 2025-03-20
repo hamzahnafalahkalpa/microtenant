@@ -1,0 +1,14 @@
+<?php
+
+namespace {{NAMESPACE}};
+
+use Zahzah\LaravelSupport\Controllers\BaseController;
+
+class {{CLASS_NAME}} extends BaseController {
+
+
+    // LOCAL SCOPE SECTION
+
+    
+    // EAGER SECTION
+}

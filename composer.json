@@ -1,0 +1,50 @@
+{
+    "name": "zahzah/microtenant",
+    "description": "Package ini memungkinkan anda agar dapat mengelola multi tenant beserta dengan versioning didalamnya",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Zahzah\\MicroTenant\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "hamzah",
+            "email": "hamzahnuralfalah@gmail.com"
+        }
+    ],
+    "require": {
+        "stancl/tenancy": "^3.8",
+        "zahzah/laravel-support": "1.x",
+        "zahzah/api-helper": "1.x",
+        "zahzah/laravel-feature": "1.x",
+        "zahzah/laravel-has-props": "1.x",
+        "zahzah/laravel-stub": "1.x",
+        "zahzah/module-version": "1.x",
+        "zahzah/module-user": "1.x",
+        "zahzah/module-people": "1.x",
+        "zahzah/module-workspace": "1.x",
+        "zahzah/laravel-permission": "1.x",
+        "symfony/filesystem": "^7.1"
+    },
+    "require-dev": {
+        "aibnuhibban/bitbucket-laravel": "dev-main"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Zahzah\\MicroTenant\\MicroTenantServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": false,
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    }
+}
