@@ -30,9 +30,6 @@
         "hanafalah/laravel-permission": "1.x",
         "symfony/filesystem": "^7.1"
     },
-    "require-dev": {
-        "aibnuhibban/bitbucket-laravel": "dev-main"
-    },
     "extra": {
         "laravel": {
             "providers": [

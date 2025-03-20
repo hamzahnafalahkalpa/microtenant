@@ -2,7 +2,7 @@
 
 namespace Hanafalah\MicroTenant\Concerns\Commands\Bitbucket;
 
-use Aibnuhibban\BitbucketLaravel\Traits\BitbucketTrait;
+use Hanafalah\BitbucketLaravel\Traits\BitbucketTrait;
 
 trait HasBitbucketPrompt
 {
