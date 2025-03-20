@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
-use Zahzah\LaravelStub\Facades\Stub;
+use Hanafalah\LaravelStub\Facades\Stub;
 
 class InterfaceMakeCommand extends EnvironmentCommand
 {
@@ -25,7 +25,7 @@ class InterfaceMakeCommand extends EnvironmentCommand
     protected $description = 'Create a new contract class';
 
     /** @var string */
-    protected $__name,$__class_namespace;
+    protected $__name, $__class_namespace;
 
     /**
      * Execute the console command.
@@ -36,14 +36,14 @@ class InterfaceMakeCommand extends EnvironmentCommand
     {
         $this->setup();
         $this->__class_namespace = $this->option('class-namespace');
-        $this->cardLine('Generating Interface '.$this->__class_namespace,function(){
+        $this->cardLine('Generating Interface ' . $this->__class_namespace, function () {
             $this->__name = !$this->option('name') ? $this->getStaticPackageNameResult() : $this->option('name');
-            $save_path = $this->getGenerateLocation().'/'.$this->contractsGeneratorPath();
-            Stub::init($this->getBaseStub().'/interface.stub',[
+            $save_path = $this->getGenerateLocation() . '/' . $this->contractsGeneratorPath();
+            Stub::init($this->getBaseStub() . '/interface.stub', [
                 'NAMESPACE'              => $this->generateNamespace('contracts'),
-                'INTERFACE_NAME'         => $this->__name.'Interface',
+                'INTERFACE_NAME'         => $this->__name . 'Interface',
                 'METHODS'                => ''
-            ])->saveTo($save_path,$this->__name.'Interface.php');
+            ])->saveTo($save_path, $this->__name . 'Interface.php');
         });
     }
 }

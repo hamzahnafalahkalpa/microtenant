@@ -1,15 +1,15 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
-use Zahzah\LaravelSupport\Concerns\Support\HasArray;
-use Zahzah\LaravelSupport\Concerns\Support\HasCache;
-use Zahzah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
-use Zahzah\MicroTenant\Models\Application\App;
+use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
+use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
+use Hanafalah\MicroTenant\Models\Application\App;
 
 class ImpersonatePublishCommand extends EnvironmentCommand
 {
-    use HasCache, HasArray,generatorHelperPath;
+    use HasCache, HasArray, generatorHelperPath;
 
     /**
      * The name and signature of the console command.
@@ -36,30 +36,29 @@ class ImpersonatePublishCommand extends EnvironmentCommand
     {
         // CHECKING EXISTING IMPERSONATE APP
         $impersonate = $this->getImpersonate();
-        if ($impersonate->model instanceof App){
+        if ($impersonate->model instanceof App) {
             $model = &$impersonate->model->tenant;
-        }else{
+        } else {
             $model = &$impersonate->model;
         }
         $packages = $model->packages;
-        if (isset($packages)){
+        if (isset($packages)) {
             foreach ($packages as $key => &$package) {
                 $provider = $this->replacement($package['provider']);
-                if (!isset($package['published'])){
-                    $this->info('Publishing '.$provider.'...');
+                if (!isset($package['published'])) {
+                    $this->info('Publishing ' . $provider . '...');
                     $this->call('vendor:publish', [
                         '--provider' => $provider,
                         '--tag'      => ['migrations', 'data']
                     ]);
                     $package['published'] = true;
-                }else{
-                    $this->info($provider.' is already published...');
+                } else {
+                    $this->info($provider . ' is already published...');
                 }
             }
-            $model->setAttribute('packages',$packages);
+            $model->setAttribute('packages', $packages);
             $model->save();
             $this->recache();
         }
     }
 }
-

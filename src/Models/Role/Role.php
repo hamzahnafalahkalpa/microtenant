@@ -1,10 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\Role;
+namespace Hanafalah\MicroTenant\Models\Role;
 
-use Zahzah\LaravelPermission\Models\Role\Role as BaseRole;
-use Zahzah\MicroTenant\Concerns\Models\CentralAppConnection;
+use Hanafalah\LaravelPermission\Models\Role\Role as BaseRole;
+use Hanafalah\MicroTenant\Concerns\Models\CentralAppConnection;
 
-class Role extends BaseRole{
+class Role extends BaseRole
+{
     use CentralAppConnection;
 }

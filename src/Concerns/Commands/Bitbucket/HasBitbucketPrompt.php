@@ -1,22 +1,24 @@
 <?php
 
-namespace Zahzah\MicroTenant\Concerns\Commands\Bitbucket;
+namespace Hanafalah\MicroTenant\Concerns\Commands\Bitbucket;
 
 use Aibnuhibban\BitbucketLaravel\Traits\BitbucketTrait;
 
-trait HasBitbucketPrompt{
+trait HasBitbucketPrompt
+{
     use BitbucketTrait;
 
     protected array $__repo = [];
 
     protected ?string $__slug;
 
-    protected function askWannaMakeRepo(string $suggest = ''): self{
+    protected function askWannaMakeRepo(string $suggest = ''): self
+    {
         $need_repo = $this->confirm('Do you want create repository in bitbucket ?', true);
         if ($need_repo) {
             $this->__slug = $this->ask('Enter Repository slug (for create repository in bitbucket)', $suggest);
             $this->__repo[] = $this->__slug;
-        }else{
+        } else {
             $this->__slug = null;
         }
         return $this;

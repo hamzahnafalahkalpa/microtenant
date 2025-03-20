@@ -2,8 +2,8 @@
 
 namespace {{NAMESPACE}};
 
-use Zahzah\MicroTenant\Schemas\EnvironmentSchema;
-use Zahzah\LaravelSupport\{
+use Hanafalah\MicroTenant\Schemas\EnvironmentSchema;
+use Hanafalah\LaravelSupport\{
     Concerns\Support\HasRequest,
     Contracts\DataManagement
 };

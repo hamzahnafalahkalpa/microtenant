@@ -1,12 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\Regional;
+namespace Hanafalah\MicroTenant\Models\Regional;
 
-use Zahzah\ModuleRegional\Models\Regional\Address as BaseAddress;
-use Zahzah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\ModuleRegional\Models\Regional\Address as BaseAddress;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
 
 class Address extends BaseAddress
 {
   use CentralConnection;
 }
-

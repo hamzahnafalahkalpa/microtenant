@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Zahzah\MicroTenant\Observers;
+namespace Hanafalah\MicroTenant\Observers;
 
-use Zahzah\MicroTenant\Models\Tenant\Tenant;
+use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 
 class TenantObserver
 {

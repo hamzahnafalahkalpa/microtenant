@@ -1,10 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\Permission;
+namespace Hanafalah\MicroTenant\Models\Permission;
 
-use Zahzah\LaravelPermission\Models\Permission\Permission as ModulePermission;
-use Zahzah\MicroTenant\Concerns\Models\CentralAppConnection;
+use Hanafalah\LaravelPermission\Models\Permission\Permission as ModulePermission;
+use Hanafalah\MicroTenant\Concerns\Models\CentralAppConnection;
 
-class Permission extends ModulePermission{
+class Permission extends ModulePermission
+{
     use CentralAppConnection;
 }

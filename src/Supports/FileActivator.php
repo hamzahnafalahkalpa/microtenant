@@ -1,7 +1,5 @@
 <?php
 
-namespace Zahzah\MicroTenant\Supports;
+namespace Hanafalah\MicroTenant\Supports;
 
-class FileActivator{
-    
-}
+class FileActivator {}

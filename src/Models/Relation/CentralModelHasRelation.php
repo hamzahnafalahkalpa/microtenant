@@ -1,13 +1,13 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\Relation;
+namespace Hanafalah\MicroTenant\Models\Relation;
 
-use Zahzah\MicroTenant\Concerns\Models\CentralConnection;
-use Zahzah\LaravelSupport\Models\Relation\ModelHasRelation;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\LaravelSupport\Models\Relation\ModelHasRelation;
 
-class CentralModelHasRelation extends ModelHasRelation{
+class CentralModelHasRelation extends ModelHasRelation
+{
     use CentralConnection;
 
     protected $table = 'model_has_relations';
-
 }

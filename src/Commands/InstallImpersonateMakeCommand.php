@@ -1,6 +1,6 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
 use Aibnuhibban\BitbucketLaravel\Traits\BitbucketTrait;
 

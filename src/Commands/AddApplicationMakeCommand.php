@@ -1,15 +1,16 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
 use Illuminate\Support\Facades\Artisan;
-use Zahzah\MicroTenant\Concerns\Commands\HasGeneratorAction;
-use Zahzah\MicroTenant\Concerns\Commands\Tenant\HasService;
-use Zahzah\ModuleVersion\{
+use Hanafalah\MicroTenant\Concerns\Commands\HasGeneratorAction;
+use Hanafalah\MicroTenant\Concerns\Commands\Tenant\HasService;
+use Hanafalah\ModuleVersion\{
     Concerns\Commands\Schema\SchemaPrompt
 };
 
-class AddApplicationMakeCommand extends EnvironmentCommand{
+class AddApplicationMakeCommand extends EnvironmentCommand
+{
     use SchemaPrompt;
     use HasGeneratorAction {
         HasGeneratorAction::askAppVersion insteadof HasService;
@@ -36,36 +37,39 @@ class AddApplicationMakeCommand extends EnvironmentCommand{
 
     /**
      * Execute the console command.
-    */
-    public function handle(){
+     */
+    public function handle()
+    {
         $this->init()->setServiceName('app_version');
         $this->setNeedSource();
 
         $this->askAppVersion();
-        if (app()->environment() == 'local'){
+        if (app()->environment() == 'local') {
             if (isset($this->__ask_app)) $this->installing($this->__ask_app->name);
         }
 
-        if ($this->getAskAppResult() !== null){
+        if ($this->getAskAppResult() !== null) {
             $arguments = [
                 '--reference-id'   => $this->getAskAppResult()->getKey(),
-                '--reference-type' => $this->getAskAppResult()->getMorphClass()    
+                '--reference-type' => $this->getAskAppResult()->getMorphClass()
             ];
         }
-        $this->call('micro:helper-install',$arguments ?? []);
+        $this->call('micro:helper-install', $arguments ?? []);
     }
 
-    protected function callProvider(){
+    protected function callProvider()
+    {
         $option = ["package-name" => $this->getStaticPackageNameResult()];
-        Artisan::call("micro:make-provider",$option);
+        Artisan::call("micro:make-provider", $option);
     }
 
-    protected function callInterface(){
+    protected function callInterface()
+    {
         $option = [
             "package-name" => $this->getStaticPackageNameResult(),
             "--name"       => $this->getStaticPackageNameResult()
         ];
-        Artisan::call('micro:make-interface',$option);
+        Artisan::call('micro:make-interface', $option);
     }
 
     /**
@@ -73,11 +77,13 @@ class AddApplicationMakeCommand extends EnvironmentCommand{
      *
      * @return string The path to the stub.
      */
-    protected function getAddInstallationSchemaStubPath(): string{
+    protected function getAddInstallationSchemaStubPath(): string
+    {
         return 'MicroTenantStubs/add-installation-schema.stub';
     }
 
-    public function callCustomMethod(): array{
-        return ['Model','GeneratorPath'];
+    public function callCustomMethod(): array
+    {
+        return ['Model', 'GeneratorPath'];
     }
 }

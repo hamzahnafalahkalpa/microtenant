@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Zahzah\MicroTenant\Concerns\Models;
+namespace Hanafalah\MicroTenant\Concerns\Models;
 
 trait CentralTenantConnection
 {
     use Connection;
 
-    public function initializeCentralTenantConnection(){
-        $this->connection = config('database.connection_central_tenant_name');  
+    public function initializeCentralTenantConnection()
+    {
+        $this->connection = config('database.connection_central_tenant_name');
     }
 
     public function getConnectionName()

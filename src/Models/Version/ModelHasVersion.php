@@ -1,10 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\Version;
+namespace Hanafalah\MicroTenant\Models\Version;
 
-use Zahzah\MicroTenant\Concerns\Models\CentralConnection;
-use Zahzah\ModuleVersion\Models\Version\ModelHasVersion as VersionModelHasVersion;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\ModuleVersion\Models\Version\ModelHasVersion as VersionModelHasVersion;
 
-class ModelHasVersion extends VersionModelHasVersion{
+class ModelHasVersion extends VersionModelHasVersion
+{
     use CentralConnection;
-} 
+}

@@ -1,11 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\ApiAccess;
+namespace Hanafalah\MicroTenant\Models\ApiAccess;
 
-use Zahzah\MicroTenant\Concerns\Models\CentralConnection;
-use Zahzah\ApiHelper\Models\PersonalAccessToken as ModulePersonalAccessToken;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\ApiHelper\Models\PersonalAccessToken as ModulePersonalAccessToken;
 
-class PersonalAccessToken extends ModulePersonalAccessToken 
+class PersonalAccessToken extends ModulePersonalAccessToken
 {
     use CentralConnection;
 }

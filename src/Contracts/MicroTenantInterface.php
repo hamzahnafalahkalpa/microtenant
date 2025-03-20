@@ -1,7 +1,5 @@
 <?php
 
-namespace Zahzah\MicroTenant\Contracts;
+namespace Hanafalah\MicroTenant\Contracts;
 
-interface MicroTenantInterface
-{
-}
+interface MicroTenantInterface {}

@@ -1,10 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\Feature;
+namespace Hanafalah\MicroTenant\Models\Feature;
 
-use Zahzah\MicroTenant\Concerns\Models\CentralConnection;
-use Zahzah\LaravelFeature\Models\Feature\MasterFeature as FeatureMasterFeature;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\LaravelFeature\Models\Feature\MasterFeature as FeatureMasterFeature;
 
-class MasterFeature extends FeatureMasterFeature{
+class MasterFeature extends FeatureMasterFeature
+{
     use CentralConnection;
 }

@@ -1,12 +1,13 @@
 <?php
 
-namespace Zahzah\MicroTenant\Supports;
+namespace Hanafalah\MicroTenant\Supports;
 
-use Zahzah\LaravelSupport\Concerns\ServiceProvider\HasConfiguration;
+use Hanafalah\LaravelSupport\Concerns\ServiceProvider\HasConfiguration;
 
-abstract class PackageManagement{
+abstract class PackageManagement
+{
     use HasConfiguration;
-    
+
     protected $__microtenant_config;
 
     /**
@@ -14,7 +15,8 @@ abstract class PackageManagement{
      *
      * @param Container $app The container instance for dependency injection
      */
-    public function __construct(...$args){
-        $this->setConfig('micro-tenant',$this->__microtenant_config);
-    }        
+    public function __construct(...$args)
+    {
+        $this->setConfig('micro-tenant', $this->__microtenant_config);
+    }
 }

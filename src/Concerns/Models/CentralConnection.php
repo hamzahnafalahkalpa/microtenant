@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zahzah\MicroTenant\Concerns\Models;
+namespace Hanafalah\MicroTenant\Concerns\Models;
 
 use Stancl\Tenancy\Database\Concerns\CentralConnection as ConcernsCentralConnection;
 
@@ -10,7 +10,8 @@ trait CentralConnection
 {
     use Connection, ConcernsCentralConnection;
 
-    public function initializeCentralConnection(){
+    public function initializeCentralConnection()
+    {
         $this->connection = config('tenancy.database.central_connection');
     }
 

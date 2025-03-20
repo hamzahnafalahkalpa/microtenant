@@ -1,12 +1,12 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
 use Symfony\Component\Process\Process;
-use Zahzah\MicroTenant\Concerns\Commands as ConcernsCommand;
-use Zahzah\MicroTenant\Concerns\Commands\Bitbucket\HasBitbucketPrompt;
-use Zahzah\MicroTenant\Concerns\Commands\HasGeneratorAction;
-use Zahzah\MicroTenant\Concerns\Commands\Tenant\HasService;
+use Hanafalah\MicroTenant\Concerns\Commands as ConcernsCommand;
+use Hanafalah\MicroTenant\Concerns\Commands\Bitbucket\HasBitbucketPrompt;
+use Hanafalah\MicroTenant\Concerns\Commands\HasGeneratorAction;
+use Hanafalah\MicroTenant\Concerns\Commands\Tenant\HasService;
 
 class TenantMakeCommand extends EnvironmentCommand
 {
@@ -40,15 +40,15 @@ class TenantMakeCommand extends EnvironmentCommand
     {
         if ($this->notReady()) $this->init();
         $this->setNeedSource()->setServiceName('tenant')
-             ->chooseApplication();
-        
+            ->chooseApplication();
+
         $this->__app_namespace  = \class_name_builder($this->__ask_app->name);
         $this->getAppConfig()->getTenantConfig();
         $this->askCentralTenant();
         if (app()->environment() == 'local' && $this->__ask_central_tenant->wasRecentlyCreated) {
             $this->installingSchema($this->__ask_central_tenant, $this->__ask_app->name);
         }
-        
+
         $this->askTenantName();
         $this->__tenant_model = $this->TenantModel()->updateOrCreate([
             'name'       => $this->__ask_tenant_name,
@@ -61,10 +61,10 @@ class TenantMakeCommand extends EnvironmentCommand
 
         $this->__tenant_namespace = class_name_builder($this->__tenant_model->name);
         $fields = [
-            'path'         => $this->__tenant_config['path'].'/'.$this->__tenant_namespace,
+            'path'         => $this->__tenant_config['path'] . '/' . $this->__tenant_namespace,
             'with_source'  => $this->isNeedSource(),
-            'provider'     => $this->__central_namespace.'\\'.$this->__tenant_namespace.'\\'.$this->__tenant_namespace.'ServiceProvider',
-            'config_path'  => $this->withSource().'/'.$this->__tenant_config['generate']['config']['path'].'/config.php',
+            'provider'     => $this->__central_namespace . '\\' . $this->__tenant_namespace . '\\' . $this->__tenant_namespace . 'ServiceProvider',
+            'config_path'  => $this->withSource() . '/' . $this->__tenant_config['generate']['config']['path'] . '/config.php',
             'app'          => [
                 'id'       => $this->__ask_app->getKey(),
                 'name'     => $this->__ask_app->name,
@@ -102,7 +102,7 @@ class TenantMakeCommand extends EnvironmentCommand
         //DO TENANCY MIGRATE
 
         //DO COMPOSER INSTALL TO THAT PATH
-        $tenant_config_path = $this->__tenant_config['path'].'/'.$this->__tenant_namespace;
+        $tenant_config_path = $this->__tenant_config['path'] . '/' . $this->__tenant_namespace;
         $process = new Process(['composer', 'install', '--no-interaction', '--no-progress', '--no-scripts'], $tenant_config_path);
         $process->run();
         $this->info('Composer install done at ' . $tenant_config_path);

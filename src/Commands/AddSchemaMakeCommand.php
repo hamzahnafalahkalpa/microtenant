@@ -1,10 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
-use Zahzah\ModuleVersion\Concerns\Commands\Schema\SchemaPrompt;
+use Hanafalah\ModuleVersion\Concerns\Commands\Schema\SchemaPrompt;
 
-class AddSchemaMakeCommand extends EnvironmentCommand{
+class AddSchemaMakeCommand extends EnvironmentCommand
+{
     use SchemaPrompt;
 
     /**
@@ -24,7 +25,8 @@ class AddSchemaMakeCommand extends EnvironmentCommand{
     /**
      * Execute the console command.
      */
-    public function handle(){
+    public function handle()
+    {
         $namespace = $this->argument('namespace');
         if (!$this->option('model') && !$this->option('installation')) {
             $choice = $this->choice(
@@ -35,8 +37,12 @@ class AddSchemaMakeCommand extends EnvironmentCommand{
                 ]
             );
             switch ($choice) {
-                case 'Create model schema'        : $this->callModelSchema();break;
-                case 'Create installation schema' : $this->callInstallationSchema($namespace);break;
+                case 'Create model schema':
+                    $this->callModelSchema();
+                    break;
+                case 'Create installation schema':
+                    $this->callInstallationSchema($namespace);
+                    break;
             }
         }
 
@@ -44,7 +50,8 @@ class AddSchemaMakeCommand extends EnvironmentCommand{
         if ($this->option('model'))   $this->callModelSchema();
     }
 
-    private function callModelSchema(){
+    private function callModelSchema()
+    {
         $this->call('micro:add-model-schema', [
             'namespace' => $this->argument('namespace')
         ]);

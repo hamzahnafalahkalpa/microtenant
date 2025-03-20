@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zahzah\MicroTenant\Models\Tenant;
+namespace Hanafalah\MicroTenant\Models\Tenant;
 
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Contracts\Tenant as ContractsTenant;
@@ -15,11 +15,11 @@ use Stancl\Tenancy\Database\Concerns\{
     TenantRun
 };
 use Stancl\Tenancy\Database\TenantCollection;
-use Zahzah\LaravelHasProps\Concerns\HasProps;
+use Hanafalah\LaravelHasProps\Concerns\HasProps;
 
 use Stancl\Tenancy\Events;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Zahzah\LaravelSupport\Models\BaseModel;
+use Hanafalah\LaravelSupport\Models\BaseModel;
 
 class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     use SoftDeletes, HasProps;

@@ -3,8 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Zahzah\LaravelSupport\Concerns\NowYouSeeMe;
-use Zahzah\MicroTenant\Models\Activity\{
+use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
+use Hanafalah\MicroTenant\Models\Activity\{
     CentralActivity,
     CentralActivityStatus
 };
@@ -15,7 +15,8 @@ return new class extends Migration
 
     private $__table;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->__table = app(config('database.models.CentralActivityStatus', CentralActivityStatus::class));
     }
 
@@ -27,12 +28,12 @@ return new class extends Migration
     public function up()
     {
         $table_name = $this->__table->getTableName();
-        if (!$this->isTableExists()){
+        if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
                 $centralActivity = app(config('database.models.CentralActivity', CentralActivity::class));
                 $table->ulid('id')->primary();
-                $table->foreignIdFor($centralActivity::class,'activity_id')->nullable()->index()
-                      ->constrained('activities','id')->cascadeOnUpdate()->cascadeOnDelete();
+                $table->foreignIdFor($centralActivity::class, 'activity_id')->nullable()->index()
+                    ->constrained('activities', 'id')->cascadeOnUpdate()->cascadeOnDelete();
                 $table->unsignedBigInteger('status');
                 $table->unsignedTinyInteger('active')->default(1);
                 $table->text('message');

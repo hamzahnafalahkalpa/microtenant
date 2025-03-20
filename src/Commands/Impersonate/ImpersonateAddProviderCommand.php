@@ -1,12 +1,12 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
 use stdClass;
-use Zahzah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
+use Hanafalah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
 use Illuminate\Support\Str;
-use Zahzah\MicroTenant\Facades\MicroTenant;
-use Zahzah\MicroTenant\Models\Application\App;
+use Hanafalah\MicroTenant\Facades\MicroTenant;
+use Hanafalah\MicroTenant\Models\Application\App;
 
 class ImpersonateAddProviderCommand extends EnvironmentCommand
 {
@@ -18,7 +18,7 @@ class ImpersonateAddProviderCommand extends EnvironmentCommand
      * @var string
      */
     protected $signature = 'impersonate:add-provider {--app} {--group} 
-                                {--package= : The name of the provider e.g. zahzah/module-user}
+                                {--package= : The name of the provider e.g. hanafalah/module-user}
                                 {--app_id= : The id of the app}
                                 {--group_id= : The id of the group}
                                 {--tenant_id= : The id of the tenant}';
@@ -38,18 +38,16 @@ class ImpersonateAddProviderCommand extends EnvironmentCommand
     {
         // CHECKING EXISTING IMPERSONATE APP
         $impersonate = $this->getImpersonate();
-        $model       = ($impersonate->model instanceof App) 
-                    ? $impersonate->model->tenant
-                    : $impersonate->model;
-        if (($package = $this->option('package')) == null){
-            $alias = $this->ask('Add new package alias e.g. zahzah/module-user !');
+        $model       = ($impersonate->model instanceof App)
+            ? $impersonate->model->tenant
+            : $impersonate->model;
+        if (($package = $this->option('package')) == null) {
+            $alias = $this->ask('Add new package alias e.g. hanafalah/module-user !');
             $namespace = $this->ask('Add new provider namespace, blank it for using default!');
         }
-        if (isset($alias)){
-            MicroTenant::addPackage($model,$alias,$namespace);            
+        if (isset($alias)) {
+            MicroTenant::addPackage($model, $alias, $namespace);
             $this->recache();
         }
-
     }
 }
-

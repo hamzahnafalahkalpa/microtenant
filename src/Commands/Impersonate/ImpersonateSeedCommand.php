@@ -1,15 +1,15 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
-use Zahzah\LaravelSupport\Concerns\Support\HasArray;
-use Zahzah\LaravelSupport\Concerns\Support\HasCache;
-use Zahzah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
+use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
+use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
 use Illuminate\Support\Str;
 
 class ImpersonateSeedCommand extends EnvironmentCommand
 {
-    use HasCache, HasArray,generatorHelperPath;
+    use HasCache, HasArray, generatorHelperPath;
 
     /**
      * The name and signature of the console command.
@@ -38,36 +38,36 @@ class ImpersonateSeedCommand extends EnvironmentCommand
         config([
             'micro-tenant.superadmin' => true
         ]);
-        if ($this->option('all')){
-            $this->seeding();    
-            foreach (['--app','--group'] as $key => $value) {
-                $this->call("impersonate:seed",[
+        if ($this->option('all')) {
+            $this->seeding();
+            foreach (['--app', '--group'] as $key => $value) {
+                $this->call("impersonate:seed", [
                     $value => true,
                     '--name' => $this->option('name'),
                 ]);
             }
-        }else{
-            $this->seeding();    
+        } else {
+            $this->seeding();
         }
         config([
             'micro-tenant.superadmin' => false
         ]);
     }
-    
-    private function seeding(){
+
+    private function seeding()
+    {
         $impersonate = $this->getImpersonate();
 
-        $namespace   = Str::replace('/','\\',$impersonate->config['namespace'].'\\'.($impersonate->config['libs']['seeder'] ?? 'Database\\Seeders').'\\');
+        $namespace   = Str::replace('/', '\\', $impersonate->config['namespace'] . '\\' . ($impersonate->config['libs']['seeder'] ?? 'Database\\Seeders') . '\\');
         $namespace   .= $this->option('name') ?? 'DatabaseSeeder';
-        if (\class_exists($namespace)){
-            $this->call('db:seed',[
+        if (\class_exists($namespace)) {
+            $this->call('db:seed', [
                 '--class' => $namespace,
             ]);
 
-            $this->info('Seeding '.$namespace.' done!');
-        }else{
-            $this->error('Seeding '.$namespace.' not found!');
+            $this->info('Seeding ' . $namespace . ' done!');
+        } else {
+            $this->error('Seeding ' . $namespace . ' not found!');
         }
     }
 }
-

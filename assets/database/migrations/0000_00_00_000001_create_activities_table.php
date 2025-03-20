@@ -3,8 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Zahzah\LaravelSupport\Concerns\NowYouSeeMe;
-use Zahzah\MicroTenant\Models\Activity\CentralActivity;
+use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
+use Hanafalah\MicroTenant\Models\Activity\CentralActivity;
 
 return new class extends Migration
 {
@@ -12,7 +12,8 @@ return new class extends Migration
 
     private $__table;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->__table = app(config('database.models.CentralActivity', CentralActivity::class));
     }
 
@@ -24,7 +25,7 @@ return new class extends Migration
     public function up()
     {
         $table_name = $this->__table->getTableName();
-        if (!$this->isTableExists()){
+        if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
                 $table->ulid('id')->primary();
                 $table->unsignedTinyInteger('activity_flag');
@@ -35,8 +36,8 @@ return new class extends Migration
                 $table->text('message')->nullable();
                 $table->timestamps();
 
-                $table->index(['reference_type','reference_id'],'activity_sumber');
-                $table->index(['activity_flag','reference_type','reference_id'],'activity_sumber_flag');
+                $table->index(['reference_type', 'reference_id'], 'activity_sumber');
+                $table->index(['activity_flag', 'reference_type', 'reference_id'], 'activity_sumber_flag');
             });
         }
     }

@@ -4,9 +4,10 @@ namespace Database\Seeders\Installation;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Zahzah\LaravelFeature\LaravelFeature;
+use Hanafalah\LaravelFeature\LaravelFeature;
 
-class FeatureSeeder extends Seeder{
+class FeatureSeeder extends Seeder
+{
     /**
      * Seed the application's database.
      */

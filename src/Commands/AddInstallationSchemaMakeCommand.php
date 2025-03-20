@@ -1,10 +1,11 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
-use Zahzah\ModuleVersion\Concerns\Commands\Schema\SchemaPrompt;
+use Hanafalah\ModuleVersion\Concerns\Commands\Schema\SchemaPrompt;
 
-class AddInstallationSchemaMakeCommand extends EnvironmentCommand{
+class AddInstallationSchemaMakeCommand extends EnvironmentCommand
+{
     use SchemaPrompt;
 
     /**
@@ -26,11 +27,13 @@ class AddInstallationSchemaMakeCommand extends EnvironmentCommand{
     /**
      * Execute the console command.
      */
-    public function handle(){
+    public function handle()
+    {
         $this->runInstallationSchema();
     }
-    
-    protected function getInstallationSchemaStubPath(): string{
+
+    protected function getInstallationSchemaStubPath(): string
+    {
         return 'MicroTenantStubs/add-installation-schema.stub';
     }
 }

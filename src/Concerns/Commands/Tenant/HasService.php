@@ -1,12 +1,13 @@
 <?php
 
-namespace Zahzah\MicroTenant\Concerns\Commands\Tenant;
+namespace Hanafalah\MicroTenant\Concerns\Commands\Tenant;
 
-use Zahzah\LaravelSupport\Concerns\Support\HasRepository;
-use Zahzah\ModuleVersion\Concerns\Commands\Installing\AppInstallPrompt;
-use Zahzah\ModuleVersion\Concerns\HasModuleService;
+use Hanafalah\LaravelSupport\Concerns\Support\HasRepository;
+use Hanafalah\ModuleVersion\Concerns\Commands\Installing\AppInstallPrompt;
+use Hanafalah\ModuleVersion\Concerns\HasModuleService;
 
-trait HasService{
+trait HasService
+{
     use HasModuleService;
     use HasTenantPrompt;
     use HasRepository;
@@ -19,10 +20,11 @@ trait HasService{
      *
      * @return self The current instance of the class.
      */
-    protected function setup(): self{        
-        if ($this->notReady()){
+    protected function setup(): self
+    {
+        if ($this->notReady()) {
             $this->newLine();
-            $this->cardLine('Initialize Process',function(){
+            $this->cardLine('Initialize Process', function () {
                 $this->init()
                     ->setServiceName($this->argument('service-name'))
                     ->setChoosedService($this->getStaticServicesResult()[$this->getStaticServiceNameResult()])
@@ -31,13 +33,14 @@ trait HasService{
             });
         }
         return $this;
-    }    
+    }
 
-    public function callInstallationSchema(string $namespace): void{
+    public function callInstallationSchema(string $namespace): void
+    {
         $this->call('micro:add-installation-schema', [
             'namespace'            => $namespace,
             '--app-name'           => $namespace,
-            '--description'        => "Installation schema for app ".$this->getAskAppResult()->name,
+            '--description'        => "Installation schema for app " . $this->getAskAppResult()->name,
         ]);
     }
 
@@ -46,7 +49,8 @@ trait HasService{
      *
      * @return bool
      */
-    protected function isAppVersion(): bool{
+    protected function isAppVersion(): bool
+    {
         return static::$__service_name == 'app_version';
     }
 
@@ -55,7 +59,8 @@ trait HasService{
      *
      * @return bool
      */
-    protected function isTenant(): bool{
+    protected function isTenant(): bool
+    {
         return static::$__service_name == 'tenant';
     }
 
@@ -65,7 +70,8 @@ trait HasService{
      * @param string $service_name
      * @return $this
      */
-    protected function setServiceName(string $service_name): self{
+    protected function setServiceName(string $service_name): self
+    {
         static::$__service_name = $service_name;
         return $this;
     }
@@ -75,7 +81,8 @@ trait HasService{
      *
      * @return $this The current instance of the class.
      */
-    protected function setServices(): self{
+    protected function setServices(): self
+    {
         static::$__services      = $this->getMicrotenantConfigResult()['microservices'];
         static::$__service_names = array_keys(static::$__services);
         return $this;
@@ -87,8 +94,9 @@ trait HasService{
      * @param string $service_name
      * @return int|bool The index of the service name or false if not found.
      */
-    protected function findService(string $service_name): int|bool{
-        return \array_search($this->getMicrotenantConfigResult()[$service_name],static::$__service_names);
+    protected function findService(string $service_name): int|bool
+    {
+        return \array_search($this->getMicrotenantConfigResult()[$service_name], static::$__service_names);
     }
 
     /**
@@ -98,7 +106,8 @@ trait HasService{
      *
      * @return $this
      */
-    protected function setChoosedService($choosed_service=null): self{
+    protected function setChoosedService($choosed_service = null): self
+    {
         static::$__choosed_config = $choosed_service ?? $this->getMicrotenantConfigResult()['microservices'][static::$__service_name];
         $this->setServicePath(static::$__choosed_config['path']);
         return $this;

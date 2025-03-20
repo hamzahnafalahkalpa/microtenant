@@ -1,6 +1,6 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models;
+namespace Hanafalah\MicroTenant\Models;
 
 use Stancl\Tenancy\{
     Contracts\TenantWithDatabase,
@@ -8,11 +8,11 @@ use Stancl\Tenancy\{
     Database\TenantCollection,
     Events as TenancyEvents
 };
-use Zahzah\LaravelHasProps\{
+use Hanafalah\LaravelHasProps\{
     Models\Scopes\HasCurrentScope,
     Concerns as PropsConcerns
 };
-use Zahzah\LaravelSupport\{
+use Hanafalah\LaravelSupport\{
     Concerns\Support as SupportConcern,
     Concerns\DatabaseConfiguration\HasModelConfiguration
 };
@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 
 class BaseModelTenant extends Tenant implements TenantWithDatabase
-{    
+{
     use HasDatabase;
     use HasModelConfiguration;
     use SupportConcern\HasDatabase;
@@ -39,20 +39,20 @@ class BaseModelTenant extends Tenant implements TenantWithDatabase
     protected $list         = [];
     protected $show         = [];
 
-    protected static function booted(): void{
+    protected static function booted(): void
+    {
         static::setConfigBaseModel('database.models');
         parent::booted();
-        
+
         static::addGlobalScope(new HasCurrentScope);
-        static::creating(function($query){
+        static::creating(function ($query) {
             PropsConcerns\HasCurrent::currentChecking($query);
-            
-            if(static::isSetUuid($query) && !isset($query->{$query->getUuidName()})) {
+
+            if (static::isSetUuid($query) && !isset($query->{$query->getUuidName()})) {
                 $query->uuid = Str::orderedUuid();
             }
-
         });
-        static::created(function($query){
+        static::created(function ($query) {
             PropsConcerns\HasCurrent::setOld($query);
         });
     }
@@ -69,21 +69,25 @@ class BaseModelTenant extends Tenant implements TenantWithDatabase
      * @throws Some_Exception_Class If the function encounters an exception.
      * @return string The table name.
      */
-    public static function getTableName(){ 
-        return with(new static)->getTable(); 
-    }    
+    public static function getTableName()
+    {
+        return with(new static)->getTable();
+    }
 
-    public function callCustomMethod(){
+    public function callCustomMethod()
+    {
         return ['Model'];
     }
 
-    protected function validatingHistory($query){
+    protected function validatingHistory($query)
+    {
         $validation = $query->getModel() <> $this->LogHistoryModel()::class;
         if ($query->getConnectionName() == "tenant" && microtenant() === null) $validation = false;
         return $validation;
     }
 
-    public function getTenantKeyName(): string{
+    public function getTenantKeyName(): string
+    {
         return 'id';
     }
 
@@ -92,15 +96,25 @@ class BaseModelTenant extends Tenant implements TenantWithDatabase
         return $this->getAttribute($this->getTenantKeyName());
     }
 
-    public function newCollection(array $models = []): TenantCollection{
+    public function newCollection(array $models = []): TenantCollection
+    {
         return new TenantCollection($models);
     }
     //END METHOD SECTION
 
     //EIGER SECTION
-    public function activity(){return $this->morphOneModel('Activity','reference');}
-    public function activities(){return $this->morphManyModel('Activity','reference');}
-    public function logHistories(){return $this->morphMany($this->LogHistoryModel(),"reference");}
+    public function activity()
+    {
+        return $this->morphOneModel('Activity', 'reference');
+    }
+    public function activities()
+    {
+        return $this->morphManyModel('Activity', 'reference');
+    }
+    public function logHistories()
+    {
+        return $this->morphMany($this->LogHistoryModel(), "reference");
+    }
     //END EIGER SECTION
 
     protected $dispatchesEvents = [

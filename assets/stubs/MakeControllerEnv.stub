@@ -2,7 +2,7 @@
 
 namespace {{NAMESPACE}};
 
-use Zahzah\LaravelSupport\Controllers\BaseController;
+use Hanafalah\LaravelSupport\Controllers\BaseController;
 
 class {{CLASS_NAME}} extends BaseController {
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Zahzah\MicroTenant\Concerns;
+namespace Hanafalah\MicroTenant\Concerns;
 
 trait HasGenerator
 {

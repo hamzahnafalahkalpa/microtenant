@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\PayloadMonitoring;
+namespace Hanafalah\MicroTenant\Models\PayloadMonitoring;
 
-use Zahzah\LaravelSupport\Models\PayloadMonitoring\PayloadMonitoring as SupportPayloadMonitoring;
-use Zahzah\MicroTenant\Concerns\Models\CentralTenantConnection;
+use Hanafalah\LaravelSupport\Models\PayloadMonitoring\PayloadMonitoring as SupportPayloadMonitoring;
+use Hanafalah\MicroTenant\Concerns\Models\CentralTenantConnection;
 
 class PayloadMonitoring extends SupportPayloadMonitoring
 {

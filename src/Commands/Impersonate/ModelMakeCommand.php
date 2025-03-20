@@ -1,16 +1,16 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
 use Illuminate\Support\Facades\File;
-use Zahzah\LaravelSupport\Concerns\Support\HasArray;
-use Zahzah\LaravelSupport\Concerns\Support\HasCache;
-use Zahzah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
+use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
+use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
 use Illuminate\Support\Str;
 
 class ModelMakeCommand extends EnvironmentCommand
 {
-    use HasCache, HasArray,generatorHelperPath;
+    use HasCache, HasArray, generatorHelperPath;
 
     /**
      * The name and signature of the console command.
@@ -39,23 +39,22 @@ class ModelMakeCommand extends EnvironmentCommand
     {
         // CHECKING EXISTING IMPERSONATE APP
         $this->isChenkingImpersonateApp($this->lib);
-        list($className,$inFolder) = $this->checkingInFolder();
+        list($className, $inFolder) = $this->checkingInFolder();
 
         $this->generatorCommandModel([
             "FULL_PATH"     => static::$__fullPath,
             "BASE_PATH"     => static::$__basePath,
-            "STUB_PATH"     => __DIR__."/Stubs/MakeModel.stub",
+            "STUB_PATH"     => __DIR__ . "/Stubs/MakeModel.stub",
             "CLASS_NAME"    => $className ?? $this->argument("name"),
             "SEGMENTATION"  => $this->lib,
-            "IN_FOLDER"     => call_user_func(function () use ($inFolder,$className) {
+            "IN_FOLDER"     => call_user_func(function () use ($inFolder, $className) {
                 return (isset($className)) ? $inFolder : null;
             })
         ]);
 
-        if($this->option('m')){
+        if ($this->option('m')) {
             $namePlural = Str::plural($className ?? $this->argument("name"));
             $this->call("impersonate:make-migration", ["name" => $namePlural]);
         }
     }
 }
-

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Zahzah\MicroTenant\Models\Tenant;
+namespace Hanafalah\MicroTenant\Models\Tenant;
 
 use Illuminate\Support\Str;
-use Zahzah\MicroTenant\Concerns\Models\CentralTenantConnection;
+use Hanafalah\MicroTenant\Concerns\Models\CentralTenantConnection;
 
 class CentralTenant extends Tenant{
     use CentralTenantConnection;

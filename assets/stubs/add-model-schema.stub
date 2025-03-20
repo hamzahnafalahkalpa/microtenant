@@ -2,7 +2,7 @@
 
 namespace {{NAMESPACE}};
 
-use Zahzah\LaravelSupport\{
+use Hanafalah\LaravelSupport\{
     Contracts\DataManagement,
     Supports\PackageManagement
 };

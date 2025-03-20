@@ -1,11 +1,12 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
 use Database\Seeders\Installation\InstallationSeeder;
-use Zahzah\ModuleVersion\Concerns\Commands\Installing\AppInstallPrompt;
+use Hanafalah\ModuleVersion\Concerns\Commands\Installing\AppInstallPrompt;
 
-class InstallMakeCommand extends EnvironmentCommand{
+class InstallMakeCommand extends EnvironmentCommand
+{
     use AppInstallPrompt;
 
     /**
@@ -26,7 +27,7 @@ class InstallMakeCommand extends EnvironmentCommand{
      * Execute the console command.
      */
     public function handle()
-    {        
+    {
         $this->call('support:install');
         $this->call('moduleversion:install');
         $this->call('feature:install');
@@ -34,7 +35,7 @@ class InstallMakeCommand extends EnvironmentCommand{
         $this->call('module-user:install');
         $this->call('module-workspace:install');
         $this->call('laravel-permission:install');
-        $provider = 'Zahzah\MicroTenant\MicroTenantServiceProvider';
+        $provider = 'Hanafalah\MicroTenant\MicroTenantServiceProvider';
 
         $this->comment('Installing Microtenant...');
         $this->callSilent('vendor:publish', [
@@ -78,14 +79,15 @@ class InstallMakeCommand extends EnvironmentCommand{
         $this->call('micro:add-application');
 
         //RUN INSTALLATION SEEDER
-        $this->call('db:seed', [            
+        $this->call('db:seed', [
             '--class' => InstallationSeeder::class
         ]);
-        
-        $this->comment('zahzah/microtenant installed successfully.');
+
+        $this->comment('hanafalah/microtenant installed successfully.');
     }
 
-    public function callCustomMethod(): array{
+    public function callCustomMethod(): array
+    {
         return ['Model'];
     }
 }

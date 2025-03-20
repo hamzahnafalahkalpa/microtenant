@@ -3,16 +3,17 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Zahzah\UserManagement\Models\UserReference;
-use Zahzah\MicroTenant\Models\Tenant\Tenant;
+use Hanafalah\UserManagement\Models\UserReference;
+use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 
 return new class extends Migration
 {
-   use Zahzah\LaravelSupport\Concerns\NowYouSeeMe;
+    use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
 
     private $__table;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->__table = app(config('database.models.UserReference', UserReference::class));
     }
 
@@ -25,16 +26,16 @@ return new class extends Migration
     {
         $table_name = $this->__table->getTable();
         $tenant = app(config('database.models.Tenant', Tenant::class));
-        if (!Schema::hasColumn($table_name,$tenant->getForeignKey())){
+        if (!Schema::hasColumn($table_name, $tenant->getForeignKey())) {
             Schema::table($table_name, function (Blueprint $table) use ($tenant) {
 
                 $table->foreignIdFor($tenant::class)->nullable(true)
-                      ->after('reference_id')->index()->constrained()
-                      ->cascadeOnUpdate()->restrictOnDelete();
-                
-                $table->foreignIdFor($tenant::class,'central_tenant_id')->nullable(true)
-                      ->after($tenant->getForeignKey())->index()->constrained($tenant->getTable())
-                      ->cascadeOnUpdate()->restrictOnDelete();
+                    ->after('reference_id')->index()->constrained()
+                    ->cascadeOnUpdate()->restrictOnDelete();
+
+                $table->foreignIdFor($tenant::class, 'central_tenant_id')->nullable(true)
+                    ->after($tenant->getForeignKey())->index()->constrained($tenant->getTable())
+                    ->cascadeOnUpdate()->restrictOnDelete();
             });
         }
     }

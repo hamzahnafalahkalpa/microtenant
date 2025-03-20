@@ -1,11 +1,12 @@
 <?php
 
-namespace Zahzah\MicroTenant\Middlewares;
+namespace Hanafalah\MicroTenant\Middlewares;
 
 use Closure;
-use Zahzah\ApiHelper\Facades\ApiAccess;
+use Hanafalah\ApiHelper\Facades\ApiAccess;
 
-class MicroAccess {
+class MicroAccess
+{
     /**
      * Handle an incoming request.
      *
@@ -14,9 +15,9 @@ class MicroAccess {
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle($request, Closure $next)
-    { 
+    {
         $api_access = ApiAccess::getApiAccess();
-        if (isset($api_access)){
+        if (isset($api_access)) {
             return $next($request);
         }
     }

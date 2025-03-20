@@ -1,9 +1,10 @@
 <?php
 
-namespace Zahzah\MicroTenant\Concerns\Tenant;
+namespace Hanafalah\MicroTenant\Concerns\Tenant;
 
-trait HasCentralTenant{
-    protected static string $__central_foreign_id = 'central_tenant_id';   
+trait HasCentralTenant
+{
+    protected static string $__central_foreign_id = 'central_tenant_id';
 
     /**
      * Initialize the trait.
@@ -13,13 +14,17 @@ trait HasCentralTenant{
      *
      * @return void
      */
-    public function initializeHasCentralTenant(){
+    public function initializeHasCentralTenant()
+    {
         $this->mergeFillable([
             static::$__central_foreign_id,
         ]);
     }
 
     //EIGER SECTION
-    public function centralTenant(){return $this->belongsToModel('Tenant')->central();}
+    public function centralTenant()
+    {
+        return $this->belongsToModel('Tenant')->central();
+    }
     //END EIGER SECTION
 }

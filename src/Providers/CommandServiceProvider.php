@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Zahzah\MicroTenant\Providers;
+namespace Hanafalah\MicroTenant\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Zahzah\MicroTenant\Commands as Commands;
+use Hanafalah\MicroTenant\Commands as Commands;
 
 class CommandServiceProvider extends ServiceProvider
 {
@@ -37,8 +37,9 @@ class CommandServiceProvider extends ServiceProvider
     ];
 
 
-    public function register(){
-        $this->commands(config('micro-tenant.commands',$this->commands));
+    public function register()
+    {
+        $this->commands(config('micro-tenant.commands', $this->commands));
     }
     /**
      * Get the services provided by the provider.

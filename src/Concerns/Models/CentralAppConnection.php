@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Zahzah\MicroTenant\Concerns\Models;
+namespace Hanafalah\MicroTenant\Concerns\Models;
 
-use Zahzah\MicroTenant\Facades\MicroTenant;
+use Hanafalah\MicroTenant\Facades\MicroTenant;
 
 trait CentralAppConnection
 {
     use Connection;
-    
-    public function initializeCentralAppConnection(){        
+
+    public function initializeCentralAppConnection()
+    {
         $this->connection = config('database.connection_central_app_name');
     }
 

@@ -1,11 +1,12 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\User;
+namespace Hanafalah\MicroTenant\Models\User;
 
-use Zahzah\ApiHelper\Concerns\Token\HasApiTokens;
-use Zahzah\MicroTenant\Concerns\Models\CentralConnection;
-use Zahzah\ModuleUser\Models\User\User as ModuleUser;
+use Hanafalah\ApiHelper\Concerns\Token\HasApiTokens;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\ModuleUser\Models\User\User as ModuleUser;
 
-class User extends ModuleUser{
+class User extends ModuleUser
+{
     use HasApiTokens, CentralConnection;
 }

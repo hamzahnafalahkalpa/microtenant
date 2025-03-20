@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\MicroTenant\Concerns\Tenant;
+namespace Hanafalah\MicroTenant\Concerns\Tenant;
 
-trait HasTenant{
+trait HasTenant
+{
     /**
      * Initialize the trait.
      *
@@ -11,13 +12,17 @@ trait HasTenant{
      *
      * @return void
      */
-    public function initializeHasProps(){
+    public function initializeHasProps()
+    {
         $this->mergeFillable([
             $this->TenantModel()->getForeignKey()
         ]);
     }
 
     //EIGER SECTION
-    public function tenant(){return $this->belongsToModel('Tenant');}
+    public function tenant()
+    {
+        return $this->belongsToModel('Tenant');
+    }
     //END EIGER SECTION
 }

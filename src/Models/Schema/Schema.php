@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\MicroTenant\Models\Schema;
+namespace Hanafalah\MicroTenant\Models\Schema;
 
-use Zahzah\MicroTenant\Concerns\Models\CentralConnection;
-use Zahzah\ModuleVersion\Models\Schema\Schema as SchemaSchema;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\ModuleVersion\Models\Schema\Schema as SchemaSchema;
 
 class Schema extends SchemaSchema{
     use CentralConnection;

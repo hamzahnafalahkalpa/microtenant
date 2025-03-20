@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
-use Zahzah\LaravelSupport\Concerns\Support\HasArray;
-use Zahzah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
+use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
 use Illuminate\Support\Str;
 
 class ControllerMakeCommand extends EnvironmentCommand
@@ -39,80 +39,78 @@ class ControllerMakeCommand extends EnvironmentCommand
      */
     public function handle()
     {
-        if($this->option('app')) $this->__field   = "application";
-        if($this->option('group')) $this->__field = "group";
+        if ($this->option('app')) $this->__field   = "application";
+        if ($this->option('group')) $this->__field = "group";
 
         // CHECKING EXISTING IMPERSONATE APP
-        $this->isChenkingImpersonateApp($this->lib,$this->__field);
-        list($className,$inFolder) = $this->checkingInFolder();
+        $this->isChenkingImpersonateApp($this->lib, $this->__field);
+        list($className, $inFolder) = $this->checkingInFolder();
 
-        if($this->option('environment') || $this->option("full")){
+        if ($this->option('environment') || $this->option("full")) {
             $this->generatorCommandController([
                 "IS_ENVIRONMENT"     => true,
                 "FULL_PATH"          => static::$__fullPath,
                 "BASE_PATH"          => static::$__basePath,
-                "STUB_PATH"          => __DIR__."/Stubs/MakeController.stub",
+                "STUB_PATH"          => __DIR__ . "/Stubs/MakeController.stub",
                 "CLASS_NAME"         => $className ?? $this->argument("name"),
                 "SEGMENTATION"       => $this->lib,
                 "EXTENDED_CLASS"     => null,
                 "NAMESPACE_EXTENDED" => null,
-                "IN_FOLDER"          => call_user_func(function () use ($inFolder,$className) {
+                "IN_FOLDER"          => call_user_func(function () use ($inFolder, $className) {
                     return (isset($className)) ? $inFolder : null;
                 }),
             ]);
         }
 
-        if($this->option("apiResource") || $this->option("full")) {
+        if ($this->option("apiResource") || $this->option("full")) {
             $segments    = explode('/', $this->argument("name"));
-            $lastSegment = strtolower(end($segments))."Request";
+            $lastSegment = strtolower(end($segments)) . "Request";
             $request     = Str::plural($lastSegment);
-           foreach(["viewRequest","showRequest","storeRequest","updateRequest","deleteRequest"] as $request){
-            $this->generatorCommandRequest([
-                "FULL_PATH"     => static::$__fullPath,
-                "BASE_PATH"     => static::$__basePath,
-                "CLASS_NAME"    => $request,
-                "FOLDER_NAME"   => Str::plural($lastSegment),
-                "SEGMENTATION"  => "request",
-            ]);
-           }
+            foreach (["viewRequest", "showRequest", "storeRequest", "updateRequest", "deleteRequest"] as $request) {
+                $this->generatorCommandRequest([
+                    "FULL_PATH"     => static::$__fullPath,
+                    "BASE_PATH"     => static::$__basePath,
+                    "CLASS_NAME"    => $request,
+                    "FOLDER_NAME"   => Str::plural($lastSegment),
+                    "SEGMENTATION"  => "request",
+                ]);
+            }
         }
 
         $this->generatorCommandController([
             "FULL_PATH"     => static::$__fullPath,
             "BASE_PATH"     => static::$__basePath,
-            "STUB_PATH"     => __DIR__."/Stubs/MakeController.stub",
+            "STUB_PATH"     => __DIR__ . "/Stubs/MakeController.stub",
             "CLASS_NAME"    => $className ?? $this->argument("name"),
             "SEGMENTATION"  => $this->lib,
-            "IN_FOLDER"     => call_user_func(function () use ($inFolder,$className) {
+            "IN_FOLDER"     => call_user_func(function () use ($inFolder, $className) {
                 return (isset($className)) ? $inFolder : null;
             }),
-            "EXTENDED_CLASS" => call_user_func(function() use ($className){
-                return ($this->option("environment") || $this->option("full")) ? "Environment".$className ?? $this->argument("name") : "BaseController";
+            "EXTENDED_CLASS" => call_user_func(function () use ($className) {
+                return ($this->option("environment") || $this->option("full")) ? "Environment" . $className ?? $this->argument("name") : "BaseController";
             }),
-            "IS_API_RESOURCE"    => call_user_func(function() {
+            "IS_API_RESOURCE"    => call_user_func(function () {
                 return ($this->option("apiResource") || $this->option("full")) ? true : null;
             }),
-            "NAMESPACE_EXTENDED" => call_user_func(function() use ($className) {
-                    $namespaceReq = static::$__basePath."/src/". static::$__impersonateCache->{$this->__field ?? "tenant"}->config["libs"]['request']."/".Str::plural(strtolower($className ?? $this->argument("name"))."Request");
-                    $namespaceReq = str_replace('/', '\\', $namespaceReq);
-                    if(!$this->option("environment") && !$this->option("apiResource") && !$this->option("full")) {
-                        return "use Zahzah\LaravelSupport\Controllers\BaseController;";
-                    }else {
-                        if($this->option("full")) {
-                            $extendedClass = null;
-                        }else {
-                            $extendedClass = "use Zahzah\LaravelSupport\Controllers\BaseController;";
-                        }
-                        return "
+            "NAMESPACE_EXTENDED" => call_user_func(function () use ($className) {
+                $namespaceReq = static::$__basePath . "/src/" . static::$__impersonateCache->{$this->__field ?? "tenant"}->config["libs"]['request'] . "/" . Str::plural(strtolower($className ?? $this->argument("name")) . "Request");
+                $namespaceReq = str_replace('/', '\\', $namespaceReq);
+                if (!$this->option("environment") && !$this->option("apiResource") && !$this->option("full")) {
+                    return "use Hanafalah\LaravelSupport\Controllers\BaseController;";
+                } else {
+                    if ($this->option("full")) {
+                        $extendedClass = null;
+                    } else {
+                        $extendedClass = "use Hanafalah\LaravelSupport\Controllers\BaseController;";
+                    }
+                    return "
 {$extendedClass}
 use {$namespaceReq}\{
     viewRequest,showRequest,storeRequest,updateRequest,deleteRequest
 };
                             ";
-                    }
+                }
             }),
         ]);
-        
     }
 }
-

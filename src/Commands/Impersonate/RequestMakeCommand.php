@@ -1,16 +1,16 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
 use Illuminate\Support\Facades\File;
-use Zahzah\LaravelSupport\Concerns\Support\HasArray;
-use Zahzah\LaravelSupport\Concerns\Support\HasCache;
-use Zahzah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
+use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
+use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
 use Illuminate\Support\Str;
 
 class RequestMakeCommand extends EnvironmentCommand
 {
-    use HasCache, HasArray,generatorHelperPath;
+    use HasCache, HasArray, generatorHelperPath;
 
     /**
      * The name and signature of the console command.
@@ -38,18 +38,17 @@ class RequestMakeCommand extends EnvironmentCommand
     {
         // CHECKING EXISTING IMPERSONATE APP
         $this->isChenkingImpersonateApp($this->lib);
-        list($className,$inFolder) = $this->checkingInFolder();
+        list($className, $inFolder) = $this->checkingInFolder();
 
         $this->generatorCommandRequest([
             "FULL_PATH"     => static::$__fullPath,
             "BASE_PATH"     => static::$__basePath,
             "CLASS_NAME"    => $className ?? $this->argument("name"),
-            "FOLDER_NAME"   => Str::plural(strtolower($this->argument("name"))."Request"),
+            "FOLDER_NAME"   => Str::plural(strtolower($this->argument("name")) . "Request"),
             "SEGMENTATION"  => $this->lib,
-            "IN_FOLDER"     => call_user_func(function () use ($className,$inFolder) {
+            "IN_FOLDER"     => call_user_func(function () use ($className, $inFolder) {
                 return (isset($className)) ? $inFolder : null;
             }),
         ]);
     }
 }
-

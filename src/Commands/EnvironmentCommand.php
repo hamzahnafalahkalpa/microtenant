@@ -1,14 +1,14 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands;
+namespace Hanafalah\MicroTenant\Commands;
 
-use Zahzah\MicroTenant\Concerns\Commands\Tenant;
-use Zahzah\LaravelSupport\{
+use Hanafalah\MicroTenant\Concerns\Commands\Tenant;
+use Hanafalah\LaravelSupport\{
     Commands\EnvironmentCommand as CommandsEnvironmentCommand
 };
-use Zahzah\MicroTenant\FileRepository;
-use Zahzah\ModuleVersion\Concerns\Commands\HasGeneratorAction;
-use Zahzah\ModuleVersion\Concerns\Commands\Initialize;
+use Hanafalah\MicroTenant\FileRepository;
+use Hanafalah\ModuleVersion\Concerns\Commands\HasGeneratorAction;
+use Hanafalah\ModuleVersion\Concerns\Commands\Initialize;
 
 class EnvironmentCommand extends CommandsEnvironmentCommand
 {
@@ -23,10 +23,11 @@ class EnvironmentCommand extends CommandsEnvironmentCommand
      *
      * @return self The current instance of the class.
      */
-    protected function setup(): self{        
-        if ($this->notReady()){
+    protected function setup(): self
+    {
+        if ($this->notReady()) {
             $this->newLine();
-            $this->cardLine('Initialize Process',function(){
+            $this->cardLine('Initialize Process', function () {
                 $this->init()
                     ->setServiceName($this->getStaticServiceNameResult())
                     ->setChoosedService($this->getStaticServicesResult()[$this->getStaticServiceNameResult()])
@@ -35,7 +36,7 @@ class EnvironmentCommand extends CommandsEnvironmentCommand
             });
         }
         return $this;
-    }  
+    }
 
     /**
      * Initialize the environment command.
@@ -45,10 +46,11 @@ class EnvironmentCommand extends CommandsEnvironmentCommand
      *
      * @return $this
      */
-    protected function init(): self{
+    protected function init(): self
+    {
         //INITIALIZE SECTION
         $this->initConfig()
-            ->setConfig('micro-tenant',$this->__microtenant_config)
+            ->setConfig('micro-tenant', $this->__microtenant_config)
             ->setServices()
             ->setRepository(FileRepository::class)
             ->initialized();
@@ -60,11 +62,13 @@ class EnvironmentCommand extends CommandsEnvironmentCommand
      *
      * @return string
      */
-    protected function dir(): string{
-        return __DIR__.'/../';
+    protected function dir(): string
+    {
+        return __DIR__ . '/../';
     }
 
-    public function callCustomMethod(): array{
-        return ['Model','GeneratorPath'];
+    public function callCustomMethod(): array
+    {
+        return ['Model', 'GeneratorPath'];
     }
 }

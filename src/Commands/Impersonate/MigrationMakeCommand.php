@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
-use Zahzah\LaravelSupport\Concerns\Support\HasArray;
-use Zahzah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
+use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
 
 class MigrationMakeCommand extends EnvironmentCommand
 {
@@ -40,28 +40,28 @@ class MigrationMakeCommand extends EnvironmentCommand
         $tableName = ($pos !== false) ? substr($name, $pos + 3) : strtolower($name);
 
         $this->isChenkingImpersonateApp($this->lib);
-        list($className,$inFolder) = $this->checkingInFolder();
+        list($className, $inFolder) = $this->checkingInFolder();
 
         $this->generatorCommandMigration([
             "FULL_PATH"     => static::$__fullPath,
             "BASE_PATH"     => static::$__basePath,
-            "STUB_PATH"     => __DIR__."/Stubs/MakeMigration.stub",
+            "STUB_PATH"     => __DIR__ . "/Stubs/MakeMigration.stub",
             "CLASS_NAME"    => $tableName,
-            "SEGMENTATION"  =>"migration",
+            "SEGMENTATION"  => "migration",
             "FILE_NAME"     => $this->generateFileName($tableName),
-            "IN_FOLDER"     => call_user_func(function () use ($inFolder,$className) {
+            "IN_FOLDER"     => call_user_func(function () use ($inFolder, $className) {
                 return (isset($className)) ? $inFolder : null;
             })
         ]);
     }
 
-    private function generateFileName($tableName) {
+    private function generateFileName($tableName)
+    {
         $nameMigration = $this->checkingInFolder(false);
         $timestamp     = date('Y_m_d_His');
         $nameMigration = (isset($nameMigration[0])) ? $nameMigration[0] : $tableName;
-        $description   = "create_table_to_".$nameMigration;
+        $description   = "create_table_to_" . $nameMigration;
         $fileName      = $timestamp . '_' . $description;
         return $fileName;
     }
 }
-

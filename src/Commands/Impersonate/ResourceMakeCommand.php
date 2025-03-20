@@ -1,14 +1,14 @@
 <?php
 
-namespace Zahzah\MicroTenant\Commands\Impersonate;
+namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
-use Zahzah\LaravelSupport\Concerns\Support\HasArray;
-use Zahzah\LaravelSupport\Concerns\Support\HasCache;
-use Zahzah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
+use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
+use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\MicroTenant\Commands\Impersonate\Concern\generatorHelperPath;
 
 class ResourceMakeCommand extends EnvironmentCommand
 {
-    use HasCache, HasArray,generatorHelperPath;
+    use HasCache, HasArray, generatorHelperPath;
 
     /**
      * The name and signature of the console command.
@@ -36,17 +36,16 @@ class ResourceMakeCommand extends EnvironmentCommand
     {
         // CHECKING EXISTING IMPERSONATE APP
         $this->isChenkingImpersonateApp($this->lib);
-        list($className,$inFolder) = $this->checkingInFolder();
+        list($className, $inFolder) = $this->checkingInFolder();
 
         $this->generatorCommandResource([
             "FULL_PATH"     => static::$__fullPath,
             "BASE_PATH"     => static::$__basePath,
             "CLASS_NAME"    => $className ?? $this->argument("name"),
             "SEGMENTATION"  => $this->lib,
-            "IN_FOLDER"     => call_user_func(function () use ($className,$inFolder) {
+            "IN_FOLDER"     => call_user_func(function () use ($className, $inFolder) {
                 return (isset($className)) ? $inFolder : null;
             }),
         ]);
     }
 }
-

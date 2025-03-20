@@ -1,14 +1,15 @@
 <?php
 
-namespace Zahzah\MicroTenant\Concerns\Commands;
+namespace Hanafalah\MicroTenant\Concerns\Commands;
 
 use Illuminate\Support\Facades\Artisan;
-use Zahzah\ModuleVersion\Concerns\Commands\HasGeneratorAction as CommandsHasGeneratorAction;
-use Zahzah\LaravelStub\Facades\Stub;
+use Hanafalah\ModuleVersion\Concerns\Commands\HasGeneratorAction as CommandsHasGeneratorAction;
+use Hanafalah\LaravelStub\Facades\Stub;
 use Illuminate\Support\Str;
 use Symfony\Component\Filesystem\Filesystem;
 
-trait HasGeneratorAction{
+trait HasGeneratorAction
+{
     use CommandsHasGeneratorAction;
 
     protected $__tenant_model;
@@ -21,10 +22,11 @@ trait HasGeneratorAction{
      *
      * @return static
      */
-    protected function askAppVersion(): self{        
+    protected function askAppVersion(): self
+    {
         $answer = $this->ask('Please enter the application name to be used ?');
         $this->__ask_app_version = isset($answer);
-        if ($this->__ask_app_version){
+        if ($this->__ask_app_version) {
             $answer_repo = $this->confirm('Do you want create a repository ?', true);
             if ($answer_repo) {
                 $slug = $this->ask('Repository slug');
@@ -44,24 +46,26 @@ trait HasGeneratorAction{
             $module_version_app = config('module-version.application');
 
             $namespace = \class_name_builder($answer);
-            $tenant->path        = $module_version_app['path'].'/'.$namespace;
-            $tenant->provider    = $module_version_app['namespace'].'\\'.$namespace.'\\'.$namespace.'ServiceProvider';
+            $tenant->path        = $module_version_app['path'] . '/' . $namespace;
+            $tenant->provider    = $module_version_app['namespace'] . '\\' . $namespace . '\\' . $namespace . 'ServiceProvider';
             $tenant->with_source = $this->isNeedSource();
-            $tenant->config_path = $this->withSource().'/'.$module_version_app['generate']['config']['path'].'/config.php';
+            $tenant->config_path = $this->withSource() . '/' . $module_version_app['generate']['config']['path'] . '/config.php';
             if (isset($repo)) $tenant->vcs_remote = $repo['links']['clone'][0]['href'];
             $tenant->save();
         }
         return $this;
     }
 
-    protected function callProvider(){
-        Artisan::call("micro:make-provider",[
+    protected function callProvider()
+    {
+        Artisan::call("micro:make-provider", [
             "package-name" => $this->getStaticPackageNameResult()
         ]);
     }
 
-    protected function callInterface(){
-        Artisan::call('micro:make-interface',[
+    protected function callInterface()
+    {
+        Artisan::call('micro:make-interface', [
             "package-name" => $this->getStaticPackageNameResult(),
             "--name"       => $this->getStaticPackageNameResult()
         ]);
@@ -72,7 +76,8 @@ trait HasGeneratorAction{
      *
      * @return string The path to the stub.
      */
-    protected function getAddInstallationSchemaStubPath(): string{
+    protected function getAddInstallationSchemaStubPath(): string
+    {
         return 'MicroTenantStubs/add-installation-schema.stub';
     }
 
@@ -91,10 +96,11 @@ trait HasGeneratorAction{
      * - `SUPPORT_PATH`: The path of the supports.
      * - `SERVICE_NAME`: The name of the service.
      */
-    protected function generateClass(): void{
-        $this->cardLine('Generating Classes',function(){
-            Stub::init($this->getClassStubPath(),[
-                'ID'                => function(){
+    protected function generateClass(): void
+    {
+        $this->cardLine('Generating Classes', function () {
+            Stub::init($this->getClassStubPath(), [
+                'ID'                => function () {
                     return $this->__tenant_model->getKey() ?? $this->__ask_central_tenant->getKey() ?? $this->__app_tenant->getKey();
                     // if ($this->isTenant()){
                     //     if (isset($this->__tenant_model)) return $this->__tenant_model->getKey();
@@ -109,17 +115,18 @@ trait HasGeneratorAction{
                 'CONTRACT_PATH'     => $this->contractsGeneratorPath(),
                 'SUPPORT_PATH'      => $this->supportsGeneratorPath(),
                 'SERVICE_NAME'      => $this->getStaticServiceNameResult()
-            ])->saveTo($this->getGenerateLocation(),\class_basename($this->getStaticPackageNameResult()).'.php');
+            ])->saveTo($this->getGenerateLocation(), \class_basename($this->getStaticPackageNameResult()) . '.php');
         });
     }
 
-    protected function generateComposer(): void{
-        $this->cardLine('Generating Composer',function(){
+    protected function generateComposer(): void
+    {
+        $this->cardLine('Generating Composer', function () {
             $path = $this->getGenerateLocation();
-            if ($this->isNeedSource()) $path = \str_replace('/src','',$path);
+            if ($this->isNeedSource()) $path = \str_replace('/src', '', $path);
             $app_namespace = 'app_version';
             $requires = [];
-            if ($this->isTenant()){
+            if ($this->isTenant()) {
                 $author_package = class_name_builder(!isset($this->__tenant_model) ? $this->__ask_app->name : $this->__ask_central_tenant->name);
                 $requires = [
                     [
@@ -131,50 +138,50 @@ trait HasGeneratorAction{
                         "author"  => Str::lower(class_name_builder($this->__ask_app->name))
                     ]
                 ];
-            }else{
+            } else {
                 $author_package = config("micro-tenant.microservices.$app_namespace.namespace");
             }
 
-            Stub::init($this->getComposerStubPath(),[
+            Stub::init($this->getComposerStubPath(), [
                 'AUTHOR'                  => Str::lower($author_package),
                 'PACKAGE_NAME'            => $this->getStaticPackageNameResult(),
                 'LOWER_SECOND_NAMESPACE'  => \strtolower($this->getStaticPackageNameResult()),
                 'PROVIDER_PATH'           => $this->providerGeneratorPath(),
-                'AUTHOR_NAME'             => 'zahzah',
+                'AUTHOR_NAME'             => 'hanafalah',
                 'AUTHOR_MAIL'             => 'hamzahnuralfalah@gmail.com',
-                'NAMESPACE'               => $author_package.'\\\\'.Str::replace('\\','\\\\',$this->getStaticPackageNameResult()),
+                'NAMESPACE'               => $author_package . '\\\\' . Str::replace('\\', '\\\\', $this->getStaticPackageNameResult()),
                 'VERSION_PATH'            => $this->isNeedSource() ? 'src/' : '/',
-                'REPOSITORIES'            => function() use ($path, $requires){
-                    if ($this->isTenant() && isset($this->__tenant_model) && $this->__tenant_model->flag == $this->__tenant_model::FLAG_TENANT){
-                        $fs = new Filesystem();                        
+                'REPOSITORIES'            => function () use ($path, $requires) {
+                    if ($this->isTenant() && isset($this->__tenant_model) && $this->__tenant_model->flag == $this->__tenant_model::FLAG_TENANT) {
+                        $fs = new Filesystem();
                         $stubs = [];
                         foreach ($requires as $key => $require) {
-                            $relativePath = $fs->makePathRelative(base_path($require['model']->path),realpath($path));
-                            $stubs[] = Stub::init($this->getComposerRepoStubPath(),[
+                            $relativePath = $fs->makePathRelative(base_path($require['model']->path), realpath($path));
+                            $stubs[] = Stub::init($this->getComposerRepoStubPath(), [
                                 'PACKAGE_AUTHOR' => $require['author'],
                                 'PACKAGE_NAME'   => \strtolower($require['model']->name),
                                 'PACKAGE_PATH'   => $relativePath
                             ]);
                         }
-                        return implode(",\n\t\t",$stubs);
-                    }else{
+                        return implode(",\n\t\t", $stubs);
+                    } else {
                         return '';
                     }
                 },
-                'REQUIRE_DEV' => function() use ($requires){
-                    if ($this->isTenant()){
+                'REQUIRE_DEV' => function () use ($requires) {
+                    if ($this->isTenant()) {
                         $content = (isset($this->__tenant_model) && $this->__tenant_model->flag == $this->__tenant_model::FLAG_TENANT)
-                            ? '"'.$requires[1]['author'].'/'.\strtolower($this->__ask_central_tenant->name).'" : "1.x"'
-                            : '"'.$requires[0]['author'].'/'.\strtolower($requires[0]['model']->name).'" : "1.x"';
-                        
-                        return Stub::init($this->getComposerRequireStubPath(),[
+                            ? '"' . $requires[1]['author'] . '/' . \strtolower($this->__ask_central_tenant->name) . '" : "1.x"'
+                            : '"' . $requires[0]['author'] . '/' . \strtolower($requires[0]['model']->name) . '" : "1.x"';
+
+                        return Stub::init($this->getComposerRequireStubPath(), [
                             'CONTENT' => $content
                         ]);
-                    }else{
+                    } else {
                         return '';
                     }
                 }
-            ])->saveTo($path,'composer.json');
+            ])->saveTo($path, 'composer.json');
         });
     }
 }
