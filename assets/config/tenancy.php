@@ -38,6 +38,10 @@ return [
     /**
      * Database tenancy config. Used by DatabaseTenancyBootstrapper.
      */
+    'libs' => [
+        'model' => 'Models',
+        'contract' => 'Contracts'
+    ],
     'database' => [
         'central_connection' => env('DB_CONNECTION', 'central'),
 
