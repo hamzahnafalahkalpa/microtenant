@@ -80,6 +80,10 @@ return [
          */
         'version_pattern' => '1.^'
     ],
+    'libs' => [
+        'model' => 'Models',
+        'contract' => 'Contracts'
+    ],
     'database' => [
         'central_tenant'   => [
             'prefix' => 'central_tenant_',
