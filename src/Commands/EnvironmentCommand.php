@@ -2,58 +2,20 @@
 
 namespace Hanafalah\MicroTenant\Commands;
 
-use Hanafalah\MicroTenant\Concerns\Commands\Tenant;
 use Hanafalah\LaravelSupport\{
     Commands\EnvironmentCommand as CommandsEnvironmentCommand
 };
-use Hanafalah\MicroTenant\FileRepository;
-use Hanafalah\ModuleVersion\Concerns\Commands\HasGeneratorAction;
-use Hanafalah\ModuleVersion\Concerns\Commands\Initialize;
 
 class EnvironmentCommand extends CommandsEnvironmentCommand
 {
-    use Tenant\HasService;
-    use Initialize;
-    use HasGeneratorAction;
-    public $__microtenant_config = [];
+    public array $__micro_tenant_config = [];
 
-    /**
-     * Setups the process by initializing the class and setting the service name
-     * and package name from the command arguments.
-     *
-     * @return self The current instance of the class.
-     */
-    protected function setup(): self
-    {
-        if ($this->notReady()) {
-            $this->newLine();
-            $this->cardLine('Initialize Process', function () {
-                $this->init()
-                    ->setServiceName($this->getStaticServiceNameResult())
-                    ->setChoosedService($this->getStaticServicesResult()[$this->getStaticServiceNameResult()])
-                    ->setPackageName($this->argument('package-name'))
-                    ->setServiceFilePath($this->getStaticPackageNameResult());
-            });
-        }
-        return $this;
-    }
-
-    /**
-     * Initialize the environment command.
-     *
-     * This method is called right after the command is created.
-     * The purpose of this method is to set the local config to "microtenant".
-     *
-     * @return $this
-     */
     protected function init(): self
     {
         //INITIALIZE SECTION
         $this->initConfig()
-            ->setConfig('micro-tenant', $this->__microtenant_config)
-            ->setServices()
-            ->setRepository(FileRepository::class)
-            ->initialized();
+            ->setConfig('micro-tenant', $this->__micro_tenant_config)
+            ->setServices();
         return $this;
     }
 

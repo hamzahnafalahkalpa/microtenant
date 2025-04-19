@@ -57,20 +57,12 @@ class BaseModelTenant extends Tenant implements TenantWithDatabase
         });
     }
 
-    public function shouldGenerateId(): bool
-    {
+    public function shouldGenerateId(): bool{
         return false;
     }
 
     //MUTATOR SECTION
-    /**
-     * Retrieves the table name for the current model.
-     *
-     * @throws Some_Exception_Class If the function encounters an exception.
-     * @return string The table name.
-     */
-    public static function getTableName()
-    {
+    public static function getTableName(){
         return with(new static)->getTable();
     }
 
@@ -81,6 +73,7 @@ class BaseModelTenant extends Tenant implements TenantWithDatabase
 
     protected function validatingHistory($query)
     {
+        dd();
         $validation = $query->getModel() <> $this->LogHistoryModel()::class;
         if ($query->getConnectionName() == "tenant" && microtenant() === null) $validation = false;
         return $validation;

@@ -24,7 +24,7 @@ class BaseModel extends SupportModels\SupportBaseModel
     }
     //END BOOTED SECTION
 
-    public function callCustomMethod()
+    public function callCustomMethod(): array
     {
         return ['Model'];
     }

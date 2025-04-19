@@ -13,13 +13,9 @@ abstract class MicroServiceProvider extends LaravelSupport\Providers\BaseService
     use Concerns\Providers\HasProviderInjection;
     use HasMultipleEnvironment;
 
-    /**
-     * Get the base path of the package.
-     *
-     * @return string
-     */
-    protected function dir(): string
-    {
+    // protected string $__migration_base_path   = 'database/migrations';
+
+    protected function dir(): string{
         return __DIR__ . '/';
     }
 
@@ -29,21 +25,28 @@ abstract class MicroServiceProvider extends LaravelSupport\Providers\BaseService
         return $this;
     }
 
-    protected function overrideLaravelSupportConfig(): self
-    {
+    protected function overrideLaravelSupportConfig(): self{
         $micro_tenant       = $this->__config['micro-tenant'];
         $payload_monitoring = $micro_tenant['payload_monitoring'];
         config()->set('laravel-support.payload-monitoring', $payload_monitoring);
         return $this;
     }
 
-    protected function overrideModuleVersionConfig(): self
-    {
-        $microservices = $this->__config['micro-tenant']['microservices'];
-        $app_version   = $microservices['app_version'];
-        config()->set('module-version.application', $app_version);
+    protected function overrideMergePackageConfig(): self{
+        $micro_tenant = $this->__config['micro-tenant'];
+        $patterns     = $micro_tenant['patterns'];
+        $config_patterns = config('laravel-package-generator.patterns');
+        config()->set('laravel-package-generator.patterns', array_merge($config_patterns, $patterns));
         return $this;
     }
+
+    // protected function overrideModuleVersionConfig(): self
+    // {
+    //     $microservices = $this->__config['micro-tenant']['microservices'];
+    //     $app_version   = $microservices['app_version'];
+    //     config()->set('module-version.application', $app_version);
+    //     return $this;
+    // }
 
     protected function overrideAuthConfig(): self
     {

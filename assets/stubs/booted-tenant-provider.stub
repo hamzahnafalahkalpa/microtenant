@@ -1,5 +1,0 @@
-            $model   = {{FACADES_PATH}}\{{CLASS_NAME}}::myModel($this->TenantModel()->find({{CLASS_NAME}}::ID));
-            $this->deferredProviders($model);
-            tenancy()->initialize($model);
-{{BOOTED_REGISTER}}
-

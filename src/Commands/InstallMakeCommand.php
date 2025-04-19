@@ -2,13 +2,8 @@
 
 namespace Hanafalah\MicroTenant\Commands;
 
-use Database\Seeders\Installation\InstallationSeeder;
-use Hanafalah\ModuleVersion\Concerns\Commands\Installing\AppInstallPrompt;
-
 class InstallMakeCommand extends EnvironmentCommand
 {
-    use AppInstallPrompt;
-
     /**
      * The name and signature of the console command.
      *
@@ -29,12 +24,12 @@ class InstallMakeCommand extends EnvironmentCommand
     public function handle()
     {
         $this->call('support:install');
-        $this->call('moduleversion:install');
-        $this->call('feature:install');
+        $this->call('generator:install');
         $this->call('stub:install');
         $this->call('module-user:install');
         $this->call('module-workspace:install');
         $this->call('laravel-permission:install');
+
         $provider = 'Hanafalah\MicroTenant\MicroTenantServiceProvider';
 
         $this->comment('Installing Microtenant...');
@@ -68,20 +63,6 @@ class InstallMakeCommand extends EnvironmentCommand
         ]);
 
         $this->info('✔️  Created migrations');
-
-        $migrations = $this->setMigrationBasePath(database_path('migrations'))->canMigrate();
-        $this->callSilent('migrate', [
-            '--path' => $migrations
-        ]);
-
-        $this->init();
-
-        $this->call('micro:add-application');
-
-        //RUN INSTALLATION SEEDER
-        $this->call('db:seed', [
-            '--class' => InstallationSeeder::class
-        ]);
 
         $this->comment('hanafalah/microtenant installed successfully.');
     }

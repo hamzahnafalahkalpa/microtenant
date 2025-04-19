@@ -18,16 +18,12 @@
     ],
     "require": {
         "stancl/tenancy": "^3.8",
-        "hanafalah/laravel-support": "1.x",
-        "hanafalah/api-helper": "1.x",
-        "hanafalah/laravel-feature": "1.x",
-        "hanafalah/laravel-has-props": "1.x",
-        "hanafalah/laravel-stub": "1.x",
-        "hanafalah/module-version": "1.x",
-        "hanafalah/module-user": "1.x",
-        "hanafalah/module-people": "1.x",
-        "hanafalah/module-workspace": "1.x",
-        "hanafalah/laravel-permission": "1.x",
+        "hanafalah/laravel-support": "1.x-dev as 1.0",
+        "hanafalah/api-helper": "1.x-dev as 1.0",
+        "hanafalah/laravel-feature": "1.x-dev as 1.0",
+        "hanafalah/module-user": "1.x-dev as 1.0",
+        "hanafalah/module-workspace": "1.x-dev as 1.0",
+        "hanafalah/laravel-permission": "1.x-dev as 1.0",
         "symfony/filesystem": "^7.1"
     },
     "extra": {
@@ -37,8 +33,6 @@
             ]
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": false,
     "config": {
         "allow-plugins": {
             "php-http/discovery": false

@@ -1,34 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Hanafalah\MicroTenant;
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Http\Kernel;
-use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
 use Hanafalah\MicroTenant\MicroTenant;
 use Hanafalah\ApiHelper\Facades\ApiAccess as FacadesApiAccess;
-use Hanafalah\LaravelSupport\Middlewares\Middleware;
 use Hanafalah\MicroTenant\Facades\MicroTenant as FacadesMicroTenant;
 
 class MicroTenantServiceProvider extends MicroServiceProvider
 {
     public function register()
     {
-        $this->__is_multitenancy = true;
+
         $this->registerMainClass(MicroTenant::class)
             ->registerCommandService(Providers\CommandServiceProvider::class)
-            ->registerEnvironment()
             ->registerConfig(function () {
                 $this->mergeConfigWith('tenancy', 'tenancy')
-                    ->setLocalConfig('micro-tenant');
-            })
-            ->registers([
+                     ->setLocalConfig('micro-tenant');
+            })->registers([
                 '*',
                 'Provider' => function () {
-                    $this->registerTenant();
                     $this->validProviders([
                         \app_path('Providers/MicroTenantServiceProvider.php') => 'App\Providers\MicroTenantServiceProvider',
                     ]);
@@ -41,32 +33,24 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                     $this->publishes([
                         $this->getAssetPath('stubs/provider-app.stub') => app_path('Providers/MicroTenantServiceProvider.php'),
                     ], 'providers');
-                },
-                'Services' => function () {
-                    $this->binds([
-                        Contracts\MicroTenant::class             => new MicroTenant(),
-                        Contracts\Models\Tenant::class           => function ($app) {
-                            return $app[MicroTenant::class]->tenant;
-                        },
-                        Contracts\FileRepositoryInterface::class => FileRepository::class
-                    ]);
                 }
-            ], ['Database', 'Model']);
+            ]);
+        $this->registerEnvironment();
     }
 
-    public function boot(Kernel $kernel)
+    public function boot()
     {
         $this->registerDatabase()->registerModel();
         $this->overrideTenantConfig()
             ->overrideLaravelSupportConfig()
-            ->overrideModuleVersionConfig()
+            ->overrideMergePackageConfig()
             ->overrideAuthConfig();
-        $this->app->booted(function ($app) use ($kernel) {
+        $this->app->booted(function () {
             Sanctum::usePersonalAccessTokenModel($this->PersonalAccessTokenModelInstance());
         });
 
         if (request()->headers->has('AppCode')) {
-            FacadesApiAccess::init()->accessOnLogin(function ($api_access) use ($kernel) {
+            FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
                 FacadesMicroTenant::onLogin($api_access);
             });
         } else {

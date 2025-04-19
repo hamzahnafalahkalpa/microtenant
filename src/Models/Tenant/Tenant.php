@@ -25,19 +25,18 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     use SoftDeletes, HasProps;
     use CentralConnection,
         HasDatabase,
-        // HasDataColumn,
         HasInternalKeys,
         TenantRun,
         InvalidatesResolverCache;
 
 
-    const FLAG_APP_TENANT     = '0';
-    const FLAG_CENTRAL_TENANT = '1';
-    const FLAG_TENANT         = '2';
+    const FLAG_APP_TENANT     = 'APP';
+    const FLAG_CENTRAL_TENANT = 'CENTRAL_TENANT';
+    const FLAG_TENANT         = 'TENANT';
 
     protected $fillable   = [
         'id','parent_id','name','uuid','reference_id','reference_type',
-        'flag','domain_id'
+        'flag','domain_id','props'
     ];
 
     protected static $modelsShouldPreventAccessingMissingAttributes = false;

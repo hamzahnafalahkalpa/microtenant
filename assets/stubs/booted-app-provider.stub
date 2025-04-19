@@ -1,2 +1,0 @@
-            $model   = {{FACADES_PATH}}\{{CLASS_NAME}}::myModel($this->AppModel()->find({{CLASS_NAME}}::ID));
-{{BOOTED_REGISTER}}

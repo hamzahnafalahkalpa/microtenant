@@ -1,9 +1,0 @@
-<?php
-
-namespace {{NAMESPACE}};
-
-{{NAMESPACE_EXTENDED}}
-
-class {{CLASS_NAME}} extends {{EXTENDED_CLASS}} {
-
-}

@@ -29,8 +29,7 @@ return new class extends Migration
         $table_name = $this->__table->getTableName();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
-                $appType = app(config('database.models.App', App::class));
-                $domain      = app(config('database.models.Domain', Domain::class));
+                $domain = app(config('database.models.Domain', Domain::class));
 
                 $table->id();
                 $table->string('uuid', 36)->nullable(false);

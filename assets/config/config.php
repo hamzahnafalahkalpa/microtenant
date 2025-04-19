@@ -5,73 +5,7 @@ use Hanafalah\MicroTenant\Supports\FileActivator;
 use Hanafalah\MicroTenant\Commands as Commands;
 
 return [
-    'dev_mode' => true,
-    'microservices' => [
-        'tenant'   => [
-            'namespace'  => env('MICROTENANT_TENANT_NAMESPACE', 'Tenants'),
-            'path'       => env('MICROTENANT_TENANT_PATH', 'Tenants'),
-            'generate' => [
-                'migration'       => ['path' => 'Database/Migrations', 'generate' => true],
-                'model'           => ['path' => 'Models', 'generate' => true],
-                'controller'      => ['path' => 'Controllers', 'generate' => true],
-                'provider'        => ['path' => 'Providers', 'generate' => true],
-                'config'          => ['path' => 'Config', 'generate' => true],
-                'contracts'       => ['path' => 'Contracts', 'generate' => true],
-                'concerns'        => ['path' => 'Concerns', 'generate' => true],
-                'command'         => ['path' => 'Commands', 'generate' => true],
-                'routes'          => ['path' => 'Routes', 'generate' => true],
-                'event'           => ['path' => 'Events', 'generate' => true],
-                'observer'        => ['path' => 'Observers', 'generate' => true],
-                'policies'        => ['path' => 'Policies', 'generate' => true],
-                'jobs'            => ['path' => 'Jobs', 'generate' => false],
-                'resource'        => ['path' => 'Transformers', 'generate' => false],
-                'seeder'          => ['path' => 'Database/Seeders', 'generate' => true],
-                'middleware'      => ['path' => 'Middleware', 'generate' => true],
-                'request'         => ['path' => 'Requests', 'generate' => true],
-                'assets'          => ['path' => 'Resources/assets', 'generate' => false],
-                'supports'        => ['path' => 'Supports', 'generate' => true],
-                'views'           => ['path' => 'Resources/views', 'generate' => true],
-                'schemas'         => ['path' => 'Schemas', 'generate' => true],
-                'facades'         => ['path' => 'Facades', 'generate' => true],
-                'ignore'          => ['path' => '', 'generate' => true]
-            ]
-        ],
-        'app_version'   => [
-            /**
-             * pattern for versioning, you can use 1.^, 1.0.^, 1.0.0, 
-             * but avoid using 1.0.0 because it will make schema installation become not optimal
-             */
-            'version_pattern' => '1.^',
-            'namespace'    => env('MICROTENANT_APP_NAMESPACE', 'Projects'),
-            'path'         => env('MICROTENANT_APP_PATH', 'app/Projects'),
-            'generate'     => [
-                'migration'       => ['path' => 'Database/Migrations', 'generate' => true],
-                'model'           => ['path' => 'Models', 'generate' => true],
-                'controller'      => ['path' => 'Controllers', 'generate' => true],
-                'provider'        => ['path' => 'Providers', 'generate' => true],
-                'config'          => ['path' => 'Config', 'generate' => true],
-                'contracts'       => ['path' => 'Contracts', 'generate' => true],
-                'concerns'        => ['path' => 'Concerns', 'generate' => true],
-                'command'         => ['path' => 'Commands', 'generate' => true],
-                'routes'          => ['path' => 'Routes', 'generate' => true],
-                'event'           => ['path' => 'Events', 'generate' => false],
-                'observer'        => ['path' => 'Observers', 'generate' => true],
-                'policies'        => ['path' => 'Policies', 'generate' => true],
-                'jobs'            => ['path' => 'Jobs', 'generate' => false],
-                'resource'        => ['path' => 'Transformers', 'generate' => false],
-                'seeder'          => ['path' => 'Database/Seeders', 'generate' => true],
-                'middleware'      => ['path' => 'Middleware', 'generate' => true],
-                'request'         => ['path' => 'Requests', 'generate' => true],
-                'assets'          => ['path' => 'Resources/assets', 'generate' => true],
-                'supports'        => ['path' => 'Supports', 'generate' => true],
-                'views'           => ['path' => 'Resources/views', 'generate' => true],
-                'schemas'         => ['path' => 'Schemas', 'generate' => true],
-                'facades'         => ['path' => 'Facades', 'generate' => true],
-                'ignore'          => ['path' => '', 'generate' => true]
-            ]
-        ]
-        //ADD OTHER SERVICES, WE NEED MAIN SERVICE TENANT, MODULE, AND APP VERSION ONLY
-    ],
+    'dev_mode'     => true,
     'login_schema' => null,
     'application'  => [
         /**
@@ -82,7 +16,9 @@ return [
     ],
     'libs' => [
         'model' => 'Models',
-        'contract' => 'Contracts'
+        'contract' => 'Contracts',
+        'schema' => 'Schemas',
+        'database' => 'Database'
     ],
     'database' => [
         'central_tenant'   => [
@@ -95,42 +31,21 @@ return [
             ]
         ],
         'models'  => [
-            'App'                         => MicroTenantModels\Application\App::class,
-            'ApiAccess'                   => MicroTenantModels\ApiAccess\ApiAccess::class,
-            'Schema'                      => MicroTenantModels\Schema\Schema::class,
-            'InstallationSchema'          => MicroTenantModels\Schema\InstallationSchema::class,
-            'Domain'                      => MicroTenantModels\Tenant\Domain::class,
-            'CentralTenant'               => MicroTenantModels\Tenant\CentralTenant::class,
-            'Tenant'                      => MicroTenantModels\Tenant\Tenant::class,
-            'CentralActivity'             => MicroTenantModels\Activity\CentralActivity::class,
-            'CentralActivityStatus'       => MicroTenantModels\Activity\CentralActivityStatus::class,
-            'CentralLogHistory'           => MicroTenantModels\LogHistory\CentralLogHistory::class,
-            'CentralModelHasRelation'     => MicroTenantModels\Relation\CentralModelHasRelation::class,
-            'Domain'                      => MicroTenantModels\Tenant\Domain::class,
-            'MasterFeature'               => MicroTenantModels\Feature\MasterFeature::class,
-            'ModelHasFeature'             => MicroTenantModels\Feature\ModelHasFeature::class,
-            'ModelHasVersion'             => MicroTenantModels\Version\ModelHasVersion::class,
-            'ModelHasApp'                 => MicroTenantModels\Application\ModelHasApp::class,
-            'PayloadMonitoring'           => MicroTenantModels\PayloadMonitoring\PayloadMonitoring::class,
-            'User'                        => MicroTenantModels\User\User::class,
-            'UserReference'               => MicroTenantModels\User\UserReference::class,
-            'PersonalAccessToken'         => MicroTenantModels\ApiAccess\PersonalAccessToken::class,
-            'Workspace'                   => MicroTenantModels\Workspace\Workspace::class,
-            'CentralAddress'              => MicroTenantModels\Regional\Address::class
+            //
         ],
         'connections' => [
             //THIS SETUP DEFAULT FOR MYSQL
             'central_connection' => [
-                'driver'         => env('DB_CENTRAL_DRIVER', 'mysql'),
-                'url'            => env('DB_CENTRAL_URL'),
-                'host'           => env('DB_CENTRAL_HOST', '127.0.0.1'),
-                'port'           => env('DB_CENTRAL_PORT', '3306'),
-                'database'       => env('DB_CENTRAL_DATABASE', 'central_database'),
-                'username'       => env('DB_CENTRAL_USERNAME', 'root'),
-                'password'       => env('DB_CENTRAL_PASSWORD', ''),
-                'unix_socket'    => env('DB_CENTRAL_SOCKET', ''),
-                'charset'        => env('DB_CENTRAL_CHARSET', 'utf8mb4'),
-                'collation'      => env('DB_CENTRAL_COLLATION', 'utf8mb4_unicode_ci'),
+                'driver'         => env('DB_DRIVER', 'mysql'),
+                'url'            => env('DB_URL'),
+                'host'           => env('DB_HOST', '127.0.0.1'),
+                'port'           => env('DB_PORT', '3306'),
+                'database'       => env('DB_DATABASE', 'central_database'),
+                'username'       => env('DB_USERNAME', 'root'),
+                'password'       => env('DB_PASSWORD', ''),
+                'unix_socket'    => env('DB_SOCKET', ''),
+                'charset'        => env('DB_CHARSET', 'utf8mb4'),
+                'collation'      => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
                 'prefix'         => '',
                 'prefix_indexes' => true,
                 'strict'         => true,
@@ -183,31 +98,105 @@ return [
         ],
         'central_tenants' => []
     ],
+    'patterns'      => [
+        'group'     => [
+            'published_at' => app_path('Groups'),
+            'generates'    => [
+                'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
+                'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
+                'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
+                'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
+                    'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
+                    'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
+                    '{{CLASS_BASENAME}}Environment' => ['generate' => true, 'stub' => 'project-EnvironmentServiceProvider.php.stub'],
+                    '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-provider.php.stub'],
+                ]],
+                'contract'        => ['type' => 'dir','path' => 'Contracts', 'generate' => true, 'stub' => null, 'files' => [
+                    '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'main-contract.php.stub'],
+                ]],
+                'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
+                'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
+                    'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
+                    'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
+                ]],
+                'route'           => ['type' => 'dir','path' => 'Routes', 'generate' => true, 'stub' => null, 'files' => []],
+                'event'           => ['type' => 'dir','path' => 'Events', 'generate' => false, 'stub' => null, 'files' => []],
+                'observer'        => ['type' => 'dir','path' => 'Observers', 'generate' => true, 'stub' => null, 'files' => []],
+                'policy'          => ['type' => 'dir','path' => 'Policies', 'generate' => true, 'stub' => null, 'files' => []],
+                'job'             => ['type' => 'dir','path' => 'Jobs', 'generate' => false, 'stub' => null, 'files' => []],
+                'resource'        => ['type' => 'dir','path' => 'Resources', 'generate' => false, 'stub' => null, 'files' => []],
+                'seeder'          => ['type' => 'dir','path' => 'Database/Seeders', 'generate' => true, 'stub' => null, 'files' => []],
+                'middleware'      => ['type' => 'dir','path' => 'Middleware', 'generate' => true, 'stub' => null, 'files' => []],
+                'request'         => ['type' => 'dir','path' => 'Requests', 'generate' => true, 'stub' => null, 'files' => []],
+                'support'         => ['type' => 'dir','path' => 'Supports', 'generate' => true, 'stub' => null, 'files' => [
+                    'PathRegistry' => ['generate' => true, 'stub' => 'PathRegistry.php.stub'],
+                    'LocalPath'    => ['generate' => true, 'stub' => 'LocalPath.php.stub']
+                ]],
+                'view'            => ['type' => 'dir','path' => 'Views', 'generate' => true, 'stub' => null, 'files' => []],
+                'schema'          => ['type' => 'dir','path' => 'Schemas', 'generate' => true, 'stub' => null, 'files' => []],
+                'facade'          => ['type' => 'dir','path' => 'Facades', 'generate' => true, 'stub' => null, 'files' => [
+                    '{{CLASS_BASENAME}}' => ['generate' => true, 'stub' => 'ModuleFacade.php.stub']
+                ]],
+                'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
+                    'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
+                ]],
+
+                //FILE
+                'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
+                '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-class.php.stub'],
+            ],
+        ],
+        'tenant'     => [
+            'published_at' => app_path('Tenants'),
+            'generates'    => [
+                'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
+                'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
+                'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
+                'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
+                    'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
+                    'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
+                    '{{CLASS_BASENAME}}Environment' => ['generate' => true, 'stub' => 'project-EnvironmentServiceProvider.php.stub'],
+                    '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-provider.php.stub'],
+                ]],
+                'contract'        => ['type' => 'dir','path' => 'Contracts', 'generate' => true, 'stub' => null, 'files' => [
+                    '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'main-contract.php.stub'],
+                ]],
+                'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
+                'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
+                    'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
+                    'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
+                ]],
+                'route'           => ['type' => 'dir','path' => 'Routes', 'generate' => true, 'stub' => null, 'files' => []],
+                'event'           => ['type' => 'dir','path' => 'Events', 'generate' => false, 'stub' => null, 'files' => []],
+                'observer'        => ['type' => 'dir','path' => 'Observers', 'generate' => true, 'stub' => null, 'files' => []],
+                'policy'          => ['type' => 'dir','path' => 'Policies', 'generate' => true, 'stub' => null, 'files' => []],
+                'job'             => ['type' => 'dir','path' => 'Jobs', 'generate' => false, 'stub' => null, 'files' => []],
+                'resource'        => ['type' => 'dir','path' => 'Resources', 'generate' => false, 'stub' => null, 'files' => []],
+                'seeder'          => ['type' => 'dir','path' => 'Database/Seeders', 'generate' => true, 'stub' => null, 'files' => []],
+                'middleware'      => ['type' => 'dir','path' => 'Middleware', 'generate' => true, 'stub' => null, 'files' => []],
+                'request'         => ['type' => 'dir','path' => 'Requests', 'generate' => true, 'stub' => null, 'files' => []],
+                'support'         => ['type' => 'dir','path' => 'Supports', 'generate' => true, 'stub' => null, 'files' => [
+                    'PathRegistry' => ['generate' => true, 'stub' => 'PathRegistry.php.stub'],
+                    'LocalPath'    => ['generate' => true, 'stub' => 'LocalPath.php.stub']
+                ]],
+                'view'            => ['type' => 'dir','path' => 'Views', 'generate' => true, 'stub' => null, 'files' => []],
+                'schema'          => ['type' => 'dir','path' => 'Schemas', 'generate' => true, 'stub' => null, 'files' => []],
+                'facade'          => ['type' => 'dir','path' => 'Facades', 'generate' => true, 'stub' => null, 'files' => [
+                    '{{CLASS_BASENAME}}' => ['generate' => true, 'stub' => 'ModuleFacade.php.stub']
+                ]],
+                'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
+                    'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
+                ]],
+
+                //FILE
+                'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
+                '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-class.php.stub'],
+            ],
+        ]
+    ],
     'commands' => [
-        Commands\AddApplicationMakeCommand::class,
         Commands\InstallMakeCommand::class,
-        Commands\ApiHelperInstallMakeCommand::class,
-        Commands\InterfaceMakeCommand::class,
-        Commands\TenantMakeCommand::class,
-        Commands\AddInstallationSchemaMakeCommand::class,
-        Commands\AddModelSchemaMakeCommand::class,
-        Commands\RunSchemaMakeCommand::class,
-        Commands\ProviderMakeCommand::class,
-        Commands\InstallImpersonateMakeCommand::class,
-        Commands\AddSchemaMakeCommand::class,
-        Commands\Impersonate\ImpersonateCommand::class,
-        Commands\Impersonate\MigrationMakeCommand::class,
-        Commands\Impersonate\ModelMakeCommand::class,
-        Commands\Impersonate\ControllerMakeCommand::class,
-        Commands\Impersonate\RequestMakeCommand::class,
-        Commands\Impersonate\ConcernMakeCommand::class,
-        Commands\Impersonate\MiddlewareMakeCommand::class,
-        Commands\Impersonate\PolicyMakeCommand::class,
-        Commands\Impersonate\ResourceMakeCommand::class,
-        Commands\Impersonate\ImpersonatePublishCommand::class,
-        Commands\Impersonate\ImpersonateAddProviderCommand::class,
-        Commands\Impersonate\ImpersonateMigrateCommand::class,
-        Commands\Impersonate\ImpersonateSeedCommand::class
+        Commands\AddTenantCommand::class,
     ],
     'payload_monitoring' => [
         'enabled'     => true,
