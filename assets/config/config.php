@@ -1,10 +1,10 @@
 <?php
 
 use Hanafalah\MicroTenant\Models as MicroTenantModels;
-use Hanafalah\MicroTenant\Supports\FileActivator;
 use Hanafalah\MicroTenant\Commands as Commands;
 
 return [
+    'enabled'      => true,
     'dev_mode'     => true,
     'login_schema' => null,
     'application'  => [
@@ -98,105 +98,117 @@ return [
         ],
         'central_tenants' => []
     ],
-    'patterns'      => [
-        'group'     => [
-            'published_at' => app_path('Groups'),
-            'generates'    => [
-                'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
-                'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
-                'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
-                'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
-                    'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
-                    'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
-                    '{{CLASS_BASENAME}}Environment' => ['generate' => true, 'stub' => 'project-EnvironmentServiceProvider.php.stub'],
-                    '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-provider.php.stub'],
-                ]],
-                'contract'        => ['type' => 'dir','path' => 'Contracts', 'generate' => true, 'stub' => null, 'files' => [
-                    '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'main-contract.php.stub'],
-                ]],
-                'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
-                'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
-                    'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
-                    'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
-                ]],
-                'route'           => ['type' => 'dir','path' => 'Routes', 'generate' => true, 'stub' => null, 'files' => []],
-                'event'           => ['type' => 'dir','path' => 'Events', 'generate' => false, 'stub' => null, 'files' => []],
-                'observer'        => ['type' => 'dir','path' => 'Observers', 'generate' => true, 'stub' => null, 'files' => []],
-                'policy'          => ['type' => 'dir','path' => 'Policies', 'generate' => true, 'stub' => null, 'files' => []],
-                'job'             => ['type' => 'dir','path' => 'Jobs', 'generate' => false, 'stub' => null, 'files' => []],
-                'resource'        => ['type' => 'dir','path' => 'Resources', 'generate' => false, 'stub' => null, 'files' => []],
-                'seeder'          => ['type' => 'dir','path' => 'Database/Seeders', 'generate' => true, 'stub' => null, 'files' => []],
-                'middleware'      => ['type' => 'dir','path' => 'Middleware', 'generate' => true, 'stub' => null, 'files' => []],
-                'request'         => ['type' => 'dir','path' => 'Requests', 'generate' => true, 'stub' => null, 'files' => []],
-                'support'         => ['type' => 'dir','path' => 'Supports', 'generate' => true, 'stub' => null, 'files' => [
-                    'PathRegistry' => ['generate' => true, 'stub' => 'PathRegistry.php.stub'],
-                    'LocalPath'    => ['generate' => true, 'stub' => 'LocalPath.php.stub']
-                ]],
-                'view'            => ['type' => 'dir','path' => 'Views', 'generate' => true, 'stub' => null, 'files' => []],
-                'schema'          => ['type' => 'dir','path' => 'Schemas', 'generate' => true, 'stub' => null, 'files' => []],
-                'facade'          => ['type' => 'dir','path' => 'Facades', 'generate' => true, 'stub' => null, 'files' => [
-                    '{{CLASS_BASENAME}}' => ['generate' => true, 'stub' => 'ModuleFacade.php.stub']
-                ]],
-                'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
-                    'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
-                ]],
-
-                //FILE
-                'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
-                '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-class.php.stub'],
+    'laravel-package-generator' => [
+        'patterns'      => [
+            'project'   => [
+                'generates'    => [
+                    'provider' => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
+                        '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => '../MicroTenantStubs/project-microtenant-main-provider.php.stub'],
+                    ]],
+                    '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => '../MicroTenantStubs/project-microtenant-main-class.php.stub'],
+                ]
             ],
+            'group'     => [
+                'published_at' => app_path('Groups'),
+                'generates'    => [
+                    'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
+                    'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
+                    'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
+                    'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
+                        'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
+                        'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
+                        '{{CLASS_BASENAME}}Environment' => ['generate' => true, 'stub' => 'project-EnvironmentServiceProvider.php.stub'],
+                        '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-provider.php.stub'],
+                    ]],
+                    'contract'        => ['type' => 'dir','path' => 'Contracts', 'generate' => true, 'stub' => null, 'files' => [
+                        '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'main-contract.php.stub'],
+                    ]],
+                    'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
+                    'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
+                        'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
+                        'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
+                    ]],
+                    'route'           => ['type' => 'dir','path' => 'Routes', 'generate' => true, 'stub' => null, 'files' => []],
+                    'event'           => ['type' => 'dir','path' => 'Events', 'generate' => false, 'stub' => null, 'files' => []],
+                    'observer'        => ['type' => 'dir','path' => 'Observers', 'generate' => true, 'stub' => null, 'files' => []],
+                    'policy'          => ['type' => 'dir','path' => 'Policies', 'generate' => true, 'stub' => null, 'files' => []],
+                    'job'             => ['type' => 'dir','path' => 'Jobs', 'generate' => false, 'stub' => null, 'files' => []],
+                    'resource'        => ['type' => 'dir','path' => 'Resources', 'generate' => false, 'stub' => null, 'files' => []],
+                    'seeder'          => ['type' => 'dir','path' => 'Database/Seeders', 'generate' => true, 'stub' => null, 'files' => []],
+                    'middleware'      => ['type' => 'dir','path' => 'Middleware', 'generate' => true, 'stub' => null, 'files' => []],
+                    'request'         => ['type' => 'dir','path' => 'Requests', 'generate' => true, 'stub' => null, 'files' => []],
+                    'support'         => ['type' => 'dir','path' => 'Supports', 'generate' => true, 'stub' => null, 'files' => [
+                        'PathRegistry' => ['generate' => true, 'stub' => 'PathRegistry.php.stub'],
+                        'LocalPath'    => ['generate' => true, 'stub' => 'LocalPath.php.stub']
+                    ]],
+                    'view'            => ['type' => 'dir','path' => 'Views', 'generate' => true, 'stub' => null, 'files' => []],
+                    'schema'          => ['type' => 'dir','path' => 'Schemas', 'generate' => true, 'stub' => null, 'files' => []],
+                    'facade'          => ['type' => 'dir','path' => 'Facades', 'generate' => true, 'stub' => null, 'files' => [
+                        '{{CLASS_BASENAME}}' => ['generate' => true, 'stub' => 'ModuleFacade.php.stub']
+                    ]],
+                    'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
+                        'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
+                    ]],
+    
+                    //FILE
+                    'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
+                    '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => '../MicroTenantStubs/project-microtenant-main-class.php.stub'],
+                ],
+            ],
+            'tenant'     => [
+                'published_at' => app_path('Tenants'),
+                'generates'    => [
+                    'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
+                    'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
+                    'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
+                    'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
+                        'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
+                        'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
+                        '{{CLASS_BASENAME}}Environment' => ['generate' => true, 'stub' => 'project-EnvironmentServiceProvider.php.stub'],
+                        '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-provider.php.stub'],
+                    ]],
+                    'contract'        => ['type' => 'dir','path' => 'Contracts', 'generate' => true, 'stub' => null, 'files' => [
+                        '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'main-contract.php.stub'],
+                    ]],
+                    'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
+                    'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
+                        'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
+                        'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
+                    ]],
+                    'route'           => ['type' => 'dir','path' => 'Routes', 'generate' => true, 'stub' => null, 'files' => []],
+                    'event'           => ['type' => 'dir','path' => 'Events', 'generate' => false, 'stub' => null, 'files' => []],
+                    'observer'        => ['type' => 'dir','path' => 'Observers', 'generate' => true, 'stub' => null, 'files' => []],
+                    'policy'          => ['type' => 'dir','path' => 'Policies', 'generate' => true, 'stub' => null, 'files' => []],
+                    'job'             => ['type' => 'dir','path' => 'Jobs', 'generate' => false, 'stub' => null, 'files' => []],
+                    'resource'        => ['type' => 'dir','path' => 'Resources', 'generate' => false, 'stub' => null, 'files' => []],
+                    'seeder'          => ['type' => 'dir','path' => 'Database/Seeders', 'generate' => true, 'stub' => null, 'files' => []],
+                    'middleware'      => ['type' => 'dir','path' => 'Middleware', 'generate' => true, 'stub' => null, 'files' => []],
+                    'request'         => ['type' => 'dir','path' => 'Requests', 'generate' => true, 'stub' => null, 'files' => []],
+                    'support'         => ['type' => 'dir','path' => 'Supports', 'generate' => true, 'stub' => null, 'files' => [
+                        'PathRegistry' => ['generate' => true, 'stub' => 'PathRegistry.php.stub'],
+                        'LocalPath'    => ['generate' => true, 'stub' => 'LocalPath.php.stub']
+                    ]],
+                    'view'            => ['type' => 'dir','path' => 'Views', 'generate' => true, 'stub' => null, 'files' => []],
+                    'schema'          => ['type' => 'dir','path' => 'Schemas', 'generate' => true, 'stub' => null, 'files' => []],
+                    'facade'          => ['type' => 'dir','path' => 'Facades', 'generate' => true, 'stub' => null, 'files' => [
+                        '{{CLASS_BASENAME}}' => ['generate' => true, 'stub' => 'ModuleFacade.php.stub']
+                    ]],
+                    'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
+                        'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
+                    ]],
+    
+                    //FILE
+                    'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
+                    '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => '../MicroTenantStubs/project-microtenant-main-class.php.stub'],
+                ],
+            ]
         ],
-        'tenant'     => [
-            'published_at' => app_path('Tenants'),
-            'generates'    => [
-                'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
-                'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
-                'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
-                'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
-                    'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
-                    'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
-                    '{{CLASS_BASENAME}}Environment' => ['generate' => true, 'stub' => 'project-EnvironmentServiceProvider.php.stub'],
-                    '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-provider.php.stub'],
-                ]],
-                'contract'        => ['type' => 'dir','path' => 'Contracts', 'generate' => true, 'stub' => null, 'files' => [
-                    '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'main-contract.php.stub'],
-                ]],
-                'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
-                'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
-                    'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
-                    'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
-                ]],
-                'route'           => ['type' => 'dir','path' => 'Routes', 'generate' => true, 'stub' => null, 'files' => []],
-                'event'           => ['type' => 'dir','path' => 'Events', 'generate' => false, 'stub' => null, 'files' => []],
-                'observer'        => ['type' => 'dir','path' => 'Observers', 'generate' => true, 'stub' => null, 'files' => []],
-                'policy'          => ['type' => 'dir','path' => 'Policies', 'generate' => true, 'stub' => null, 'files' => []],
-                'job'             => ['type' => 'dir','path' => 'Jobs', 'generate' => false, 'stub' => null, 'files' => []],
-                'resource'        => ['type' => 'dir','path' => 'Resources', 'generate' => false, 'stub' => null, 'files' => []],
-                'seeder'          => ['type' => 'dir','path' => 'Database/Seeders', 'generate' => true, 'stub' => null, 'files' => []],
-                'middleware'      => ['type' => 'dir','path' => 'Middleware', 'generate' => true, 'stub' => null, 'files' => []],
-                'request'         => ['type' => 'dir','path' => 'Requests', 'generate' => true, 'stub' => null, 'files' => []],
-                'support'         => ['type' => 'dir','path' => 'Supports', 'generate' => true, 'stub' => null, 'files' => [
-                    'PathRegistry' => ['generate' => true, 'stub' => 'PathRegistry.php.stub'],
-                    'LocalPath'    => ['generate' => true, 'stub' => 'LocalPath.php.stub']
-                ]],
-                'view'            => ['type' => 'dir','path' => 'Views', 'generate' => true, 'stub' => null, 'files' => []],
-                'schema'          => ['type' => 'dir','path' => 'Schemas', 'generate' => true, 'stub' => null, 'files' => []],
-                'facade'          => ['type' => 'dir','path' => 'Facades', 'generate' => true, 'stub' => null, 'files' => [
-                    '{{CLASS_BASENAME}}' => ['generate' => true, 'stub' => 'ModuleFacade.php.stub']
-                ]],
-                'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
-                    'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
-                ]],
-
-                //FILE
-                'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
-                '{{CLASS_BASENAME}}'  => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'project-main-class.php.stub'],
-            ],
-        ]
     ],
     'commands' => [
+        Commands\Impersonate\ImpersonateCacheCommand::class,
         Commands\InstallMakeCommand::class,
         Commands\AddTenantCommand::class,
+        Commands\AddPackageCommand::class
     ],
     'payload_monitoring' => [
         'enabled'     => true,
@@ -211,6 +223,8 @@ return [
      */
     'package_list' => [],
     'tenancy' => [
+        'enabled' => true,
+        
         /**
          * Tenancy bootstrappers are executed when tenancy is initialized.
          * Their responsibility is making Laravel features tenant-aware.

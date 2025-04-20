@@ -12,6 +12,13 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     use HasOverrider, HasImpersonate;
 
     protected array $__micro_tenant_config = [];
+    protected $__cache_data = [
+        'impersonate' => [
+            'name'    => 'microtenant-impersonate',
+            'tags'    => ['impersonate','microtenant-impersonate'],
+            'forever' => true
+        ]
+    ];
 
     public function __construct(){
         $this->initConfig()->setConfig('micro-tenant',$this->__micro_tenant_config);

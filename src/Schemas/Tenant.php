@@ -25,21 +25,26 @@ class Tenant extends PackageManagement implements ContractsTenant
         if (isset($tenant_dto->id)){
             $guard = ['id' => $tenant_dto->id];
             $add   = [
-                'parent_id' => $tenant_dto->parent_id ?? null,
-                'name'      => $tenant_dto->name,
-                'flag'      => $tenant_dto->flag
+                'parent_id'      => $tenant_dto->parent_id ?? null,
+                'name'           => $tenant_dto->name,
+                'flag'           => $tenant_dto->flag,
+                'reference_id'   => $tenant_dto->reference_id ?? null,
+                'reference_type' => $tenant_dto->reference_type ?? null,
             ];
             $create = [$guard,$add];
         }else{
             $guard = [
-                'name' => $tenant_dto->name,
-                'flag' => $tenant_dto->flag,
-                'parent_id' => $tenant_dto->parent_id ?? null,
+                'name'           => $tenant_dto->name,
+                'flag'           => $tenant_dto->flag,
+                'parent_id'      => $tenant_dto->parent_id ?? null,
+                'reference_id'   => $tenant_dto->reference_id ?? null,
+                'reference_type' => $tenant_dto->reference_type ?? null,
             ];
             $create = [$guard];
         }
         $tenant = $this->TenantModel()->updateOrCreate(...$create);
         $this->fillingProps($tenant,$tenant_dto->props);
+        $tenant->save();
         static::$tenant_model = $tenant;
         return $tenant;
     }

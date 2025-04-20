@@ -10,8 +10,10 @@ use Hanafalah\MicroTenant\Commands as Commands;
 class CommandServiceProvider extends ServiceProvider
 {
     private $commands = [
+        Commands\Impersonate\ImpersonateCacheCommand::class,
         Commands\InstallMakeCommand::class,
         Commands\AddTenantCommand::class,
+        Commands\AddPackageCommand::class
     ];
 
 

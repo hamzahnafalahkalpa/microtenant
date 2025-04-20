@@ -6,6 +6,7 @@ namespace Hanafalah\MicroTenant;
 
 use Hanafalah\LaravelSupport;
 use Hanafalah\LaravelSupport\Concerns\ServiceProvider\HasMultipleEnvironment;
+use Illuminate\Support\Str;
 use Hanafalah\MicroTenant\Facades\MicroTenant;
 
 abstract class MicroServiceProvider extends LaravelSupport\Providers\BaseServiceProvider
@@ -34,9 +35,12 @@ abstract class MicroServiceProvider extends LaravelSupport\Providers\BaseService
 
     protected function overrideMergePackageConfig(): self{
         $micro_tenant = $this->__config['micro-tenant'];
-        $patterns     = $micro_tenant['patterns'];
-        $config_patterns = config('laravel-package-generator.patterns');
-        config()->set('laravel-package-generator.patterns', array_merge($config_patterns, $patterns));
+        if ($micro_tenant['enabled']){
+            $laravel_package = $micro_tenant['laravel-package-generator'];
+            $this->overrideConfig('laravel-package-generator', $laravel_package);
+        }
+        // $config_patterns = config('laravel-package-generator.patterns');
+        // config()->set('laravel-package-generator.patterns', array_merge($config_patterns, $patterns));
         return $this;
     }
 

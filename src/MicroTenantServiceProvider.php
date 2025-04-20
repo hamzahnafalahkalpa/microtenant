@@ -2,7 +2,6 @@
 
 namespace Hanafalah\MicroTenant;
 
-use Illuminate\Foundation\Http\Kernel;
 use Laravel\Sanctum\Sanctum;
 use Hanafalah\MicroTenant\MicroTenant;
 use Hanafalah\ApiHelper\Facades\ApiAccess as FacadesApiAccess;

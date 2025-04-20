@@ -38,18 +38,28 @@ class AddTenantCommand extends EnvironmentCommand
      */
     public function handle()
     {
+        $config_laravel_package = config('laravel-package-generator');
         $flags = [
             'FLAG_APP_TENANT' => [
-                'message' => 'Project',
-                'name' => $this->option('project_name')
+                'message'        => 'Project',
+                'name'           => $name = $this->option('project_name') ?? '{{name}}',
+                'path'           => $published_at = $config_laravel_package['patterns']['project']['published_at'],
+                'config_path'    => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['project']['generates']['config']['path'],
+                'migration_path' => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['project']['generates']['migration']['path']
             ],
             'FLAG_CENTRAL_TENANT' => [
-                'message' => 'Group',
-                'name' => $this->option('group_name')
+                'message'        => 'Group',
+                'name'           => $name = $this->option('group_name') ?? '{{name}}',
+                'path'           => $published_at = $config_laravel_package['patterns']['group']['published_at'],
+                'config_path'    => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['group']['generates']['config']['path'],
+                'migration_path' => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['group']['generates']['migration']['path']
             ],
             'FLAG_TENANT' => [
-                'message' => 'Tenant',
-                'name' => $this->option('tenant_name')
+                'message'        => 'Tenant',
+                'name'           => $name = $this->option('tenant_name') ?? '{{name}}',
+                'path'           => $published_at = $config_laravel_package['patterns']['tenant']['published_at'],
+                'config_path'    => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['tenant']['generates']['config']['path'],
+                'migration_path' => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['tenant']['generates']['migration']['path']
             ]
         ];
 
@@ -100,19 +110,28 @@ class AddTenantCommand extends EnvironmentCommand
             $reference_id   = $workspace->getKey();
             $reference_type = $workspace->getMorphClass();
         }
+        
+        $studly_name    = Str::studly($name);
+        $path           = Str::replace('{{name}}',$studly_name,Str::replace(base_path().'/','',$condition['path'] ?? ''));
+        $config_path    = Str::replace('{{name}}',$studly_name,Str::replace(base_path().'/','',$condition['config_path'] ?? ''));
+        $migration_path = Str::replace('{{name}}',$studly_name,Str::replace(base_path().'/','',$condition['migration_path'] ?? ''));
         $tenant = app(config('app.contracts.Tenant'))->prepareStoreTenant($this->requestDto(TenantData::class,[
-            'parent_id' => $parent_id ?? null,
-            'name' => $name,
-            'flag' => $flag,
-            'reference_id' => $reference_id ?? null,
-            'reference_type' => $reference_type ?? null
+            'parent_id'      => $parent_id ?? null,
+            'name'           => $name,
+            'flag'           => $flag,
+            'reference_id'   => $reference_id ?? null,
+            'reference_type' => $reference_type ?? null,
+            'path'           => $path,
+            'config_path'    => $config_path,
+            'migration_path' => $migration_path
         ]));
 
-        $this->call("generator:add",[
+        $this->call("micro:add-package",[
             'namespace' => $message."s\\".Str::studly($name),
             '--package-author' => 'hamzah',
             '--package-email' => 'hamzahnafalah@gmail.com',
-            '--pattern' => Str::lower($message)
+            '--pattern' => Str::lower($message),
+            '--main-id' => $tenant->getKey()
         ]);
         return $tenant;
     }
