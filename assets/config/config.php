@@ -112,7 +112,7 @@ return [
                 'published_at' => app_path('Groups'),
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
-                    'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
+                    'model'             => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => 'model.php.stub', 'files'=>[]],
                     'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
                     'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
                         'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
@@ -149,6 +149,7 @@ return [
                     'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
                         'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
                     ]],
+                    'composer'          => ['type' => 'file','path' => '../', 'generate' => true, 'stub' => 'project-composer.json.stub', 'files'=>[]],
     
                     //FILE
                     'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
@@ -159,7 +160,7 @@ return [
                 'published_at' => app_path('Tenants'),
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
-                    'model'           => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => null, 'files' => []],
+                    'model'             => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => 'model.php.stub', 'files'=>[]],
                     'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
                     'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
                         'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
@@ -196,6 +197,7 @@ return [
                     'config'          => ['type' => 'dir','path' => 'Config', 'generate' => true, 'stub' => null, 'files' => [
                         'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
                     ]],
+                    'composer'          => ['type' => 'file','path' => '../', 'generate' => true, 'stub' => 'project-composer.json.stub', 'files'=>[]],
     
                     //FILE
                     'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],

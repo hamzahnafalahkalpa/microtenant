@@ -128,7 +128,6 @@ class AddTenantCommand extends EnvironmentCommand
             'config_path'    => $config_path,
             'migration_path' => $migration_path
         ]));
-
         $this->call("micro:add-package",[
             'namespace' => $message."s\\".Str::studly($name),
             '--package-author' => 'hamzah',
