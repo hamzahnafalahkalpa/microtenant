@@ -8,7 +8,7 @@ use Hanafalah\LaravelSupport\{
     Supports\PackageManagement,
     Events as SupportEvents
 };
-use {{NAMESPACE}}\{{contract}}\{{CLASS_BASENAME}} as Contracts{{CLASS_BASENAME}};
+use {{NAMESPACE}}\{{contract_namespace}}\{{CLASS_BASENAME}} as Contracts{{CLASS_BASENAME}};
 
 class {{CLASS_BASENAME}} extends PackageManagement implements Contracts{{CLASS_BASENAME}}{
     use Supports\LocalPath,HasRepository;

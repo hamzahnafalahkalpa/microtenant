@@ -33,9 +33,11 @@ class AddTenantCommand extends EnvironmentCommand
      */
     protected $description = 'Command ini digunakan untuk pembuatan tenant';
 
-    /**
-     * Execute the console command.
-     */
+    
+    private function generatePath(array $config_laravel_package, string $path, string $name, string $type, string $context):string {
+        return $path.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns'][$type]['generates'][$context]['path'];
+    }
+
     public function handle()
     {
         $config_laravel_package = config('laravel-package-generator');
@@ -44,22 +46,23 @@ class AddTenantCommand extends EnvironmentCommand
                 'message'        => 'Project',
                 'name'           => $name = $this->option('project_name') ?? '{{name}}',
                 'path'           => $published_at = $config_laravel_package['patterns']['project']['published_at'],
-                'config_path'    => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['project']['generates']['config']['path'],
-                'migration_path' => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['project']['generates']['migration']['path']
+                'provider'       => 'Projects',
+                'config_path'    => $this->generatePath($config_laravel_package, $published_at,$name,'project','config'),
+                'migration_path' => $this->generatePath($config_laravel_package, $published_at,$name,'project','migration'),
             ],
             'FLAG_CENTRAL_TENANT' => [
                 'message'        => 'Group',
                 'name'           => $name = $this->option('group_name') ?? '{{name}}',
                 'path'           => $published_at = $config_laravel_package['patterns']['group']['published_at'],
-                'config_path'    => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['group']['generates']['config']['path'],
-                'migration_path' => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['group']['generates']['migration']['path']
+                'config_path'    => $this->generatePath($config_laravel_package, $published_at,$name,'group','config'),
+                'migration_path' => $this->generatePath($config_laravel_package, $published_at,$name,'group','migration'),
             ],
             'FLAG_TENANT' => [
                 'message'        => 'Tenant',
                 'name'           => $name = $this->option('tenant_name') ?? '{{name}}',
                 'path'           => $published_at = $config_laravel_package['patterns']['tenant']['published_at'],
-                'config_path'    => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['tenant']['generates']['config']['path'],
-                'migration_path' => $published_at.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.$config_laravel_package['patterns']['tenant']['generates']['migration']['path']
+                'config_path'    => $this->generatePath($config_laravel_package, $published_at,$name,'tenant','config'),
+                'migration_path' => $this->generatePath($config_laravel_package, $published_at,$name,'tenant','migration'),
             ]
         ];
 
