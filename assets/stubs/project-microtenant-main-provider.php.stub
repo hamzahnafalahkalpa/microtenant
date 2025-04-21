@@ -38,23 +38,24 @@ class {{CLASS_BASENAME}}ServiceProvider extends {{CLASS_BASENAME}}Environment
     public function boot(Kernel $kernel){
         $kernel->pushMiddleware(PayloadMonitoring::class);
 
-        $model   = Facades\{{CLASS_BASENAME}}::myModel($this->TenantModel()->find({{CLASS_BASENAME}}::ID));
-        $this->deferredProviders($model);
+        $this->app->booted(function(){
+            $model   = Facades\{{CLASS_BASENAME}}::myModel($this->TenantModel()->find({{CLASS_BASENAME}}::ID));
+            $this->deferredProviders($model);
 
-        tenancy()->initialize({{CLASS_BASENAME}}::ID);
-        $tenant = tenancy()->tenant;
-        $tenant->save();
+            tenancy()->initialize({{CLASS_BASENAME}}::ID);
+            $tenant = tenancy()->tenant;
+            $tenant->save();
 
-        $config_name = Str::kebab($model->name); 
-        $this->app->booted(function() use ($model){
+            $config_name = Str::kebab($model->name); 
+
             $this->registers([
                 '*',
                 'Config' => function() {
-                    $this->__config_{{SNAKE_CLASS_BASENAME}} = config('{{CONFIG_NAME}}');
+                    $this->__config_{{SNAKE_LOWER_CLASS_BASENAME}} = config('{{SNAKE_CLASS_BASENAME}}');
                 },
-                'Provider' => function() {
-                    $this->bootedRegisters($model->packages, $config_name, __DIR__.'/../'.$this->__config_{{SNAKE_CLASS_BASENAME}}['libs']['migration'] ?? 'Migrations');
-                    $this->registerOverideConfig($config_name,__DIR__.'/../'.$this->__config_{{SNAKE_CLASS_BASENAME}}['libs']['config']);
+                'Provider' => function() use ($model,$config_name){
+                    $this->bootedRegisters($model->packages, $config_name, __DIR__.'/../'.$this->__config_{{SNAKE_LOWER_CLASS_BASENAME}}['libs']['migration'] ?? 'Migrations');
+                    $this->registerOverideConfig($config_name,__DIR__.'/../'.$this->__config_{{SNAKE_LOWER_CLASS_BASENAME}}['libs']['config']);
                 },
                 'Model', 'Database'
             ]);
@@ -63,7 +64,7 @@ class {{CLASS_BASENAME}}ServiceProvider extends {{CLASS_BASENAME}}Environment
             $this->app->singleton(PathRegistry::class, function () {
                 $registry = new PathRegistry();
 
-                $config = config("{{SNAKE_CLASS_BASENAME}}");
+                $config = config("{{SNAKE_LOWER_CLASS_BASENAME}}");
                 foreach ($config['libs'] as $key => $lib) $registry->set($key, '{{LOCAL_PATH}}'.$lib);
                 return $registry;
             });

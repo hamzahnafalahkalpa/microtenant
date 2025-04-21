@@ -113,7 +113,9 @@ return [
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
                     'model'             => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => 'model.php.stub', 'files'=>[]],
-                    'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
+                    'controller'        => ['type' => 'dir','path' => 'Controllers','generate' => false, 'stub' => null, 'files'=>[
+                        'ApiController' => ['generate' => true, 'path' => 'API', 'stub' => 'project-api-controller.php.stub']
+                    ]],
                     'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
                         'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
                         'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
@@ -125,6 +127,8 @@ return [
                     ]],
                     'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
                     'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
+                        'SeedCommand'    => ['generate' => true, 'stub' => 'SeedCommand.php.stub'],
+                        'MigrateCommand' => ['generate' => true, 'stub' => 'MigrateCommand.php.stub'],
                         'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
                         'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
                     ]],
@@ -163,7 +167,9 @@ return [
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
                     'model'             => ['type' => 'dir','path' => 'Models','generate' => true, 'stub' => 'model.php.stub', 'files'=>[]],
-                    'controller'      => ['type' => 'dir','path' => 'Controllers','generate' => true, 'stub' => null, 'files' => []],
+                    'controller'        => ['type' => 'dir','path' => 'Controllers','generate' => false, 'stub' => null, 'files'=>[
+                        'ApiController' => ['generate' => true, 'path' => 'API', 'stub' => 'project-api-controller.php.stub']
+                    ]],
                     'provider'        => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
                         'CommandServiceProvider' => ['generate' => true, 'stub' => 'CommandServiceProvider.php.stub'],
                         'RouteServiceProvider'   => ['generate' => true, 'stub' => 'RouteServiceProvider.php.stub'],
@@ -175,6 +181,8 @@ return [
                     ]],
                     'concern'         => ['type' => 'dir','path' => 'Concerns', 'generate' => true, 'stub' => null, 'files' => []],
                     'command'         => ['type' => 'dir','path' => 'Commands', 'generate' => true, 'stub' => null, 'files' => [
+                        'SeedCommand'    => ['generate' => true, 'stub' => 'SeedCommand.php.stub'],
+                        'MigrateCommand' => ['generate' => true, 'stub' => 'MigrateCommand.php.stub'],
                         'InstallMakeCommand' => ['generate' => true, 'stub' => 'InstallMakeCommand.php.stub'],
                         'EnvironmentCommand' => ['generate' => true, 'stub' => 'project-EnvironmentCommand.php.stub']
                     ]],
