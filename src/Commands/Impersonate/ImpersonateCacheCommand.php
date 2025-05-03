@@ -119,7 +119,7 @@ class ImpersonateCacheCommand extends EnvironmentCommand
     }
 
     private function setImpersonateNamespace(){
-        $this->__impersonate['project']['namespace']     = 'Project\\'.\class_name_builder($this->__application->name);
+        $this->__impersonate['project']['namespace'] = 'Project\\'.\class_name_builder($this->__application->name);
         $this->__impersonate['group']['namespace']   = \class_name_builder($this->__application->name).'\\'.\class_name_builder($this->__group->name);
         $this->__impersonate['tenant']['namespace']  = \class_name_builder($this->__group->name).'\\'.\class_name_builder($this->__tenant->name);
     }

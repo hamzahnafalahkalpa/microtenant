@@ -9,7 +9,7 @@ class InstallMakeCommand extends EnvironmentCommand
      *
      * @var string
      */
-    protected $signature = 'micro:install';
+    protected $signature = 'micro:install {--skip-generate}';
 
     /**
      * The console command description.
@@ -28,6 +28,9 @@ class InstallMakeCommand extends EnvironmentCommand
         $this->call('module-workspace:install');
         $this->call('laravel-permission:install');
         $this->call('generator:install');
+        $this->call('helper:install',[
+            '--skip-generate' => $this->option('skip-generate') ?? false
+        ]);
 
         $provider = 'Hanafalah\MicroTenant\MicroTenantServiceProvider';
 

@@ -16,6 +16,18 @@ class BaseModel extends SupportModels\SupportBaseModel
     use SupportConcern\HasDatabase;
     use SupportConcern\HasConfigDatabase;
 
+    public function initializeHasConfigDatabase()
+    {
+        parent::initializeHasConfigDatabase();
+        $model_connection = config('micro-tenant.database.model_connections');
+        if (isset($model_connection['central'][$this->getMorphClass()])) {
+            $this->connection = 'central';
+        }
+        if (isset($model_connection['central_tenant'][$this->getMorphClass()])) {
+            $this->connection = 'central_tenant';
+        }
+    }
+
     //BOOTED SECTION
     protected static function booted(): void
     {

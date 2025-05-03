@@ -1,10 +1,10 @@
 <?php
 
+use Hanafalah\LaravelSupport\Models\Activity\Activity;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
-use Hanafalah\MicroTenant\Models\Activity\CentralActivity;
 
 return new class extends Migration
 {
@@ -14,7 +14,7 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->__table = app(config('database.models.CentralActivity', CentralActivity::class));
+        $this->__table = app(config('database.models.Activity', Activity::class));
     }
 
     /**
@@ -24,20 +24,21 @@ return new class extends Migration
      */
     public function up()
     {
-        $table_name = $this->__table->getTableName();
+        $table_name = Activity::getTableName();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
                 $table->ulid('id')->primary();
-                $table->unsignedTinyInteger('activity_flag');
+                $table->string('activity_flag', 50);
                 $table->string('reference_type', 50);
                 $table->string('reference_id', 36);
                 $table->unsignedBigInteger('activity_status')->nullable();
                 $table->unsignedTinyInteger('status')->default(1);
                 $table->text('message')->nullable();
+                $table->json('props')->nullable();
                 $table->timestamps();
 
-                $table->index(['reference_type', 'reference_id'], 'activity_sumber');
-                $table->index(['activity_flag', 'reference_type', 'reference_id'], 'activity_sumber_flag');
+                $table->index(['reference_type', 'reference_id'],'act_ref');
+                $table->index(['activity_flag', 'reference_type', 'reference_id'],'act_flag_ref');
             });
         }
     }
@@ -49,6 +50,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->__table->getTableName());
+        $table_name = Activity::getTableName();
+        Schema::dropIfExists($table_name);
     }
 };

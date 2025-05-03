@@ -33,6 +33,10 @@ return [
         'models'  => [
             //
         ],
+        'model_connections' => [
+            "central"        => [],
+            "central_tenant" => []
+        ],
         'connections' => [
             //THIS SETUP DEFAULT FOR MYSQL
             'central_connection' => [
@@ -101,6 +105,7 @@ return [
     'laravel-package-generator' => [
         'patterns'      => [
             'project'   => [
+                'namespace' => 'Projects\\',
                 'generates'    => [
                     'provider' => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
                         '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => '../MicroTenantStubs/project-microtenant-main-provider.php.stub'],
@@ -109,6 +114,7 @@ return [
                 ]
             ],
             'group'     => [
+                'namespace' => 'Groups\\',
                 'published_at' => app_path('Groups'),
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
@@ -163,6 +169,7 @@ return [
                 ],
             ],
             'tenant'     => [
+                'namespace' => 'Tenants\\',
                 'published_at' => app_path('Tenants'),
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],

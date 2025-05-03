@@ -29,7 +29,6 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
         TenantRun,
         InvalidatesResolverCache;
 
-
     const FLAG_APP_TENANT     = 'APP';
     const FLAG_CENTRAL_TENANT = 'CENTRAL_TENANT';
     const FLAG_TENANT         = 'TENANT';
