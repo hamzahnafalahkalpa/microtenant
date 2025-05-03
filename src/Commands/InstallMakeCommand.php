@@ -24,11 +24,10 @@ class InstallMakeCommand extends EnvironmentCommand
     public function handle()
     {
         $this->call('support:install');
-        $this->call('generator:install');
-        $this->call('stub:install');
         $this->call('module-user:install');
         $this->call('module-workspace:install');
         $this->call('laravel-permission:install');
+        $this->call('generator:install');
 
         $provider = 'Hanafalah\MicroTenant\MicroTenantServiceProvider';
 

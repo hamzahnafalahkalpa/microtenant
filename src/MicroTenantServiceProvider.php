@@ -11,7 +11,6 @@ class MicroTenantServiceProvider extends MicroServiceProvider
 {
     public function register()
     {
-
         $this->registerMainClass(MicroTenant::class)
             ->registerCommandService(Providers\CommandServiceProvider::class)
             ->registerConfig(function () {
