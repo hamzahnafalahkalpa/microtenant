@@ -3,23 +3,18 @@
 namespace Hanafalah\MicroTenant\Concerns\Commands;
 
 use Illuminate\Support\Facades\Artisan;
-use Hanafalah\ModuleVersion\Concerns\Commands\HasGeneratorAction as CommandsHasGeneratorAction;
 use Hanafalah\LaravelStub\Facades\Stub;
 use Illuminate\Support\Str;
 use Symfony\Component\Filesystem\Filesystem;
 
 trait HasGeneratorAction
 {
-    use CommandsHasGeneratorAction;
-
     protected $__tenant_model;
     protected $__app_tenant;
 
     /**
      * Menanyakan apakah user ingin menambahkan versi aplikasi atau tidak.
-     *
      * Jika user memilih 'y', maka akan dibuatkan versi aplikasi terbaru.
-     *
      * @return static
      */
     protected function askAppVersion(): self
@@ -102,12 +97,6 @@ trait HasGeneratorAction
             Stub::init($this->getClassStubPath(), [
                 'ID'                => function () {
                     return $this->__tenant_model->getKey() ?? $this->__ask_central_tenant->getKey() ?? $this->__app_tenant->getKey();
-                    // if ($this->isTenant()){
-                    //     if (isset($this->__tenant_model)) return $this->__tenant_model->getKey();
-                    //     return $this->__ask_central_tenant->getKey();
-                    // }else{
-                    //     return $this->__ask_app->getKey();
-                    // }
                 },
                 'NAMESPACE'         => $this->generateNamespace(),
                 'CLASS_NAME'        => $this->generateClassName(),

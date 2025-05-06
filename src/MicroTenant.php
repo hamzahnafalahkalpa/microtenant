@@ -2,11 +2,16 @@
 
 namespace Hanafalah\MicroTenant;
 
+use GroupInitialPuskesmas\TenantPuskesmas\TenantPuskesmas;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\MicroTenant\Concerns\Providers\HasImpersonate;
 use Hanafalah\MicroTenant\Concerns\Providers\HasOverrider;
 use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
 use Hanafalah\ApiHelper\Schemas\ApiAccess;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
+use Projects\Puskesmas\Providers\PuskesmasServiceProvider;
+use Projects\Puskesmas\Puskesmas;
 
 class MicroTenant extends PackageManagement implements ContractsMicroTenant
 {
@@ -53,13 +58,66 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $tenant ??= $this->tenant;
         $this->initialize($tenant);
         $this->getCacheData('impersonate');
-        $this->impersonate($tenant->path);
+        $tenant_folder = Str::kebab($tenant->name);
+        $path          = tenant_path($tenant_folder);
+        $this->impersonate($path);
         if (isset($this->__impersonate)){
-            $this->setMicroTenant()
-                 ->overrideDatabasePath();
-            $this->overrideStoragePath($tenant->name);
+            $tenant_config = config($tenant_folder.'.libs.migration');
+            $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
+            $this->setMicroTenant()->overrideDatabasePath($path);
+            $path = tenant_path($tenant_folder.'/storage');
+            $this->overrideStoragePath($path);
         }
 
+        return $this;
+    }
+
+    /**
+     * Set the micro tenant based on the cached data of the impersonate feature.
+     *
+     * @return self
+     */
+    public function setMicroTenant(): self{
+        $impersonate = $this->getCacheData('impersonate');
+        $tenant      = $this->tenant;
+        $this->reconfigDatabase($tenant);
+        if (isset($tenant->parent)){
+            $this->reconfigDatabase($tenant->parent);
+        }
+        $cache  = cache();
+        $cache  = $cache->tags($impersonate['tags']);
+        $cache  = $cache->get($impersonate['name'],null);
+        if (isset($cache)){
+            static::$microtenant = $cache;
+        }
+        return $this;
+    }
+
+    public function reconfigDatabase($tenant): self{
+        $connection_path = "database.connections.".$tenant->getConnectionFlagName();
+        config([
+            "$connection_path.database" => $tenant->tenancy_db_name,
+            "$connection_path.username" => $tenant->tenancy_db_username,
+            "$connection_path.password" => $tenant->tenancy_db_password
+        ]);
+        return $this;
+    }
+
+    public function overrideStoragePath(string $path): self{
+        app()->useStoragePath($path);
+        return $this;
+    }
+
+    /**
+     * Sets the database migration path to the given path.
+     *
+     * @param string $migration_path The path to set as the database migration path.
+     *
+     * @return self
+     */
+    public function overrideDatabasePath(string $migration_path): self
+    {
+        App::useDatabasePath($migration_path);
         return $this;
     }
 
@@ -80,9 +138,8 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     }
 
     public function impersonate($path): self{
-        $path = base_path($path);
         require base_path().'/vendor/autoload.php';
-        if (\file_exists($path.'/vendor/autoload.php')){
+        if (file_exists($path.'/vendor/autoload.php')){
             require $path.'/vendor/autoload.php';
             foreach ([
                 $this->tenant->app['provider'],

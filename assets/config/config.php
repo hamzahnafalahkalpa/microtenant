@@ -105,7 +105,6 @@ return [
     'laravel-package-generator' => [
         'patterns'      => [
             'project'   => [
-                'namespace' => 'Projects\\',
                 'generates'    => [
                     'provider' => ['type' => 'dir','path' => 'Providers','generate' => true, 'stub' => null, 'files' => [
                         '{{CLASS_BASENAME}}ServiceProvider' => ['type' => 'file','path' => '', 'generate' => true, 'stub' => '../MicroTenantStubs/project-microtenant-main-provider.php.stub'],
@@ -114,7 +113,6 @@ return [
                 ]
             ],
             'group'     => [
-                'namespace' => 'Groups\\',
                 'published_at' => app_path('Groups'),
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
@@ -162,6 +160,7 @@ return [
                         'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
                     ]],
                     'composer'          => ['type' => 'file','path' => '../', 'generate' => true, 'stub' => 'project-composer.json.stub', 'files'=>[]],
+                    'helpers'           => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'helpers.php.stub', 'files'=>[]],
     
                     //FILE
                     'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
@@ -169,7 +168,6 @@ return [
                 ],
             ],
             'tenant'     => [
-                'namespace' => 'Tenants\\',
                 'published_at' => app_path('Tenants'),
                 'generates'    => [
                     'migration'       => ['type' => 'dir','path' => 'Database/Migrations', 'generate' => true, 'stub' => null, 'files' => []],
@@ -217,6 +215,7 @@ return [
                         'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
                     ]],
                     'composer'          => ['type' => 'file','path' => '../', 'generate' => true, 'stub' => 'project-composer.json.stub', 'files'=>[]],
+                    'helpers'           => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'helpers.php.stub', 'files'=>[]],
     
                     //FILE
                     'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],

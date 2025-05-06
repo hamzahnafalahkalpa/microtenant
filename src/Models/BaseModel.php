@@ -19,12 +19,14 @@ class BaseModel extends SupportModels\SupportBaseModel
     public function initializeHasConfigDatabase()
     {
         parent::initializeHasConfigDatabase();
-        $model_connection = config('micro-tenant.database.model_connections');
-        if (isset($model_connection['central'][$this->getMorphClass()])) {
-            $this->connection = 'central';
-        }
-        if (isset($model_connection['central_tenant'][$this->getMorphClass()])) {
-            $this->connection = 'central_tenant';
+        $model_connections = config('micro-tenant.database.model_connections');
+        if (isset($model_connections) && count($model_connections) > 0){
+            if (in_array($this->getMorphClass(),$model_connections['central'])) {
+                $this->connection = 'central';
+            }
+            if (in_array($this->getMorphClass(),$model_connections['central_tenant'])) {
+                $this->connection = 'central_tenant';
+            }
         }
     }
 

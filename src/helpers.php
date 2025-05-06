@@ -10,15 +10,13 @@ if (! function_exists('microtenant')) {
 }
 
 if (! function_exists('tenant_path')) {
-    function tenant_path($path = '')
-    {
-        return base_path(config('micro-tenant.laravel-package-generator.patterns.tenant.published_at') . '/' . $path);
+    function tenant_path($path = ''){
+        return config('micro-tenant.laravel-package-generator.patterns.tenant.published_at') . '/' . $path;
     }
 }
 
 if (! function_exists('repository_path')) {
-    function repository_path($path = '')
-    {
+    function repository_path($path = ''){
         return base_path('repositories');
     }
 }
