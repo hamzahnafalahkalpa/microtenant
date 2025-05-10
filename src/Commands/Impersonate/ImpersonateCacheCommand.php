@@ -6,13 +6,12 @@ use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
 use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
 use Hanafalah\MicroTenant\Facades\MicroTenant;
 use Hanafalah\MicroTenant\Commands\EnvironmentCommand;
-use Hanafalah\MicroTenant\Models\Application\App;
+use Hanafalah\MicroTenant\Commands\Impersonate\Concerns\HasImpersonate;
 use Illuminate\Support\Str;
-use function Laravel\Prompts\select;
 
 class ImpersonateCacheCommand extends EnvironmentCommand
 {
-    use HasCache, HasArray;
+    use HasCache, HasArray, HasImpersonate;
 
     /**
      * The name and signature of the console command.
@@ -34,95 +33,6 @@ class ImpersonateCacheCommand extends EnvironmentCommand
      * @var string
      */
     protected $description = 'This command is used to impersonate as a certain tenant application.';
-
-    protected $__impersonate = [];
-
-    private $__application, $__group, $__tenant;
-    private array $__select = ['id','parent_id','name','props'];
-    private string $__tenant_path;
-
-
-    private function findApplication(callable $callback): self
-    {
-        $application = $this->TenantModel()->whereNull('parent_id')->select($this->__select);
-    
-        if ($app_id = $this->option('app_id')) {
-            $application = $application->find($app_id);
-        } else {
-            $applications = $application->orderBy('name')->get();
-            $choose_app = select(
-                label: 'Choose a project',
-                options: $applications->pluck('name')->toArray()
-            );
-            $application = $applications->firstWhere('name', $choose_app);
-        }
-    
-        $this->__application = $application;
-        $this->info('Used Project: ' . $application->name);
-        $callback($application);
-        return $this;
-    }
-    
-    private function findGroup($application, callable $callback)
-    {
-        $group = $this->TenantModel()->central()->where('parent_id', $application->getKey())->select($this->__select);
-    
-        if ($group_id = $this->option('group_id')) {
-            $group = $group->find($group_id);
-        } else {
-            $groups = $group->orderBy('name')->get();
-        }
-    
-        if (isset($group_id) || count($groups) > 0) {
-            if (!isset($group_id)) {
-                $choose_group = select(
-                    label: 'Choose a group',
-                    options: $groups->pluck('name')->toArray()
-                );
-                $group = $groups->firstWhere('name', $choose_group);
-            }
-    
-            $this->__group = $group;
-            $this->info('Used Group: ' . $group->name);
-    
-            $callback($group);
-        } else {
-            $this->info('No groups found in central tenant.');
-        }
-    }
-    
-    private function findTenant($group)
-    {
-        $tenant = $this->TenantModel()->select($this->__select)->addSelect('flag')->parentId($group->getKey());
-    
-        if ($tenant_id = $this->option('tenant_id')) {
-            $tenant = $tenant->find($tenant_id);
-        } else {
-            $tenants = $tenant->orderBy('name')->get();
-        }
-    
-        if (isset($tenant_id) || count($tenants) > 0) {
-            if (!isset($tenant_id)) {
-                $choose_tenant = select(
-                    label: 'Choose a tenant',
-                    options: $tenants->pluck('name')->toArray()
-                );
-                $tenant = $tenants->firstWhere('name', $choose_tenant);
-            }
-    
-            $this->__tenant = $tenant;
-            tenancy()->initialize($this->__tenant);
-            $this->info('Used Tenant: ' . $tenant->name);
-        } else {
-            $this->info('No tenants found in group.');
-        }
-    }
-
-    private function setImpersonateNamespace(){
-        $this->__impersonate['project']['namespace'] = 'Project\\'.\class_name_builder($this->__application->name);
-        $this->__impersonate['group']['namespace']   = \class_name_builder($this->__application->name).'\\'.\class_name_builder($this->__group->name);
-        $this->__impersonate['tenant']['namespace']  = \class_name_builder($this->__group->name).'\\'.\class_name_builder($this->__tenant->name);
-    }
 
     /**
      * Execute the console command.
@@ -187,19 +97,6 @@ class ImpersonateCacheCommand extends EnvironmentCommand
         $config['paths']['installed'][] = 'src';
         $config['paths']['installed']   = implode('/', $config['paths']['installed']);
         $config['paths']['installed']   = preg_replace('#/+#', '/', $config['paths']['installed']);
-        return $this;
-    }
-
-    protected function impersonateConfig(array $config_path) : self{
-        foreach($config_path as $key => $config) {
-            if(isset($config)) {
-                $path         = $config->config_path;
-                $config       = base_path($path).DIRECTORY_SEPARATOR.'config.php';
-                $config       = include($config);
-                $this->__impersonate[$key] = $config;
-            }
-        }
-
         return $this;
     }
 }

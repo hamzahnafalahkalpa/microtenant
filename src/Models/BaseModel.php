@@ -21,10 +21,10 @@ class BaseModel extends SupportModels\SupportBaseModel
         parent::initializeHasConfigDatabase();
         $model_connections = config('micro-tenant.database.model_connections');
         if (isset($model_connections) && count($model_connections) > 0){
-            if (in_array($this->getMorphClass(),$model_connections['central'])) {
+            if (isset($model_connections['central']) && in_array($this->getMorphClass(),$model_connections['central'])) {
                 $this->connection = 'central';
             }
-            if (in_array($this->getMorphClass(),$model_connections['central_tenant'])) {
+            if (isset($model_connections['central_tenant']) && in_array($this->getMorphClass(),$model_connections['central_tenant'])) {
                 $this->connection = 'central_tenant';
             }
         }

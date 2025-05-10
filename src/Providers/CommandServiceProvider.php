@@ -11,6 +11,7 @@ class CommandServiceProvider extends ServiceProvider
 {
     private $commands = [
         Commands\Impersonate\ImpersonateCacheCommand::class,
+        Commands\Impersonate\ImpersonateMigrateCommand::class,
         Commands\InstallMakeCommand::class,
         Commands\AddTenantCommand::class,
         Commands\AddPackageCommand::class

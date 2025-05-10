@@ -6,6 +6,7 @@ use Laravel\Sanctum\Sanctum;
 use Hanafalah\MicroTenant\MicroTenant;
 use Hanafalah\ApiHelper\Facades\ApiAccess as FacadesApiAccess;
 use Hanafalah\MicroTenant\Facades\MicroTenant as FacadesMicroTenant;
+use Stancl\Tenancy\DatabaseConfig;
 
 class MicroTenantServiceProvider extends MicroServiceProvider
 {

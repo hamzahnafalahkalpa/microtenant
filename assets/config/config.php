@@ -226,6 +226,7 @@ return [
     ],
     'commands' => [
         Commands\Impersonate\ImpersonateCacheCommand::class,
+        Commands\Impersonate\ImpersonateMigrateCommand::class,
         Commands\InstallMakeCommand::class,
         Commands\AddTenantCommand::class,
         Commands\AddPackageCommand::class
