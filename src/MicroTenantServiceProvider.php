@@ -47,7 +47,6 @@ class MicroTenantServiceProvider extends MicroServiceProvider
         $this->app->booted(function () {
             Sanctum::usePersonalAccessTokenModel($this->PersonalAccessTokenModelInstance());
         });
-
         if (request()->headers->has('AppCode')) {
             FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
                 FacadesMicroTenant::onLogin($api_access);
