@@ -23,15 +23,6 @@ class InstallMakeCommand extends EnvironmentCommand
      */
     public function handle()
     {
-        $this->call('support:install');
-        $this->call('module-user:install');
-        $this->call('module-workspace:install');
-        $this->call('laravel-permission:install');
-        $this->call('generator:install');
-        $this->call('helper:install',[
-            '--skip-generate' => $this->option('skip-generate') ?? false
-        ]);
-
         $provider = 'Hanafalah\MicroTenant\MicroTenantServiceProvider';
 
         $this->comment('Installing Microtenant...');
@@ -40,6 +31,22 @@ class InstallMakeCommand extends EnvironmentCommand
             '--tag'      => 'config'
         ]);
         $this->info('✔️  Created config/microtenant.php');
+
+        $this->callSilent('vendor:publish', [
+            '--provider' => $provider,
+            '--tag'      => 'migrations',
+        ]);
+
+        $this->call('migrate');
+
+        $this->call('support:install');
+        $this->call('module-user:install');
+        $this->call('module-workspace:install');
+        $this->call('laravel-permission:install');
+        $this->call('generator:install');
+        $this->call('helper:install',[
+            '--skip-generate' => $this->option('skip-generate') ?? false
+        ]);
 
         $this->callSilent('vendor:publish', [
             '--provider' => $provider,
@@ -58,11 +65,6 @@ class InstallMakeCommand extends EnvironmentCommand
             '--tag'      => 'providers'
         ]);
         $this->info('✔️  Created MicroTenantServiceProvider.php');
-
-        $this->callSilent('vendor:publish', [
-            '--provider' => $provider,
-            '--tag'      => 'migrations',
-        ]);
 
         $this->info('✔️  Created migrations');
 

@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 use Stancl\Tenancy\Contracts\Tenant as ContractsTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\{
-    CentralConnection,
     HasDatabase,
     HasInternalKeys,
     InvalidatesResolverCache,
@@ -20,6 +19,7 @@ use Hanafalah\LaravelHasProps\Concerns\HasProps;
 use Stancl\Tenancy\Events;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Hanafalah\LaravelSupport\Models\BaseModel;
+use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
 
 class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     use SoftDeletes, HasProps;

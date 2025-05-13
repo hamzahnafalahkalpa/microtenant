@@ -31,26 +31,24 @@ class BaseModel extends SupportModels\SupportBaseModel
     }
 
     //BOOTED SECTION
-    protected static function booted(): void
-    {
+    protected static function booted(): void{
         static::setConfigBaseModel('database.models');
         parent::booted();
     }
     //END BOOTED SECTION
 
-    public function callCustomMethod(): array
-    {
+    public function callCustomMethod(): array{
         return ['Model'];
     }
 
-    public function getTable()
-    {
-        $table   = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
-        $db_name = config('database.connections.' . ($this->getConnectionName() ?? config('database.default')) . '.database');
-        $table   = \explode('.', $table);
-        $table   = end($table);
-        $table   = $db_name . '.' . $table;
-        return $table;
+    public function getTable(){
+        $table           = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
+        $connection_name = $this->getConnectionName();
+        $connection      = config('database.connections.' . ($connection_name ?? config('database.default')));
+        $db_name         = ($connection['driver'] == 'pgsql') ? $connection['search_path'] : $connection['database'];
+        $table           = \explode('.', $table);
+        $table           = end($table);
+        return $db_name . '.' . $table;
     }
 
     protected function validatingHistory($query)

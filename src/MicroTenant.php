@@ -60,6 +60,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $this->getCacheData('impersonate');
         $tenant_folder = Str::kebab($tenant->name);
         $path          = tenant_path($tenant_folder);
+        $this->reconfigDatabases($tenant);
         $this->impersonate($path);
         if (isset($this->__impersonate)){
             $tenant_config = config($tenant_folder.'.libs.migration');
@@ -80,10 +81,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     public function setMicroTenant(): self{
         $impersonate = $this->getCacheData('impersonate');
         $tenant      = $this->tenant;
-        $this->reconfigDatabase($tenant);
-        if (isset($tenant->parent)){
-            $this->reconfigDatabase($tenant->parent);
-        }
+        $this->reconfigDatabases($tenant);
         $cache  = cache();
         $cache  = $cache->tags($impersonate['tags']);
         $cache  = $cache->get($impersonate['name'],null);
@@ -93,13 +91,30 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         return $this;
     }
 
+    public function reconfigDatabases($tenant): self{
+        $this->reconfigDatabase($tenant);
+        if (isset($tenant->parent)){
+            $this->reconfigDatabases($tenant->parent);
+        }
+        return $this;
+    }
+
     public function reconfigDatabase($tenant): self{
         $connection_path = "database.connections.".$tenant->getConnectionFlagName();
-        config([
-            "$connection_path.database" => $tenant->tenancy_db_name,
-            "$connection_path.username" => $tenant->tenancy_db_username,
-            "$connection_path.password" => $tenant->tenancy_db_password
-        ]);
+        if (env('DB_DRIVER','mysql') == 'mysql'){
+            config([
+                "$connection_path.database" => $tenant->tenancy_db_name,
+                "$connection_path.username" => $tenant->tenancy_db_username,
+                "$connection_path.password" => $tenant->tenancy_db_password
+            ]);
+        }else{
+            config([
+                "$connection_path.database"    => env('DB_DATABASE', 'central'),
+                "$connection_path.search_path" => $tenant->tenancy_db_name,
+                "$connection_path.username"    => $tenant->tenancy_db_username ?? env('DB_USERNAME'),
+                "$connection_path.password"    => $tenant->tenancy_db_password ?? env('DB_PASSWORD')
+            ]);
+        }
         return $this;
     }
 

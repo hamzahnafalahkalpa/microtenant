@@ -30,7 +30,7 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                     ], 'seeders');
 
                     $this->publishes([
-                        $this->getAssetPath('stubs/MicroTenantServiceProvider.stub.php') => app_path('Providers/MicroTenantServiceProvider.php'),
+                        $this->getAssetPath('stubs/MicroTenantServiceProvider.php.stub') => app_path('Providers/MicroTenantServiceProvider.php'),
                     ], 'providers');
                 }
             ]);

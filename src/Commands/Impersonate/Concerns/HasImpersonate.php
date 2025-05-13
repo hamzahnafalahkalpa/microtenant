@@ -3,6 +3,8 @@
 namespace Hanafalah\MicroTenant\Commands\Impersonate\Concerns;
 
 use function Laravel\Prompts\select;
+
+use Hanafalah\MicroTenant\Facades\MicroTenant;
 use Illuminate\Support\Str;
 
 trait HasImpersonate{
@@ -80,7 +82,8 @@ trait HasImpersonate{
             }
     
             $this->__tenant = $tenant;
-            tenancy()->initialize($this->__tenant);
+            MicroTenant::tenantImpersonate($this->__tenant);
+            // tenancy()->initialize($this->__tenant);
             $this->info('Used Tenant: ' . $tenant->name);
         } else {
             $this->info('No tenants found in group.');
