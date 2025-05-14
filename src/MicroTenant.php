@@ -8,7 +8,9 @@ use Hanafalah\MicroTenant\Concerns\Providers\HasImpersonate;
 use Hanafalah\MicroTenant\Concerns\Providers\HasOverrider;
 use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
 use Hanafalah\ApiHelper\Schemas\ApiAccess;
+use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Projects\Puskesmas\Providers\PuskesmasServiceProvider;
 use Projects\Puskesmas\Puskesmas;
@@ -54,7 +56,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
      *
      * @return self
      */
-    public function tenantImpersonate($tenant = null): self{
+    public function tenantImpersonate($tenant = null, ? string $cek = null): self{
         $tenant ??= $this->tenant;
         $this->initialize($tenant);
         $this->getCacheData('impersonate');
@@ -85,10 +87,26 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $cache  = cache();
         $cache  = $cache->tags($impersonate['tags']);
         $cache  = $cache->get($impersonate['name'],null);
-        if (isset($cache)){
+        if (isset($cache)) {
             static::$microtenant = $cache;
+        }else{
+            if ($tenant->flag == Tenant::FLAG_TENANT){
+                Artisan::call('impersonate:cache',[
+                    '--tenant_id' => $tenant->getKey(),
+                    '--group_id'  => $tenant->parent_id,
+                    '--app_id'    => $tenant->parent->parent_id
+                ]);
+                $cache  = cache();
+                $cache  = $cache->tags($impersonate['tags']);
+                $cache  = $cache->get($impersonate['name'],null);
+                static::$microtenant = $cache;
+            }
         }
         return $this;
+    }
+
+    public function getMicroTenant(){
+        return static::$microtenant;
     }
 
     public function reconfigDatabases($tenant): self{

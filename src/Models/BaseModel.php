@@ -16,18 +16,26 @@ class BaseModel extends SupportModels\SupportBaseModel
     use SupportConcern\HasDatabase;
     use SupportConcern\HasConfigDatabase;
 
+    protected array $__model_connections;
+
     public function initializeHasConfigDatabase()
     {
         parent::initializeHasConfigDatabase();
         $model_connections = config('micro-tenant.database.model_connections');
         if (isset($model_connections) && count($model_connections) > 0){
-            if (isset($model_connections['central']) && in_array($this->getMorphClass(),$model_connections['central'])) {
-                $this->connection = 'central';
-            }
-            if (isset($model_connections['central_tenant']) && in_array($this->getMorphClass(),$model_connections['central_tenant'])) {
-                $this->connection = 'central_tenant';
-            }
+            $this->__model_connections = $model_connections;
+            $this->validateConnection('central')
+                 ->validateConnection('central_app')
+                 ->validateConnection('central_tenant');
         }
+        // if ($this->getMorphClass() == 'ModelHasFeature') dump($this->connection,$model_connections);
+    }
+
+    private function validateConnection(string $connection): self{
+        if (isset($this->__model_connections[$connection]) && in_array($this->getMorphClass(),$this->__model_connections[$connection])){
+            $this->connection = $connection;
+        }
+        return $this;
     }
 
     //BOOTED SECTION

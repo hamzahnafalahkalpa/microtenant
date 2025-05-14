@@ -65,7 +65,6 @@ trait HasImpersonate{
     
     protected function findTenant($group){
         $tenant = $this->TenantModel()->select($this->__select)->addSelect('flag')->parentId($group->getKey());
-    
         if ($tenant_id = $this->option('tenant_id')) {
             $tenant = $tenant->find($tenant_id);
         } else {
@@ -82,8 +81,6 @@ trait HasImpersonate{
             }
     
             $this->__tenant = $tenant;
-            MicroTenant::tenantImpersonate($this->__tenant);
-            // tenancy()->initialize($this->__tenant);
             $this->info('Used Tenant: ' . $tenant->name);
         } else {
             $this->info('No tenants found in group.');

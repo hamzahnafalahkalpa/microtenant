@@ -6,7 +6,7 @@ use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
 use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
 use Hanafalah\MicroTenant\Commands\EnvironmentCommand;
 use Hanafalah\MicroTenant\Commands\Impersonate\Concerns\HasImpersonate;
-
+use Hanafalah\MicroTenant\Facades\MicroTenant;
 use Illuminate\Support\Str;
 use function Laravel\Prompts\select;
 
