@@ -8,6 +8,7 @@ use Hanafalah\LaravelSupport\{
 };
 use Illuminate\Support\Str;
 use Hanafalah\LaravelSupport\Concerns\DatabaseConfiguration\HasModelConfiguration;
+use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Hanafalah\MicroTenant\Scopes\UseTenantValidation;
 
 class BaseModel extends SupportModels\SupportBaseModel
@@ -20,12 +21,13 @@ class BaseModel extends SupportModels\SupportBaseModel
 
     public function initializeHasConfigDatabase()
     {
+        parent::initializeHasConfigDatabase();
         $model_connections = config('micro-tenant.database.model_connections');
         if (isset($model_connections) && count($model_connections) > 0){
             $this->__model_connections = $model_connections;
             $keys = array_keys($model_connections);
             foreach ($keys as $key) $this->validateConnection($key);
-            if (!isset($this->connection) && isset(tenancy()->tenant)) $this->connection = 'tenant';
+            if (!isset($this->connection) && isset(tenancy()->tenant) && tenancy()->tenant->flag == Tenant::FLAG_TENANT) $this->connection = 'tenant';
         }
     }
 
