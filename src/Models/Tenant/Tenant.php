@@ -78,7 +78,7 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     public function installationSchema(){return $this->morphOneModel('InstallationSchema','reference');} //ONLY ONE
     public function modelHasFeatures(){return $this->hasManyModel('ModelHasFeature');}
     public function modelHasApp(){return $this->morphOneModel('ModelHasApp','model');}
-    public function reference(){return $this->morphTo('reference');}
+    public function reference(){return $this->morphTo();}
     //END EIGER SECTION
 
     public function newCollection(array $models = []): TenantCollection

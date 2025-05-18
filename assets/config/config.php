@@ -2,6 +2,7 @@
 
 use Hanafalah\MicroTenant\Models as MicroTenantModels;
 use Hanafalah\MicroTenant\Commands as Commands;
+use Hanafalah\MicroTenant\ModuleUser\UserReference;
 
 return [
     'enabled'      => true,
@@ -31,7 +32,6 @@ return [
             ]
         ],
         'models'  => [
-            //
         ],
         'model_connections' => [
             "central"        => [],

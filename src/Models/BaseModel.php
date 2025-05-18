@@ -20,15 +20,13 @@ class BaseModel extends SupportModels\SupportBaseModel
 
     public function initializeHasConfigDatabase()
     {
-        parent::initializeHasConfigDatabase();
         $model_connections = config('micro-tenant.database.model_connections');
         if (isset($model_connections) && count($model_connections) > 0){
             $this->__model_connections = $model_connections;
-            $this->validateConnection('central')
-                 ->validateConnection('central_app')
-                 ->validateConnection('central_tenant');
+            $keys = array_keys($model_connections);
+            foreach ($keys as $key) $this->validateConnection($key);
+            if (!isset($this->connection) && isset(tenancy()->tenant)) $this->connection = 'tenant';
         }
-        // if ($this->getMorphClass() == 'ModelHasFeature') dump($this->connection,$model_connections);
     }
 
     private function validateConnection(string $connection): self{

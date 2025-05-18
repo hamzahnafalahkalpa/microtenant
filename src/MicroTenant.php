@@ -3,17 +3,16 @@
 namespace Hanafalah\MicroTenant;
 
 use GroupInitialPuskesmas\TenantPuskesmas\TenantPuskesmas;
+use Hanafalah\ApiHelper\Contracts\ModuleApiAccess;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\MicroTenant\Concerns\Providers\HasImpersonate;
 use Hanafalah\MicroTenant\Concerns\Providers\HasOverrider;
 use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
-use Hanafalah\ApiHelper\Schemas\ApiAccess;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Projects\Puskesmas\Providers\PuskesmasServiceProvider;
-use Projects\Puskesmas\Puskesmas;
 
 class MicroTenant extends PackageManagement implements ContractsMicroTenant
 {
@@ -71,7 +70,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             $path = tenant_path($tenant_folder.'/storage');
             $this->overrideStoragePath($path);
         }
-
         return $this;
     }
 
@@ -154,17 +152,15 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         return $this;
     }
 
-    public function onLogin(ApiAccess $api_access){
-        $this->api_access = $api_access;
+    public function onLogin(ModuleApiAccess $api_access){
+        $this->api_access  = $api_access;
         $current_reference = $this->api_access->getUser()->userReference;
-        if (isset($current_reference)){
-            $this->tenant = $current_reference->tenant;
-            tenancy()->initialize($this->tenant);
-            if (isset($this->tenant)){
-                $this->tenantImpersonate();
-            }else{
-                throw new \Exception('Tenant not found');
-            }
+        $tenant            = $current_reference->tenant;
+        if (isset($current_reference) && isset($tenant)){
+            $this->tenant = $tenant;
+            (isset($this->tenant))
+                ? $this->tenantImpersonate()
+                : throw new \Exception('Tenant not found');
         }else{
             throw new \Exception('User Invalid');
         }
@@ -181,14 +177,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             ] as $provider) {
                 app()->register($this->replacement($provider));
             }
-            // $cache = $this->getMicroTenantCache();
-            // if (!isset($cache)){
-            //     Artisan::call('impersonate:cache',[
-            //         '--tenant_id' => $this->tenant->getKey(),
-            //         '--group_id'  => $this->tenant->parent_id,
-            //         '--app_id'    => $this->api_access->getApiAccess()->reference_id
-            //     ]);
-            // }
         }
         return $this;
     }

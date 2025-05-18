@@ -4,6 +4,8 @@ namespace Hanafalah\MicroTenant\Middlewares;
 
 use Closure;
 use Hanafalah\ApiHelper\Facades\ApiAccess;
+use Hanafalah\MicroTenant\Facades\MicroTenant;
+use Illuminate\Support\Facades\Auth;
 
 class MicroAccess
 {
@@ -16,9 +18,9 @@ class MicroAccess
      */
     public function handle($request, Closure $next)
     {
-        $api_access = ApiAccess::getApiAccess();
-        if (isset($api_access)) {
-            return $next($request);
-        }
+        ApiAccess::accessOnLogin(function ($api_access) {
+            MicroTenant::onLogin($api_access);
+        });
+        return $next($request);
     }
 }
