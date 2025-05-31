@@ -20,6 +20,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
 
     protected array $__micro_tenant_config = [];
     protected string $__entity = 'Tenant';
+    protected $__exception;
 
     /** @var Tenant|int|string|null */
     public static $microtenant;
@@ -189,5 +190,13 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
      */
     private function replacement(string $value){
         return preg_replace('/\\\\+/', '\\', $value);
+    }
+
+    public function setException($exception){
+        $this->__exception = $exception;
+    }
+
+    public function getException(){
+        return $this->__exception;
     }
 }

@@ -2,10 +2,13 @@
 
 namespace Hanafalah\MicroTenant;
 
+use Firebase\JWT\ExpiredException;
 use Laravel\Sanctum\Sanctum;
 use Hanafalah\MicroTenant\MicroTenant;
 use Hanafalah\ApiHelper\Facades\ApiAccess as FacadesApiAccess;
 use Hanafalah\MicroTenant\Facades\MicroTenant as FacadesMicroTenant;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class MicroTenantServiceProvider extends MicroServiceProvider
 {
@@ -43,22 +46,37 @@ class MicroTenantServiceProvider extends MicroServiceProvider
             ->overrideLaravelSupportConfig()
             ->overrideMergePackageConfig()
             ->overrideAuthConfig();
+        if (session_status() === PHP_SESSION_NONE) session_start();
         $this->app->booted(function () {
-            Sanctum::usePersonalAccessTokenModel($this->PersonalAccessTokenModelInstance());
-            $model = FacadesMicroTenant::getMicroTenant()?->tenant?->model;
-            if (isset($model)) tenancy()->initialize($model);
+            try {
+                Sanctum::usePersonalAccessTokenModel($this->PersonalAccessTokenModelInstance());
+                config(['api-helper.expiration' => null]);
+                if (isset($_SESSION['tenant'])){
+                    FacadesMicroTenant::tenantImpersonate($_SESSION['tenant']);
+                    tenancy()->initialize($_SESSION['tenant']);
+                }
+                if (isset($_SESSION['user'])) Auth::setUser($_SESSION['user']);
+            } catch (\Exception $e) {
+                // dd($e->getMessage());   
+            }
         });
         if (request()->headers->has('AppCode')) {
-            FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
-                FacadesMicroTenant::onLogin($api_access);
-            });
+            try {
+                FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
+                    FacadesMicroTenant::onLogin($api_access);
+                });
+            } catch (\Exception $e) {
+                // dd($e->getMessage());   
+            }
         } else {
             //FOR TESTING ONLY             
-            if ((config('micro-tenant.dev_mode') && app()->environment('local')) || config('micro-tenant.superadmin')) {
+            if ((config('micro-tenant.dev_mode') && app()->environment('local')) || config('micro-tenant.monolith')) {
+            // if ((config('micro-tenant.dev_mode') && app()->environment('local'))) {
                 $cache       = FacadesMicroTenant::getCacheData('impersonate');
                 $impersonate = cache()->tags($cache['tags'])->get($cache['name']);
-                if (isset($impersonate->tenant->model)) {
-                    FacadesMicroTenant::tenantImpersonate($impersonate->tenant->model);
+                if (isset($impersonate->tenant->model) || isset($_SESSION['tenant'])) {
+                    $model = $impersonate?->tenant?->model ?? $_SESSION['tenant'];
+                    FacadesMicroTenant::tenantImpersonate($model);
                 }
             } else {
                 $login_schema = config('micro-tenant.login_schema');
