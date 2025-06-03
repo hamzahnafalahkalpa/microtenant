@@ -50,10 +50,15 @@ class BaseModel extends SupportModels\SupportBaseModel
     }
 
     public function getTable(){
-        $table           = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
         $connection_name = $this->getConnectionName();
         $connection      = config('database.connections.' . ($connection_name ?? config('database.default')));
-        $db_name         = ($connection['driver'] == 'pgsql') ? $connection['search_path'] : $connection['database'];
+        if ($connection['driver'] == 'pgsql') {
+            return parent::getTable();
+        }else{
+            $db_name = $connection['database'];
+        }
+
+        $table           = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
         $table           = \explode('.', $table);
         $table           = end($table);
         return $db_name . '.' . $table;
