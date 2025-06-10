@@ -12,7 +12,9 @@ use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class MicroTenant extends PackageManagement implements ContractsMicroTenant
 {
@@ -136,6 +138,10 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     }
 
     public function overrideStoragePath(string $path): self{
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
         app()->useStoragePath($path);
         return $this;
     }
@@ -165,18 +171,24 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         }else{
             throw new \Exception('User Invalid');
         }
+        return $this->getMicroTenant();
     }
 
     public function impersonate($path): self{
         require base_path().'/vendor/autoload.php';
         if (file_exists($path.'/vendor/autoload.php')){
-            require $path.'/vendor/autoload.php';
-            foreach ([
-                $this->tenant->app['provider'],
-                $this->tenant->group['provider'],
-                $this->tenant->provider
-            ] as $provider) {
-                app()->register($this->replacement($provider));
+            try {
+                require $path.'/vendor/autoload.php';
+                foreach ([
+                    $this->tenant->app['provider'],
+                    $this->tenant->group['provider'],
+                    $this->tenant->provider
+                ] as $provider) {
+                    app()->register($this->replacement($provider));
+                }
+            } catch (\Throwable $th) {
+                dd($th->getMessage());
+                //throw $th;
             }
         }
         return $this;

@@ -47,22 +47,40 @@ class MicroTenantServiceProvider extends MicroServiceProvider
             ->overrideMergePackageConfig()
             ->overrideAuthConfig();
         if (session_status() === PHP_SESSION_NONE) session_start();
-
+        $this->app->booted(function () {
+            try {
+                Sanctum::usePersonalAccessTokenModel($this->PersonalAccessTokenModelInstance());
+                config(['api-helper.expiration' => null]);
+                if (config('micro-tenant.monolith')){
+                    if (isset($_SESSION['tenant'])){
+                        FacadesMicroTenant::tenantImpersonate($_SESSION['tenant']);
+                        $tenant = $_SESSION['tenant'];
+                    }
+                    if (isset($_SESSION['user'])) Auth::setUser($_SESSION['user']);
+                }else{
+                    $microtenant = FacadesMicroTenant::getMicroTenant();
+                    if (isset($microtenant)) $tenant = $microtenant->tenant->model;
+                }
+                if (isset($tenant)) tenancy()->initialize($tenant);
+            } catch (\Exception $e) {
+            }
+        });
         if (request()->headers->has('AppCode')) {
             try {
                 FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
-                    FacadesMicroTenant::onLogin($api_access);
+                    $microtenant = FacadesMicroTenant::onLogin($api_access);
+                    Auth::setUser($api_access->getUser());
+                    tenancy()->initialize($microtenant->tenant->model);
                 });
             } catch (\Exception $e) {
-                // dd($e->getMessage());   
             }
         } else {
             //FOR TESTING ONLY             
             if ((config('micro-tenant.dev_mode') && app()->environment('local')) || config('micro-tenant.monolith')) {
                 $cache       = FacadesMicroTenant::getCacheData('impersonate');
                 $impersonate = cache()->tags($cache['tags'])->get($cache['name']);
-                if (isset($impersonate->tenant->model) || isset($_SESSION['tenant'])) {
-                    $model = $impersonate?->tenant?->model ?? $_SESSION['tenant'];
+                if (isset($impersonate->tenant->model)) {
+                    $model = $impersonate?->tenant?->model;
                     FacadesMicroTenant::tenantImpersonate($model);
                 }
             } else {
@@ -72,23 +90,5 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                 }
             }
         }
-
-        $this->app->booted(function () {
-            try {
-                Sanctum::usePersonalAccessTokenModel($this->PersonalAccessTokenModelInstance());
-                config(['api-helper.expiration' => null]);
-                // if (isset($_SESSION['user'])) Auth::setUser($_SESSION['user']);
-                if (isset($_SESSION['tenant'])){
-                    FacadesMicroTenant::tenantImpersonate($_SESSION['tenant']);
-                    $tenant = $_SESSION['tenant'];
-                }else{
-                    $microtenant = FacadesMicroTenant::getMicroTenant();
-                    $tenant = $microtenant->tenant->model;
-                }
-                tenancy()->initialize($tenant);
-            } catch (\Exception $e) {
-                // dd($e->getMessage());   
-            }
-        });
     }
 }

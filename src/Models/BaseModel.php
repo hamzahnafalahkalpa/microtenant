@@ -53,7 +53,11 @@ class BaseModel extends SupportModels\SupportBaseModel
         $connection_name = $this->getConnectionName();
         $connection      = config('database.connections.' . ($connection_name ?? config('database.default')));
         if ($connection['driver'] == 'pgsql') {
-            return parent::getTable();
+            if (config('micro-tenant.installing',false)){
+                $db_name = $connection['search_path'];
+            }else{
+                return parent::getTable();
+            }
         }else{
             $db_name = $connection['database'];
         }
