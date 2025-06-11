@@ -60,8 +60,8 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
      */
     public function tenantImpersonate($tenant = null, ? string $cek = null): self{
         $tenant ??= $this->tenant;
-        $this->initialize($tenant);
         $this->getCacheData('impersonate');
+        $this->initialize($tenant);
         $tenant_folder = Str::kebab($tenant->name);
         $path          = tenant_path($tenant_folder);
         $this->reconfigDatabases($tenant);

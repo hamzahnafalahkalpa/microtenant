@@ -93,7 +93,7 @@ trait HasImpersonate{
         $this->__impersonate['tenant']['namespace']  = \class_name_builder($this->__group->name).'\\'.\class_name_builder($this->__tenant->name);
     }
 
-    protected function impersonateConfig(array $config_path,) : self{
+    protected function impersonateConfig(array $config_path) : self{
         foreach($config_path as $key => $config) {
             if(isset($config)) {
                 $path         = $config->path.DIRECTORY_SEPARATOR.Str::kebab($config->name).'/src/'.$config['config']['generates']['config']['path'];

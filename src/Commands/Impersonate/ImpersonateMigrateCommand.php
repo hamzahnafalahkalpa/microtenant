@@ -4,6 +4,7 @@ namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
 use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
 use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
+use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\MicroTenant\Commands\EnvironmentCommand;
 use Hanafalah\MicroTenant\Commands\Impersonate\Concerns\HasImpersonate;
 use Hanafalah\MicroTenant\Facades\MicroTenant;
@@ -43,6 +44,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
      */
     public function handle()
     {
+        config(['micro-tenant.installing' => true]);
         $this->findApplication(function($project){
             $this->findGroup($project,function($group){
                 $this->findTenant($group);
@@ -51,7 +53,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                     "group"      => $this->__group,
                     "tenant"     => $this->__tenant
                 ]);
-
+                MicroTenant::tenantImpersonate($this->__tenant);
                 $this->__tenant_path = tenant_path($this->__tenant->name);
                 $this->setImpersonateNamespace();
 
@@ -71,8 +73,8 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                         
                         $allGroup = $this->getAllGroupWithApp($this->__application->id);
                         if (isset($allGroup) && count($allGroup) > 0) {
-                            $path        = $migration_path.'/centrals';
-                            $tenant_path = $migration_path.'/tenants';
+                            $path        = $migration_path.DIRECTORY_SEPARATOR.'centrals';
+                            $tenant_path = $migration_path.DIRECTORY_SEPARATOR.'tenants';
                             foreach($allGroup as $group) {
                                 $this->overrideConfig($path);
                                 $this->caller($group);
@@ -91,7 +93,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                         $this->caller($this->__group);
         
                         $allTenants  = $this->getAllTenantWithGroup($this->__group->id);
-                        $tenant_path = $migration_path."/tenants";
+                        $tenant_path = $migration_path.DIRECTORY_SEPARATOR."tenants";
                         foreach($allTenants as $tenant) {
                             $this->overrideConfig($tenant_path);
                             $this->caller($tenant);
@@ -116,7 +118,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
     }
 
     private function overrideConfig(mixed $path) {
-        $path = Str::replace('\\','/',$path);
+        $path = Str::replace('\\',DIRECTORY_SEPARATOR,$path);
         config(['tenancy.migration_parameters.--path' => $path]);
     }
 
