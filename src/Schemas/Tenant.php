@@ -22,12 +22,18 @@ class Tenant extends PackageManagement implements ContractsTenant
     ];
 
     public function prepareStoreTenant(TenantData $tenant_dto): Model{
+        if (isset($tenant_dto->domain)){
+            $domain = $this->schemaContract('domain')->prepareStoreDomain($tenant_dto->domain);
+            $tenant_dto->domain_id = $domain->getKey();
+        }
+
         $add   = [
-            'parent_id'      => $tenant_dto->parent_id ?? null,
+            'parent_id'      => $tenant_dto->parent_id,
             'name'           => $tenant_dto->name,
             'flag'           => $tenant_dto->flag,
-            'reference_id'   => $tenant_dto->reference_id ?? null,
-            'reference_type' => $tenant_dto->reference_type ?? null,
+            'reference_id'   => $tenant_dto->reference_id,
+            'reference_type' => $tenant_dto->reference_type,
+            'domain_id'      => $tenant_dto->domain_id
         ];
         if (isset($tenant_dto->id)){
             $guard = ['id' => $tenant_dto->id];
