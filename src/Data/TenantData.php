@@ -45,4 +45,18 @@ class TenantData extends Data implements DataTenantData{
     #[MapName('props')]
     public ?array $props = null;
 
+    public static function after(TenantData $data): TenantData{
+        $data->props['prop_domain'] = [
+            'id'   => $data->domain_id ?? null,
+            'name' => null
+        ];
+        $new = static::new();
+        if (isset($data->domain_id)){
+            $domain = $new->DomainModel()->findOrFail($data->domain_id);
+            $data->props['prop_domain']['name'] = $domain->name;
+        }
+
+        return $data;
+    }
+
 }

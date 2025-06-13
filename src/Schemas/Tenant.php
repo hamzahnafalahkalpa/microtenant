@@ -25,6 +25,10 @@ class Tenant extends PackageManagement implements ContractsTenant
         if (isset($tenant_dto->domain)){
             $domain = $this->schemaContract('domain')->prepareStoreDomain($tenant_dto->domain);
             $tenant_dto->domain_id = $domain->getKey();
+            $tenant_dto->props['prop_domain'] = [
+                'id'   => $domain->getKey(),
+                'name' => $domain->name
+            ];
         }
 
         $add   = [
