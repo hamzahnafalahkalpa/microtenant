@@ -68,41 +68,34 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 $migration_path  = $tenant_path.$impersonate['libs']['migration'];
                 switch ($field) {
                     case 'project':
-                        $this->overrideConfig([$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
-                        $this->caller($this->__application);
+                        $this->overrideCaller($this->__application,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
                         
                         $allGroup = $this->getAllGroupWithApp($this->__application->id);
                         if (isset($allGroup) && count($allGroup) > 0) {
                             $path        = $migration_path.DIRECTORY_SEPARATOR.'centrals';
                             $tenant_path = $migration_path.DIRECTORY_SEPARATOR.'tenants';
                             foreach($allGroup as $group) {
-                                $this->overrideConfig([$path,$path.DIRECTORY_SEPARATOR.'changes']);
-                                $this->caller($group);
+                                $this->overrideCaller($group,[$path,$path.DIRECTORY_SEPARATOR.'changes']);
                                 $allTenants  = $this->getAllTenantWithGroup($group->id);
                                 if(isset($allTenants) && count($allTenants) > 0) {
                                     foreach($allTenants as $tenant) {
-                                        $this->overrideConfig([$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
-                                        $this->caller($tenant);
+                                        $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
                                     }
                                 }
                             }
                         }
                     break;
                     case 'group':
-                        $this->overrideConfig([$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
-                        $this->caller($this->__group);
+                        $this->overrideCaller($this->__group,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
         
                         $allTenants  = $this->getAllTenantWithGroup($this->__group->id);
                         $tenant_path = $migration_path.DIRECTORY_SEPARATOR."tenants";
                         foreach($allTenants as $tenant) {
-                            $this->overrideConfig([$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
-                            $this->caller($tenant);
+                            $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
                         }
-                        
                     break;
                     default:
-                        $this->overrideConfig([$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
-                        $this->caller($this->__tenant);
+                        $this->overrideCaller($this->__tenant,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
                     break;
                 }
             });
@@ -125,6 +118,14 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
             }
         }
         config(['tenancy.migration_parameters.--path' => $path]);
+    }
+
+    private function overrideCaller($tenant,mixed $paths) {
+        $paths = $this->mustArray($paths);
+        foreach ($paths as $path) {
+            $this->overrideConfig($path);
+            $this->caller($tenant);
+        }
     }
 
     private function caller($tenant) {
