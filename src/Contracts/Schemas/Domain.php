@@ -6,6 +6,7 @@ use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
 
 /**
  * @see \Hanafalah\MicroTenant\Schemas\Domain
+ * @method self setParamLogic(string $logic, bool $search_value = false, ?array $optionals = [])
  * @method self conditionals(mixed $conditionals)
  * @method bool deleteDomain()
  * @method bool prepareDeleteDomain(? array $attributes = null)
