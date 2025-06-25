@@ -59,7 +59,7 @@ trait NowYouSeeMe
         }
         $this->__table_name = $this->__table->getTable();
         $schema    = Schema::connection($this->__table->getConnectionName());
-        $callback($schema, explode('.', $this->__table_name)[1] ?? $this->__table_name);
+        $callback($schema, $this->__table_name);
         tenancy()->initialize($tenant_id);
     }
 }
