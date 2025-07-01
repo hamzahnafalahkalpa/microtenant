@@ -59,6 +59,7 @@ class BaseModel extends SupportModels\SupportBaseModel
                 return parent::getTable();
             }
         }else{
+            dump($this->getMorphClass());
             $db_name = $connection['database'];
         }
 
