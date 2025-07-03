@@ -142,7 +142,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             mkdir($path, 0777, true);
         }
 
-        app()->useStoragePath($path);
+        // app()->useStoragePath($path);
         return $this;
     }
 
