@@ -188,7 +188,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                 }
             } catch (\Throwable $th) {
                 dd($th->getMessage());
-                //throw $th;
+                throw $th;
             }
         }
         return $this;
