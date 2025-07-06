@@ -172,7 +172,7 @@ return [
                         'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
                     ]],
                     'composer'          => ['type' => 'file','path' => '../', 'generate' => true, 'stub' => 'project-composer.json.stub', 'files'=>[]],
-                    'helpers'           => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'helpers.php.stub', 'files'=>[]],
+                    'helpers'           => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'helper.php.stub', 'files'=>[]],
     
                     //FILE
                     'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
@@ -227,7 +227,7 @@ return [
                         'config'        => ['generate' => true, 'stub' => 'project-config.php.stub']
                     ]],
                     'composer'          => ['type' => 'file','path' => '../', 'generate' => true, 'stub' => 'project-composer.json.stub', 'files'=>[]],
-                    'helpers'           => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'helpers.php.stub', 'files'=>[]],
+                    'helpers'           => ['type' => 'file','path' => '', 'generate' => true, 'stub' => 'helper.php.stub', 'files'=>[]],
     
                     //FILE
                     'gitignore'          => ['filename' => '.gitignore','type' => 'file','path' => '', 'generate' => true, 'stub' => '.gitignore.stub'],
