@@ -8,11 +8,15 @@ use Hanafalah\LaravelHasProps\Concerns\HasProps;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Hanafalah\MicroTenant\Models\BaseModel;
 use Hanafalah\Microtenant\Resources\Domain\{ShowDomain, ViewDomain};
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Domain extends BaseModel
 {
-    use SoftDeletes, HasProps;
+    use SoftDeletes, HasProps, HasUlids;
     
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $primaryKey = 'id';
     protected $list = ['id', 'name', 'created_at', 'updated_at', 'deleted_at'];
     protected $casts = [
         'name' => 'string'
