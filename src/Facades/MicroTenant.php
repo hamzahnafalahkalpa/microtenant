@@ -4,7 +4,7 @@ namespace Hanafalah\MicroTenant\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
-
+use Hanafalah\MicroTenant\MicroTenant as MicroTenantMicroTenant;
 
 /**
  * @property static $microtenant
@@ -19,6 +19,6 @@ class MicroTenant extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return ContractsMicroTenant::class;
+        return MicroTenantMicroTenant::class;
     }
 }

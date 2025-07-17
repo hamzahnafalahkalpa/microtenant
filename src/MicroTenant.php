@@ -11,10 +11,7 @@ use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use RuntimeException;
 
 class MicroTenant extends PackageManagement implements ContractsMicroTenant
 {

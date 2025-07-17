@@ -2,13 +2,11 @@
 
 namespace Hanafalah\MicroTenant;
 
-use Firebase\JWT\ExpiredException;
 use Laravel\Sanctum\Sanctum;
 use Hanafalah\MicroTenant\MicroTenant;
 use Hanafalah\ApiHelper\Facades\ApiAccess as FacadesApiAccess;
 use Hanafalah\MicroTenant\Facades\MicroTenant as FacadesMicroTenant;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class MicroTenantServiceProvider extends MicroServiceProvider
 {
