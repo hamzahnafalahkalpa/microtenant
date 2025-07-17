@@ -73,7 +73,6 @@ class BaseModelTenant extends Tenant implements TenantWithDatabase
 
     protected function validatingHistory($query)
     {
-        dd();
         $validation = $query->getModel() <> $this->LogHistoryModel()::class;
         if ($query->getConnectionName() == "tenant" && microtenant() === null) $validation = false;
         return $validation;

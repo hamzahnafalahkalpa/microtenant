@@ -64,6 +64,9 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $this->initialize($tenant);
         $tenant_folder = Str::kebab($tenant->name);
         $path          = tenant_path($tenant_folder);
+        if (!Str::startsWith($path, base_path())) {
+            $path = base_path($path);
+        }
         $this->reconfigDatabases($tenant);
         $this->impersonate($path);
         if (isset($this->__impersonate)){

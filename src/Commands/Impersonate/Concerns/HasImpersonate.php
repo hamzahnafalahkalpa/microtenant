@@ -4,7 +4,6 @@ namespace Hanafalah\MicroTenant\Commands\Impersonate\Concerns;
 
 use function Laravel\Prompts\select;
 
-use Hanafalah\MicroTenant\Facades\MicroTenant;
 use Illuminate\Support\Str;
 
 trait HasImpersonate{
