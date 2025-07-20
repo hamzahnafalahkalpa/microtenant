@@ -4,6 +4,7 @@ namespace Hanafalah\MicroTenant;
 
 use GroupInitialPuskesmas\TenantPuskesmas\TenantPuskesmas;
 use Hanafalah\ApiHelper\Contracts\ModuleApiAccess;
+use Hanafalah\ApiHelper\Facades\ApiAccess;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\MicroTenant\Concerns\Providers\HasImpersonate;
 use Hanafalah\MicroTenant\Concerns\Providers\HasOverrider;
@@ -11,6 +12,8 @@ use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 
 class MicroTenant extends PackageManagement implements ContractsMicroTenant
@@ -155,6 +158,20 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     {
         App::useDatabasePath($migration_path);
         return $this;
+    }
+
+    public function accessOnLogin(){
+        Event::listen(\Laravel\Octane\Events\RequestReceived::class, function ($event) {
+            $request = $event->request;
+
+            if ($request->headers->has('AppCode')) {
+                ApiAccess::init()->accessOnLogin(function ($api_access) {
+                    $microtenant = MicroTenant::onLogin($api_access);
+                    Auth::setUser($api_access->getUser());
+                    tenancy()->initialize($microtenant->tenant->model);
+                });
+            }
+        });
     }
 
     public function onLogin(ModuleApiAccess $api_access){

@@ -10,7 +10,7 @@ use Hanafalah\MicroTenant\Contracts\Data\DomainData;
 class Domain extends PackageManagement implements ContractsDomain
 {
     protected string $__entity = 'Domain';
-    public static $domain_model;
+    public $domain_model;
     protected mixed $__order_by_created_at = false; //asc, desc, false
 
     protected array $__cache = [
@@ -33,6 +33,6 @@ class Domain extends PackageManagement implements ContractsDomain
         }
         $domain = $this->usingEntity()->updateOrCreate(...$create);
         $domain->save();
-        return static::$domain_model = $domain;
+        return $this->domain_model = $domain;
     }
 }

@@ -10,7 +10,7 @@ use Hanafalah\MicroTenant\Contracts\Data\TenantData;
 class Tenant extends PackageManagement implements ContractsTenant
 {
     protected string $__entity = 'Tenant';
-    public static $tenant_model;
+    public $tenant_model;
     protected mixed $__order_by_created_at = false; //asc, desc, false
 
     protected array $__cache = [
