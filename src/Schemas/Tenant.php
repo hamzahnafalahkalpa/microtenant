@@ -48,7 +48,7 @@ class Tenant extends PackageManagement implements ContractsTenant
         $tenant = $this->TenantModel()->updateOrCreate(...$create);
         $this->fillingProps($tenant,$tenant_dto->props);
         $tenant->save();
-        static::$tenant_model = $tenant;
+        $this->tenant_model = $tenant;
         return $tenant;
     }
 }
