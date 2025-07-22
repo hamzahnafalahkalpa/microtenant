@@ -202,7 +202,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                     app()->register($this->replacement($provider));
                 }
             } catch (\Throwable $th) {
-                dd($th->getMessage());
                 throw $th;
             }
         }
