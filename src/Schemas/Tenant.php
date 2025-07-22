@@ -45,10 +45,9 @@ class Tenant extends PackageManagement implements ContractsTenant
         }else{
             $create = [$add];
         }
-        $tenant = $this->TenantModel()->updateOrCreate(...$create);
+        $tenant = $this->usingEntity()->updateOrCreate(...$create);
         $this->fillingProps($tenant,$tenant_dto->props);
         $tenant->save();
-        $this->tenant_model = $tenant;
-        return $tenant;
+        return $this->tenant_model = $tenant;
     }
 }

@@ -35,7 +35,7 @@ class TenantData extends Data implements DataTenantData{
 
     #[MapInputName('reference_id')]
     #[MapName('reference_id')]
-    public ?string $reference_id = null;
+    public mixed $reference_id = null;
 
     #[MapInputName('reference_type')]
     #[MapName('reference_type')]
