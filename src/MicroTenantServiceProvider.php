@@ -64,30 +64,34 @@ class MicroTenantServiceProvider extends MicroServiceProvider
             } catch (\Exception $e) {
             }
         });
-        if (request()->headers->has('AppCode')) {
-            try {
-                FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
-                    $microtenant = FacadesMicroTenant::onLogin($api_access);
-                    Auth::setUser($api_access->getUser());
-                    tenancy()->initialize($microtenant->tenant->model);
-                });
-            } catch (\Exception $e) {
-            }
-        } else {
-            //FOR TESTING ONLY             
-            if ((config('micro-tenant.dev_mode') && app()->environment('local')) || config('micro-tenant.monolith')) {
-                $cache       = FacadesMicroTenant::getCacheData('impersonate');
-                $impersonate = cache()->tags($cache['tags'])->get($cache['name']);
-                if (isset($impersonate->tenant->model)) {
-                    $model = $impersonate?->tenant?->model;
-                    FacadesMicroTenant::tenantImpersonate($model);
+        try {
+            if (request()->headers->has('AppCode')) {
+                try {
+                    FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
+                        $microtenant = FacadesMicroTenant::onLogin($api_access);
+                        Auth::setUser($api_access->getUser());
+                        tenancy()->initialize($microtenant->tenant->model);
+                    });
+                } catch (\Exception $e) {
                 }
             } else {
-                $login_schema = config('micro-tenant.login_schema');
-                if (isset($login_schema) && \class_exists($login_schema)) {
-                    app($login_schema)->authenticate();
+                //FOR TESTING ONLY             
+                if ((config('micro-tenant.dev_mode') && app()->environment('local')) || config('micro-tenant.monolith')) {
+                    $cache       = FacadesMicroTenant::getCacheData('impersonate');
+                    $impersonate = cache()->tags($cache['tags'])->get($cache['name']);
+                    if (isset($impersonate->tenant->model)) {
+                        $model = $impersonate?->tenant?->model;
+                        FacadesMicroTenant::tenantImpersonate($model);
+                    }
+                } else {
+                    $login_schema = config('micro-tenant.login_schema');
+                    if (isset($login_schema) && \class_exists($login_schema)) {
+                        app($login_schema)->authenticate();
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            dd($e->getMessage());
         }
     }
 }
