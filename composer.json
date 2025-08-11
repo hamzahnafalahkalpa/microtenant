@@ -18,12 +18,12 @@
     ],
     "require": {
         "stancl/tenancy": "^3.8",
-        "hanafalah/laravel-support": "1.x-dev as 1.0",
+        "hanafalah/laravel-support": "dev-main as 1.0",
         "hanafalah/api-helper": "^1.0.0",
-        "hanafalah/laravel-feature": "1.x-dev as 1.0",
-        "hanafalah/module-user": "1.x-dev as 1.0",
-        "hanafalah/module-workspace": "1.x-dev as 1.0",
-        "hanafalah/laravel-permission": "1.x-dev as 1.0",
+        "hanafalah/laravel-feature": "dev-main as 1.0",
+        "hanafalah/module-user": "dev-main as 1.0",
+        "hanafalah/module-workspace": "dev-main as 1.0",
+        "hanafalah/laravel-permission": "dev-main as 1.0",
         "symfony/filesystem": "^7.1"
     },
     "extra": {
