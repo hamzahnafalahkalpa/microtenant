@@ -150,9 +150,9 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     }
 
     public function overrideStoragePath(string $path): self{
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
+        // if (!is_dir($path)) {
+        //     mkdir($path, 0777, true);
+        // }
 
         // app()->useStoragePath($path);
         return $this;
@@ -210,6 +210,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                     $this->tenant->group['provider'],
                     $this->tenant->provider
                 ] as $provider) {
+                    if (!class_exists($provider)) continue;
                     app()->register($this->replacement($provider));
                 }
             } catch (\Throwable $th) {

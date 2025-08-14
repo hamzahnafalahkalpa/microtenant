@@ -75,8 +75,8 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                 } catch (\Exception $e) {
                 }
             } else {
-                //FOR TESTING ONLY             
-                if ((config('micro-tenant.dev_mode') && app()->environment('local')) || config('micro-tenant.monolith')) {
+                //FOR TESTING ONLY        
+                if (config('micro-tenant.dev_mode') || config('micro-tenant.monolith')) {
                     $cache       = FacadesMicroTenant::getCacheData('impersonate');
                     $impersonate = cache()->tags($cache['tags'])->get($cache['name']);
                     if (isset($impersonate->tenant->model)) {
