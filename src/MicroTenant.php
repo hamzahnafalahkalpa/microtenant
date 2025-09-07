@@ -10,6 +10,7 @@ use Hanafalah\MicroTenant\Concerns\Providers\HasImpersonate;
 use Hanafalah\MicroTenant\Concerns\Providers\HasOverrider;
 use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -66,7 +67,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $path          = tenant_path($tenant_folder);
         $this->basePathResolver($path);
         $this->reconfigDatabases($tenant);
-        $this->impersonate($path);
+        $this->impersonate($tenant);
         if (isset($this->__impersonate)){
             $tenant_config = config($tenant_folder.'.libs.migration');
             $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
@@ -200,22 +201,22 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         return $this->getMicroTenant();
     }
 
-    public function impersonate($path): self{
-        require base_path().'/vendor/autoload.php';
-        if (file_exists($path.'/vendor/autoload.php')){
-            try {
+    public function impersonate(Model $tenant): self{
+        try {
+            $path = $tenant->path.DIRECTORY_SEPARATOR.Str::kebab($tenant->name);
+            $this->basePathResolver($path);
+            if (file_exists($path.'/vendor/autoload.php')){
                 require $path.'/vendor/autoload.php';
-                foreach ([
-                    $this->tenant->app['provider'],
-                    $this->tenant->group['provider'],
-                    $this->tenant->provider
-                ] as $provider) {
-                    if (!class_exists($provider)) continue;
-                    app()->register($this->replacement($provider));
-                }
-            } catch (\Throwable $th) {
-                throw $th;
             }
+            if (isset($tenant->parent)){
+                $this->impersonate($tenant->parent);
+            }
+            $provider = $tenant->provider;
+            if (class_exists($provider)){
+                app()->register($this->replacement($provider));
+            }
+        } catch (\Throwable $th) {
+            throw $th;
         }
         return $this;
     }
