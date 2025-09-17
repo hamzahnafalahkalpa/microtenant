@@ -22,6 +22,10 @@ return [
         'database' => 'Database'
     ],
     'database' => [
+        'app_tenant'   => [
+            'prefix' => 'app_tenant_',
+            'suffix' => ''
+        ],
         'central_tenant'   => [
             'prefix' => 'central_tenant_',
             'suffix' => ''
@@ -33,6 +37,7 @@ return [
         ],
         'models'  => [
         ],
+        'connection_manager' => Hanafalah\MicroTenant\Contracts\Supports\ConnectionManager::class,
         'model_connections' => [
             "central"        => [],
             "central_app"    => [],

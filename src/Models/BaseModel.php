@@ -59,13 +59,13 @@ class BaseModel extends SupportModels\SupportBaseModel
                 return parent::getTable();
             }
         }else{
-            dump($this->getMorphClass());
             $db_name = $connection['database'];
         }
 
         $table           = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
         $table           = \explode('.', $table);
         $table           = end($table);
+
         return $db_name . '.' . $table;
     }
 

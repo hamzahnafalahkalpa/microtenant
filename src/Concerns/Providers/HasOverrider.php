@@ -35,9 +35,12 @@ trait HasOverrider
             'database.connection_central_name'            => 'central',
             'database.connection_central_tenant_name'     => 'central_tenant',
             'database.connection_central_app_name'        => 'central_app',
-            'database.connections.central'                => $connection['central_connection'],
-            'database.connections.central_tenant'         => $connection['central_connection'],
-            'database.connections.central_app'            => $connection['central_connection']
         ]);
+        $database_connections = config('database.connections');
+        foreach ($database['model_connections'] as $key => $value) {
+            if (isset($database_connections[$key])) continue;
+            $database_connections[$key] = $connection['central_connection'];
+        }
+        config(['database.connections' => $database_connections]);
     }
 }

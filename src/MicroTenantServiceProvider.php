@@ -62,6 +62,7 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                 }
                 if (isset($tenant)) tenancy()->initialize($tenant);
             } catch (\Exception $e) {
+                    dd($e->getMessage());
             }
         });
         try {
@@ -73,6 +74,7 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                         tenancy()->initialize($microtenant->tenant->model);
                     });
                 } catch (\Exception $e) {
+                    dd($e->getMessage());
                 }
             } else {
                 //FOR TESTING ONLY        

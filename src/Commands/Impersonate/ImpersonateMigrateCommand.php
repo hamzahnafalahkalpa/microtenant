@@ -68,6 +68,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 $migration_path  = $tenant_path.$impersonate['libs']['migration'];
                 switch ($field) {
                     case 'project':
+                        $this->setupDb($field,$this->__application);
                         $this->overrideCaller($this->__application,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
                         
                         $allGroup = $this->getAllGroupWithApp($this->__application->id);
@@ -75,10 +76,14 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                             $path        = $migration_path.DIRECTORY_SEPARATOR.'centrals';
                             $tenant_path = $migration_path.DIRECTORY_SEPARATOR.'tenants';
                             foreach($allGroup as $group) {
+                                $this->setupDb('group',$group);
                                 $this->overrideCaller($group,[$path,$path.DIRECTORY_SEPARATOR.'changes']);
+
                                 $allTenants  = $this->getAllTenantWithGroup($group->id);
+
                                 if(isset($allTenants) && count($allTenants) > 0) {
                                     foreach($allTenants as $tenant) {
+                                        $this->setupDb('tenant',$tenant);
                                         $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
                                     }
                                 }
@@ -86,20 +91,46 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                         }
                     break;
                     case 'group':
+                        $this->setupDb($field,$this->__group);
                         $this->overrideCaller($this->__group,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
         
                         $allTenants  = $this->getAllTenantWithGroup($this->__group->id);
                         $tenant_path = $migration_path.DIRECTORY_SEPARATOR."tenants";
                         foreach($allTenants as $tenant) {
+                            $this->setupDb('tenant',$tenant);
                             $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
                         }
                     break;
                     default:
+                        $this->setupDb('tenant',$this->__tenant);
                         $this->overrideCaller($this->__tenant,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
                     break;
                 }
             });
         });    
+    }
+
+    private function setupDb($field,$tenant){
+        switch ($field) {
+            case 'project':
+                config([
+                    'database.connections.central_app.database' => $tenant->db_name,
+                    'database.connections.central_app.search_path' => $tenant->db_name == $tenant->tenancy_db_name ? 'public' : $tenant->tenancy_db_name,
+                ]);
+            break;
+            case 'group':
+                config([
+                    'database.connections.central_tenant.database' => $tenant->db_name,
+                    'database.connections.central_tenant.search_path' => $tenant->db_name == $tenant->tenancy_db_name ? 'public' : $tenant->tenancy_db_name,
+                ]);
+            break;
+            default:
+                config([
+                    'database.connections.tenant.database' => $tenant->db_name,
+                    'database.connections.tenant.search_path' => $tenant->db_name == $tenant->tenancy_db_name ? 'public' : $tenant->tenancy_db_name,
+                ]);
+            break;
+        }
     }
 
     private function getAllGroupWithApp($id) {

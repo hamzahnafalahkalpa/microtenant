@@ -59,15 +59,16 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
      *
      * @return self
      */
-    public function tenantImpersonate($tenant = null, ? string $cek = null): self{
+    public function tenantImpersonate($tenant = null): self{
         $tenant ??= $this->tenant;
         $this->getCacheData('impersonate');
         $this->initialize($tenant);
         $tenant_folder = Str::kebab($tenant->name);
         $path          = tenant_path($tenant_folder);
         $this->basePathResolver($path);
-        $this->reconfigDatabases($tenant);
         $this->impersonate($tenant);
+        tenancy()->initialize($tenant);
+        $this->reconfigDatabases($tenant);
         if (isset($this->__impersonate)){
             $tenant_config = config($tenant_folder.'.libs.migration');
             $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
@@ -120,33 +121,8 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         return $this;
     }
 
-    public function reconfigDatabase($tenant): self{
-        $connection_path = "database.connections.".$tenant->getConnectionFlagName();
-        switch (env('DB_DRIVER',null)) {
-            case 'mysql':
-                config([
-                    "$connection_path.database" => $tenant->tenancy_db_name,
-                    "$connection_path.username" => $tenant->tenancy_db_username,
-                    "$connection_path.password" => $tenant->tenancy_db_password
-                ]);
-            break;
-            case 'pgsql': 
-                config([
-                    "$connection_path.database"    => env('DB_DATABASE', 'central'),
-                    "$connection_path.search_path" => $tenant->tenancy_db_name,
-                    "$connection_path.username"    => $tenant->tenancy_db_username ?? env('DB_USERNAME'),
-                    "$connection_path.password"    => $tenant->tenancy_db_password ?? env('DB_PASSWORD')
-                ]);
-            break;
-            case 'sqlite':
-                config([
-                    "$connection_path.database"    => $tenant->tenancy_db_name
-                ]);
-            break;
-            default:
-                throw new \Exception('Database driver not supported');
-            break;
-        }
+    public function reconfigDatabase(Model $tenant): self{
+        app(config('micro-tenant.database.connection_manager'))->handle($tenant);
         return $this;
     }
 
