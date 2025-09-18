@@ -2,6 +2,10 @@
 
 namespace Hanafalah\MicroTenant\Concerns\Providers;
 
+use Hanafalah\MicroTenant\Contracts\Data\TenantData;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
 trait HasOverrider
 {
     protected array $__impersonate;
@@ -14,7 +18,7 @@ trait HasOverrider
         ]
     ];
 
-    public function overrideTenantConfig(){
+    public function overrideTenantConfig(?Model $tenant = null){
         $microtenant   = config('micro-tenant');
         $database      = $microtenant['database'];
         $connection    = $database['connections'];
@@ -38,19 +42,24 @@ trait HasOverrider
             'database.connection_central_app_name'        => 'central_app',
         ]);
         $database_connections = config('database.connections');
+        $clusters = [];
+        $header_cluster = request()->header('cluster') ?? date('Y');
         foreach ($model_connections as $key => $model_connection) {
             if (isset($model_connection['connection_as'])){
                 $connection_as = config('database.connections.'.$model_connection['connection_as']);
                 $model_connection['is_cluster'] ??= false;
                 if ($model_connection['is_cluster']){
-                    $header_cluster = request()->header('cluster');
-                    $connection_as['search_path'] = $header_cluster ?? $key.'_'.($header_cluster ?? date('Y'));
+                    $connection_as['search_path'] = $key.'_'.$header_cluster;
+                    $clusters[$key] = $connection_as;
                 }
             }
             $connection_as ??= $connection['central_connection'];
             $database_connections[$key] = $connection_as;
             $connection_as = null;
         }
-        config(['database.connections' => $database_connections]);
+        config([
+            'database.connections' => $database_connections,
+            'database.clusters' => $clusters
+        ]);
     }
 }

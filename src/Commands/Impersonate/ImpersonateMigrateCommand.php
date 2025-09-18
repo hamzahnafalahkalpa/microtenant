@@ -70,8 +70,8 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                     case 'project':
                         $this->setupDb($field,$this->__application);
                         $this->overrideCaller($this->__application,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
-                        
                         $allGroup = $this->getAllGroupWithApp($this->__application->id);
+
                         if (isset($allGroup) && count($allGroup) > 0) {
                             $path        = $migration_path.DIRECTORY_SEPARATOR.'centrals';
                             $tenant_path = $migration_path.DIRECTORY_SEPARATOR.'tenants';

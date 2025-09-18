@@ -5,6 +5,7 @@ namespace Hanafalah\MicroTenant\Data;
 use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\MicroTenant\Contracts\Data\DomainData;
 use Hanafalah\MicroTenant\Contracts\Data\TenantData as DataTenantData;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
@@ -40,6 +41,11 @@ class TenantData extends Data implements DataTenantData{
     #[MapInputName('reference_type')]
     #[MapName('reference_type')]
     public ?string $reference_type = null;
+
+    #[MapInputName('childs')]
+    #[MapName('childs')]
+    #[DataCollectionOf(TenantData::class)]
+    public ?array $childs = null;
 
     #[MapInputName('props')]
     #[MapName('props')]

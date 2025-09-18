@@ -8,6 +8,7 @@ use Hanafalah\ApiHelper\Facades\ApiAccess;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\MicroTenant\Concerns\Providers\HasImpersonate;
 use Hanafalah\MicroTenant\Concerns\Providers\HasOverrider;
+use Hanafalah\MicroTenant\Contracts\Data\TenantData;
 use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Illuminate\Database\Eloquent\Model;
@@ -61,22 +62,46 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
      */
     public function tenantImpersonate($tenant = null): self{
         $tenant ??= $this->tenant;
-        $this->getCacheData('impersonate');
-        $this->initialize($tenant);
-        $tenant_folder = Str::kebab($tenant->name);
-        $path          = tenant_path($tenant_folder);
-        $this->basePathResolver($path);
-        $this->impersonate($tenant);
-        tenancy()->initialize($tenant);
-        $this->reconfigDatabases($tenant);
-        $this->overrideTenantConfig();
-        if (isset($this->__impersonate)){
+        if ($tenant->flag !== $tenant::FLAG_CLUSTER){
+            $this->getCacheData('impersonate');
+            $this->initialize($tenant);
+            $tenant_folder = Str::kebab($tenant->name);
+            $path          = tenant_path($tenant_folder);
+            $this->basePathResolver($path);
+            $this->impersonate($tenant);
+            tenancy()->initialize($tenant);
+            $this->reconfigDatabases($tenant);
+            $this->overrideTenantConfig($tenant);            
+            $database = config('micro-tenant.database');
+            $db_tenant_name = $database['database_tenant_name'];
+            foreach (config('database.clusters') as $key => $cluster) {                
+                $this->setCache([
+                    'name' => $cluster['search_path'].'_'.$tenant->getKey(),
+                    'tags' => ['cluster','microtenant-cluster'],
+                    'forever' => true
+                ],function() use ($key,$cluster,$db_tenant_name){
+                    config([
+                        'tenancy.database.prefix' => $cluster['search_path'],
+                        'tenancy.database.suffix' => null,
+                        'tenancy.database.central_connection' => $key
+                    ]);
+                    $manager = $this->TenantModel()->database()->manager();
+                    if (!$manager->databaseExists($this->TenantModel()->database()->getName())){
+                        $manager->createDatabase($this->TenantModel());
+                    }
+                    config([
+                        'tenancy.database.prefix' => $db_tenant_name['prefix'],
+                        'tenancy.database.suffix' => $db_tenant_name['suffix'],
+                        'tenancy.database.central_connection' => 'central'
+                    ]);
+                    return true;
+                });
+            }
             $tenant_config = config($tenant_folder.'.libs.migration');
             $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
-            $this->setMicroTenant()->overrideDatabasePath($path);
-            $path = tenant_path($tenant_folder.'/storage');
-            $this->overrideStoragePath($path);
+            $this->setMicroTenant($tenant)->overrideDatabasePath($path);
         }
+
         return $this;
     }
 
@@ -85,10 +110,10 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
      *
      * @return self
      */
-    public function setMicroTenant(): self{
+    public function setMicroTenant(?Model $tenant = null): self{
         $impersonate = $this->getCacheData('impersonate');
-        $tenant      = $this->tenant;
-        $this->reconfigDatabases($tenant);
+        $tenant      ??= $this->tenant;
+        // $this->reconfigDatabases($tenant);
         $cache  = cache();
         $cache  = $cache->tags($impersonate['tags']);
         $cache  = $cache->get($impersonate['name'],null);
@@ -124,15 +149,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
 
     public function reconfigDatabase(Model $tenant): self{
         app(config('micro-tenant.database.connection_manager'))->handle($tenant);
-        return $this;
-    }
-
-    public function overrideStoragePath(string $path): self{
-        // if (!is_dir($path)) {
-        //     mkdir($path, 0777, true);
-        // }
-
-        // app()->useStoragePath($path);
         return $this;
     }
 
@@ -183,14 +199,15 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             $path = $tenant->path.DIRECTORY_SEPARATOR.Str::kebab($tenant->name);
             $this->basePathResolver($path);
             if (file_exists($path.'/vendor/autoload.php')){
-                require $path.'/vendor/autoload.php';
+                require_once $path.'/vendor/autoload.php';
             }
             if (isset($tenant->parent)){
                 $this->impersonate($tenant->parent);
             }
             $provider = $tenant->provider;
             if (class_exists($provider)){
-                app()->register($this->replacement($provider));
+                $provider = $this->replacement($provider);
+                app()->register($provider);
             }
         } catch (\Throwable $th) {
             throw $th;

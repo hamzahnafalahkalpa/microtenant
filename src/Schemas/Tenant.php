@@ -46,6 +46,14 @@ class Tenant extends PackageManagement implements ContractsTenant
             $create = [$add];
         }
         $tenant = $this->usingEntity()->updateOrCreate(...$create);
+        if (isset($tenant_dto->childs) && count($tenant_dto->childs) > 0) {
+            $childs = &$tenant_dto->childs;
+            foreach ($childs as $child) {
+                $child->parent_id = $tenant->getKey();
+                if ($child->flag == $tenant::FLAG_CLUSTER) $child->name .= ' - ' . $tenant->getKey();
+                $this->prepareStoreTenant($child);
+            }
+        }
         $this->fillingProps($tenant,$tenant_dto->props);
         $tenant->save();
         return $this->tenant_model = $tenant;

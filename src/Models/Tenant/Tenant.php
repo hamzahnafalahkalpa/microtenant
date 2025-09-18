@@ -59,7 +59,7 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
         return match($this->flag){
             static::FLAG_APP_TENANT     => 'central_app',
             static::FLAG_CENTRAL_TENANT => 'central_tenant',
-            static::FLAG_TENANT         => 'tenant'
+            static::FLAG_TENANT         => 'tenant',
         };
     }
 

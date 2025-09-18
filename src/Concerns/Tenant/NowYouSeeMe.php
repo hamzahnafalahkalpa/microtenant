@@ -47,6 +47,7 @@ trait NowYouSeeMe
         $this->__table_name = $this->__table->getTable();
         $tenant_model = tenancy()->tenant;
         $tenant_id = tenancy()->tenant->getKey();
+
         if ($tenant_model->flag != Tenant::FLAG_TENANT) {
             $micro_tenant = MicroTenant::getMicroTenant();
             $current_tenant_id = null;
