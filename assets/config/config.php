@@ -39,9 +39,18 @@ return [
         ],
         'connection_manager' => Hanafalah\MicroTenant\Contracts\Supports\ConnectionManager::class,
         'model_connections' => [
-            "central"        => [],
-            "central_app"    => [],
-            "central_tenant" => []
+            "central"        => [
+                'is_cluster' => false,
+                'models' => []
+            ],
+            "central_app"    => [
+                'is_cluster' => false,
+                'models' => []
+            ],
+            "central_tenant" => [
+                'is_cluster' => false,
+                'models' => []
+            ]
         ],
         'connections' => [
             //THIS SETUP DEFAULT FOR MYSQL

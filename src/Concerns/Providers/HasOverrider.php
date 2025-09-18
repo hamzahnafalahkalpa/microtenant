@@ -18,6 +18,7 @@ trait HasOverrider
         $microtenant   = config('micro-tenant');
         $database      = $microtenant['database'];
         $connection    = $database['connections'];
+        $model_connections = $database['model_connections'];
         $model         = config('database.models',[]);
         $dbname        = $database['database_tenant_name'];
         config([
@@ -37,9 +38,18 @@ trait HasOverrider
             'database.connection_central_app_name'        => 'central_app',
         ]);
         $database_connections = config('database.connections');
-        foreach ($database['model_connections'] as $key => $value) {
-            if (isset($database_connections[$key])) continue;
-            $database_connections[$key] = $connection['central_connection'];
+        foreach ($model_connections as $key => $model_connection) {
+            if (isset($model_connection['connection_as'])){
+                $connection_as = config('database.connections.'.$model_connection['connection_as']);
+                $model_connection['is_cluster'] ??= false;
+                if ($model_connection['is_cluster']){
+                    $header_cluster = request()->header('cluster');
+                    $connection_as['search_path'] = $header_cluster ?? $key.'_'.($header_cluster ?? date('Y'));
+                }
+            }
+            $connection_as ??= $connection['central_connection'];
+            $database_connections[$key] = $connection_as;
+            $connection_as = null;
         }
         config(['database.connections' => $database_connections]);
     }

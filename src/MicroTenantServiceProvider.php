@@ -71,7 +71,7 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                     FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
                         $microtenant = FacadesMicroTenant::onLogin($api_access);
                         Auth::setUser($api_access->getUser());
-                        tenancy()->initialize($microtenant->tenant->model);
+                        // tenancy()->initialize($microtenant->tenant->model);
                     });
                 } catch (\Exception $e) {
                     dd($e->getMessage());

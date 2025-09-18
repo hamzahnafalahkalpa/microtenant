@@ -32,7 +32,7 @@ class BaseModel extends SupportModels\SupportBaseModel
     }
 
     private function validateConnection(string $connection): self{
-        if (isset($this->__model_connections[$connection]) && in_array($this->getMorphClass(),$this->__model_connections[$connection])){
+        if (isset($this->__model_connections[$connection]) && isset($this->__model_connections[$connection]['models']) && in_array($this->getMorphClass(),$this->__model_connections[$connection]['models'])){
             $this->connection = $connection;
         }
         return $this;

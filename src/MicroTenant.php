@@ -69,6 +69,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $this->impersonate($tenant);
         tenancy()->initialize($tenant);
         $this->reconfigDatabases($tenant);
+        $this->overrideTenantConfig();
         if (isset($this->__impersonate)){
             $tenant_config = config($tenant_folder.'.libs.migration');
             $path = tenant_path($tenant_folder.'/src/'.$tenant_config);

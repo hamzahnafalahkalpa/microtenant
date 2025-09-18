@@ -69,7 +69,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 switch ($field) {
                     case 'project':
                         $this->setupDb($field,$this->__application);
-                        $this->overrideCaller($this->__application,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
+                        $this->overrideCaller($this->__application,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
                         
                         $allGroup = $this->getAllGroupWithApp($this->__application->id);
                         if (isset($allGroup) && count($allGroup) > 0) {
@@ -77,14 +77,14 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                             $tenant_path = $migration_path.DIRECTORY_SEPARATOR.'tenants';
                             foreach($allGroup as $group) {
                                 $this->setupDb('group',$group);
-                                $this->overrideCaller($group,[$path,$path.DIRECTORY_SEPARATOR.'changes']);
+                                $this->overrideCaller($group,[$path,$path.DIRECTORY_SEPARATOR.'changes',$path.DIRECTORY_SEPARATOR.'clusters']);
 
                                 $allTenants  = $this->getAllTenantWithGroup($group->id);
 
                                 if(isset($allTenants) && count($allTenants) > 0) {
                                     foreach($allTenants as $tenant) {
                                         $this->setupDb('tenant',$tenant);
-                                        $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
+                                        $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes',$tenant_path.DIRECTORY_SEPARATOR.'clusters']);
                                     }
                                 }
                             }
@@ -92,18 +92,18 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                     break;
                     case 'group':
                         $this->setupDb($field,$this->__group);
-                        $this->overrideCaller($this->__group,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
+                        $this->overrideCaller($this->__group,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
         
                         $allTenants  = $this->getAllTenantWithGroup($this->__group->id);
                         $tenant_path = $migration_path.DIRECTORY_SEPARATOR."tenants";
                         foreach($allTenants as $tenant) {
                             $this->setupDb('tenant',$tenant);
-                            $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes']);
+                            $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes',$tenant_path.DIRECTORY_SEPARATOR.'clusters']);
                         }
                     break;
                     default:
                         $this->setupDb('tenant',$this->__tenant);
-                        $this->overrideCaller($this->__tenant,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes']);
+                        $this->overrideCaller($this->__tenant,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
                     break;
                 }
             });
@@ -142,20 +142,31 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
     }
 
     private function overrideConfig(mixed $path) {
-        $path = Str::replace('\\',DIRECTORY_SEPARATOR,$path);
-        if (is_array($path)){
-            foreach ($path as &$value) {
-                $value = Str::replace('\\',DIRECTORY_SEPARATOR,$value);
-            }
-        }
+        // $path = Str::replace('\\',DIRECTORY_SEPARATOR,$path);
+        // if (is_array($path)){
+        //     foreach ($path as &$value) {
+        //         $value = Str::replace('\\',DIRECTORY_SEPARATOR,$value);
+        //     }
+        // }
         config(['tenancy.migration_parameters.--path' => $path]);
     }
 
     private function overrideCaller($tenant,mixed $paths) {
         $paths = $this->mustArray($paths);
         foreach ($paths as $path) {
-            $this->overrideConfig($path);
-            $this->caller($tenant);
+            $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+            $path = realpath($path) ?: $path;
+            if (Str::endsWith($path,'clusters')){
+                if (is_dir($path)){
+                    $directories = array_diff(scandir($path, SCANDIR_SORT_NONE), ['.', '..']);
+                    $dir_paths = [];
+                    foreach ($directories as $directory) $dir_paths[] = $path.DIRECTORY_SEPARATOR.$directory;
+                    $this->overrideCaller($tenant, $dir_paths);
+                }
+            }else{
+                $this->overrideConfig($path);
+                $this->caller($tenant);
+            }
         }
     }
 

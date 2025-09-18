@@ -32,6 +32,7 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     const FLAG_APP_TENANT     = 'APP';
     const FLAG_CENTRAL_TENANT = 'CENTRAL_TENANT';
     const FLAG_TENANT         = 'TENANT';
+    const FLAG_CLUSTER        = 'CLUSTER';
 
     protected $fillable   = [
         'id','parent_id','name','uuid','reference_id','reference_type',
