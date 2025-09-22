@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Hanafalah\LaravelSupport\Concerns\DatabaseConfiguration\HasModelConfiguration;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Hanafalah\MicroTenant\Scopes\UseTenantValidation;
+use ReflectionClass;
 
 class BaseModel extends SupportModels\SupportBaseModel
 {
@@ -27,7 +28,10 @@ class BaseModel extends SupportModels\SupportBaseModel
             $this->__model_connections = $model_connections;
             $keys = array_keys($model_connections);
             foreach ($keys as $key) $this->validateConnection($key);
-            if (!isset($this->connection) && isset(tenancy()->tenant) && tenancy()->tenant->flag == Tenant::FLAG_TENANT) $this->connection = 'tenant';
+            if (!isset($this->connection) && isset(tenancy()->tenant) && tenancy()->tenant->flag == Tenant::FLAG_TENANT) {
+                $parent_class = new (get_parent_class($this));
+                $this->connection = $parent_class->connection ?? 'tenant';
+            }
         }
     }
 
@@ -71,9 +75,6 @@ class BaseModel extends SupportModels\SupportBaseModel
         $table           = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
         $table           = \explode('.', $table);
         $table           = end($table);
-        // if ($table == 'transactions'){
-        //     dd(config('micro-tenant.use-db-name',true),$db_name, $table);
-        // }
         return $db_name . '.' . $table;
     }
 
