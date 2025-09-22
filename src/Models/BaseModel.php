@@ -53,6 +53,12 @@ class BaseModel extends SupportModels\SupportBaseModel
         $connection_name = $this->getConnectionName();
         $connection      = config('database.connections.' . ($connection_name ?? config('database.default')));
         if ($connection['driver'] == 'pgsql') {
+            // $db_name = $connection['database'];
+            // if (config('micro-tenant.use-db-name',true)){
+            //     $db_name .= '.'.$connection['search_path'];
+            // }else{
+            //     return parent::getTable();
+            // }
             if (config('micro-tenant.use-db-name',true)){
                 $db_name = $connection['search_path'];
             }else{
@@ -65,7 +71,9 @@ class BaseModel extends SupportModels\SupportBaseModel
         $table           = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
         $table           = \explode('.', $table);
         $table           = end($table);
-
+        // if ($table == 'transactions'){
+        //     dd(config('micro-tenant.use-db-name',true),$db_name, $table);
+        // }
         return $db_name . '.' . $table;
     }
 
