@@ -55,17 +55,18 @@ class ImpersonateCacheCommand extends EnvironmentCommand
                             "group"      => $this->__group,
                             "tenant"     => $this->__tenant
                         ]);
+
                         $this->__tenant_path = tenant_path($this->__tenant->name);
                         $this->setImpersonateNamespace();
                     });
-                });                 
+                });      
                 $this->pathGenerator('tenant')
                      ->pathGenerator('group', Str::lower($this->__impersonate['group']['namespace']))
                      ->pathGenerator('project', Str::lower($this->__impersonate['project']['namespace']));
 
-                $this->__impersonate['tenant']['migration_path']  = Str::replace('\\','/',$this->__impersonate['tenant']['paths']['installed'].'/'.$this->__impersonate['tenant']['libs']['migration']);
-                $this->__impersonate['group']['migration_path']   = Str::replace('\\','/',$this->__impersonate['group']['paths']['installed'].'/'.$this->__impersonate['group']['libs']['migration']);
-                $this->__impersonate['project']['migration_path'] = Str::replace('\\','/',$this->__impersonate['project']['paths']['installed'].'/'.$this->__impersonate['project']['libs']['migration']);
+                if (isset($this->__impersonate['tenant']['libs'])) $this->__impersonate['tenant']['migration_path']  = Str::replace('\\','/',$this->__impersonate['tenant']['paths']['installed'].'/'.$this->__impersonate['tenant']['libs']['migration'] ?? 'Migration');
+                if (isset($this->__impersonate['group']['libs'])) $this->__impersonate['group']['migration_path']   = Str::replace('\\','/',$this->__impersonate['group']['paths']['installed'].'/'.$this->__impersonate['group']['libs']['migration'] ?? 'Migration');
+                if (isset($this->__impersonate['project']['libs'])) $this->__impersonate['project']['migration_path'] = Str::replace('\\','/',$this->__impersonate['project']['paths']['installed'].'/'.$this->__impersonate['project']['libs']['migration'] ?? 'Migration');
 
                 $data = [
                     'project' => (Object) [
