@@ -97,9 +97,11 @@ trait HasImpersonate{
             if(isset($config)) {
                 $path         = $config->path.DIRECTORY_SEPARATOR.Str::kebab($config->name).'/src/'.$config['config']['generates']['config']['path'];
                 $config       = $path.DIRECTORY_SEPARATOR.'config.php';
-                $this->basePathResolver($config);
-                $config       = include($config);
-                $this->__impersonate[$key] = $config;
+                if (is_file($config)){
+                    $this->basePathResolver($config);
+                    $config       = include($config);
+                    $this->__impersonate[$key] = $config;
+                }
             }
         }
 

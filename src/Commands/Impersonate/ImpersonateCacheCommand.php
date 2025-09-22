@@ -55,11 +55,11 @@ class ImpersonateCacheCommand extends EnvironmentCommand
                             "group"      => $this->__group,
                             "tenant"     => $this->__tenant
                         ]);
-
                         $this->__tenant_path = tenant_path($this->__tenant->name);
                         $this->setImpersonateNamespace();
                     });
                 });      
+                
                 $this->pathGenerator('tenant')
                      ->pathGenerator('group', Str::lower($this->__impersonate['group']['namespace']))
                      ->pathGenerator('project', Str::lower($this->__impersonate['project']['namespace']));
