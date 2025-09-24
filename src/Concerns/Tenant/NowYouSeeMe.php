@@ -18,11 +18,15 @@ trait NowYouSeeMe
         });
     }
 
-    public function isNotTableExists(callable $callback, ?bool $cek = null)
+    public function isNotTableExists(callable $callback, ?callable $else_callback = null)
     {
-        $this->currentTenant(function ($schema, $table_name) use ($callback, $cek) {
+        $this->currentTenant(function ($schema, $table_name) use ($callback, $else_callback) {
             $is_exist = $schema->hasTable($table_name);
-            if (!$is_exist) $callback();
+            if (!$is_exist) {
+                $callback();
+            }elseif(isset($else_callback)){
+                $else_callback();
+            }
         });
     }
 
@@ -50,13 +54,17 @@ trait NowYouSeeMe
 
         if ($tenant_model->flag != Tenant::FLAG_TENANT) {
             $micro_tenant = MicroTenant::getMicroTenant();
-            $current_tenant_id = null;
+            $current_tenant_model = null;
             switch ($this->__table->getConnectionName()) {
-                case 'tenant': $current_tenant_id = $micro_tenant->tenant->model->id;break;
-                case 'central_tenant': $current_tenant_id = $micro_tenant->group->model->id;break;
-                case 'central_app': $current_tenant_id = $micro_tenant->project->model->id;break;
+                case 'tenant': $current_tenant_model = $micro_tenant->tenant->model;break;
+                case 'central_tenant': $current_tenant_model = $micro_tenant->group->model;break;
+                case 'central_app': $current_tenant_model = $micro_tenant->project->model;break;
             }
-            if (isset($current_tenant_id)) tenancy()->initialize($current_tenant_id);
+            if (isset($current_tenant_model)) {
+                // tenancy()->initialize($current_tenant_id);
+                // $tenant = tenancy()->tenant;
+                MicroTenant::tenantImpersonate($current_tenant_model);
+            }
         }
         $this->__table_name = $this->__table->getTable();
         $schema    = Schema::connection($this->__table->getConnectionName());
