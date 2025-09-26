@@ -75,7 +75,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             $this->basePathResolver($path);
             $this->impersonate($tenant);
             tenancy()->initialize($tenant);
-            $this->reconfigDatabases($tenant);
+            // $this->reconfigDatabases($tenant);
             $this->overrideTenantConfig($tenant);            
             $database = config('micro-tenant.database');
             $db_tenant_name = $database['database_tenant_name'];

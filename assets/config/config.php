@@ -19,7 +19,8 @@ return [
         'model' => 'Models',
         'contract' => 'Contracts',
         'schema' => 'Schemas',
-        'database' => 'Database'
+        'database' => 'Database',
+        'listener' => 'Listeners'
     ],
     'database' => [
         'app_tenant'   => [
