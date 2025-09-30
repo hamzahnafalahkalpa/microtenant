@@ -66,8 +66,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             $tenant = $this->tenant = $this->TenantModel()->findOrFail($tenant);
         }
         // if ($tenant->flag !== $tenant::FLAG_CLUSTER){
-        $initialize_tenancy = tenancy()->tenant;
-        if (!isset($initialize_tenancy) || $initialize_tenancy->getKey() !== $tenant->getKey()){
+        if (!isset($initialize_tenancy) || isset($initialize_tenancy) && $initialize_tenancy->getKey() !== $tenant->getKey()){
             $this->getCacheData('impersonate');
             $this->initialize($tenant);
             $tenant_folder = Str::kebab($tenant->name);

@@ -36,60 +36,67 @@ trait HasImpersonate{
     }
     
     protected function findGroup($application, callable $callback){
-        $group = $this->TenantModel()->central()->where('parent_id', $application->getKey())->select($this->__select);
-    
-        if ($group_id = $this->option('group_id')) {
-            $group = $group->find($group_id);
-        } else {
-            $groups = $group->orderBy('name')->get();
-        }
-    
-        if (isset($group_id) || count($groups) > 0) {
-            if (!isset($group_id)) {
-                $choose_group = select(
-                    label: 'Choose a group',
-                    options: $groups->pluck('name')->toArray()
-                );
-                $group = $groups->firstWhere('name', $choose_group);
+        if ($application->has_group){
+            $group = $this->TenantModel()->central()->where('parent_id', $application->getKey())->select($this->__select);
+        
+            if ($group_id = $this->option('group_id')) {
+                $group = $group->find($group_id);
+            } else {
+                $groups = $group->orderBy('name')->get();
             }
-    
-            $this->__group = $group;
-            $this->info('Used Group: ' . $group->name);
-    
-            $callback($group);
-        } else {
-            $this->info('No groups found in central tenant.');
+        
+            if (isset($group_id) || count($groups) > 0) {
+                if (!isset($group_id)) {
+                    $choose_group = select(
+                        label: 'Choose a group',
+                        options: $groups->pluck('name')->toArray()
+                    );
+                    $group = $groups->firstWhere('name', $choose_group);
+                }
+        
+                $this->__group = $group;
+                $this->info('Used Group: ' . $group->name);
+        
+                $callback($group);
+            } else {
+                $this->info('No groups found in central tenant.');
+            }
+        }else{
+            $callback(null);
         }
     }
     
-    protected function findTenant($group){
-        $tenant = $this->TenantModel()->select($this->__select)->addSelect('flag')->parentId($group->getKey());
-        if ($tenant_id = $this->option('tenant_id')) {
-            $tenant = $tenant->find($tenant_id);
-        } else {
-            $tenants = $tenant->orderBy('name')->get();
-        }
-    
-        if (isset($tenant_id) || count($tenants) > 0) {
-            if (!isset($tenant_id)) {
-                $choose_tenant = select(
-                    label: 'Choose a tenant',
-                    options: $tenants->pluck('name')->toArray()
-                );
-                $tenant = $tenants->firstWhere('name', $choose_tenant);
+    protected function findTenant(mixed $group = null){
+        if (isset($group) && $group->has_tenant){
+            $tenant = $this->TenantModel()->select($this->__select)->addSelect('flag')->parentId($group->getKey());
+            if ($tenant_id = $this->option('tenant_id')) {
+                $tenant = $tenant->find($tenant_id);
+            } else {
+                $tenants = $tenant->orderBy('name')->get();
             }
-    
-            $this->__tenant = $tenant;
-            $this->info('Used Tenant: ' . $tenant->name);
-        } else {
-            $this->info('No tenants found in group.');
+        
+            if (isset($tenant_id) || count($tenants) > 0) {
+                if (!isset($tenant_id)) {
+                    $choose_tenant = select(
+                        label: 'Choose a tenant',
+                        options: $tenants->pluck('name')->toArray()
+                    );
+                    $tenant = $tenants->firstWhere('name', $choose_tenant);
+                }
+        
+                $this->__tenant = $tenant;
+                $this->__tenant_path = tenant_path($this->__tenant->name);
+                $this->info('Used Tenant: ' . $tenant->name);
+            } else {
+                $this->info('No tenants found in group.');
+            }
         }
     }
 
     protected function setImpersonateNamespace(){
         $this->__impersonate['project']['namespace'] = 'Projects\\'.\class_name_builder($this->__application->name);
-        $this->__impersonate['group']['namespace']   = \class_name_builder($this->__application->name).'\\'.\class_name_builder($this->__group->name);
-        $this->__impersonate['tenant']['namespace']  = \class_name_builder($this->__group->name).'\\'.\class_name_builder($this->__tenant->name);
+        if (isset($this->__group)) $this->__impersonate['group']['namespace']   = \class_name_builder($this->__application->name).'\\'.\class_name_builder($this->__group->name);
+        if (isset($this->__tenant)) $this->__impersonate['tenant']['namespace']  = \class_name_builder($this->__group->name).'\\'.\class_name_builder($this->__tenant->name);
     }
 
     protected function impersonateConfig(array $config_path) : self{

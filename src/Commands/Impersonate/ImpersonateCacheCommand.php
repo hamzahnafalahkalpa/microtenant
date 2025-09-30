@@ -26,6 +26,7 @@ class ImpersonateCacheCommand extends EnvironmentCommand
                             ';
 
     protected $__cache_data;
+    protected $__data_cache;
 
     /**
      * The console command description.
@@ -55,40 +56,36 @@ class ImpersonateCacheCommand extends EnvironmentCommand
                             "group"      => $this->__group,
                             "tenant"     => $this->__tenant
                         ]);
-                        $this->__tenant_path = tenant_path($this->__tenant->name);
                         $this->setImpersonateNamespace();
                     });
                 });      
-                
-                $this->pathGenerator('tenant')
-                     ->pathGenerator('group', Str::lower($this->__impersonate['group']['namespace']))
-                     ->pathGenerator('project', Str::lower($this->__impersonate['project']['namespace']));
+                $this->__data_cache = [];
 
-                if (isset($this->__impersonate['tenant']['libs'])) $this->__impersonate['tenant']['migration_path']  = Str::replace('\\','/',$this->__impersonate['tenant']['paths']['installed'].'/'.$this->__impersonate['tenant']['libs']['migration'] ?? 'Migration');
-                if (isset($this->__impersonate['group']['libs'])) $this->__impersonate['group']['migration_path']   = Str::replace('\\','/',$this->__impersonate['group']['paths']['installed'].'/'.$this->__impersonate['group']['libs']['migration'] ?? 'Migration');
-                if (isset($this->__impersonate['project']['libs'])) $this->__impersonate['project']['migration_path'] = Str::replace('\\','/',$this->__impersonate['project']['paths']['installed'].'/'.$this->__impersonate['project']['libs']['migration'] ?? 'Migration');
-
-                $data = [
-                    'project' => (Object) [
-                        'config' => $this->__impersonate['project'],
-                        'model'  => $this->__application
-                    ],
-                    'group' => (Object) [
-                        'config' => $this->__impersonate['group'],
-                        'model'  => $this->__group
-                    ],
-                    'tenant' => (Object) [
-                        'config' => $this->__impersonate['tenant'],
-                        'model'  => $this->__tenant
-                    ]
-                ];
-                return (Object) $data;  
+                $this->dataInit('tenant',$this->__tenant)
+                     ->dataInit('group',$this->__group)
+                     ->dataInit('project',$this->__application);
+                return (Object) $this->__data_cache;  
             },false);
             $this->info('Impersonate config: '.json_encode($data, JSON_PRETTY_PRINT));
-            $tenant = $data?->tenant?->model ?? $this->__tenant;
+            $tenant = $data?->tenant?->model ?? $this->__tenant ?? $data?->project->model;
             MicroTenant::tenantImpersonate($tenant);
             tenancy()->initialize($tenant);
         }
+    }
+
+    private function dataInit(string $type, ?object $model = null): self{
+        if (isset($model)){
+            $this->__tenant_path = $model->path.DIRECTORY_SEPARATOR.$model->name;
+            $this->pathGenerator($type, Str::lower($this->__impersonate[$type]['namespace']));
+
+            if (isset($this->__impersonate[$type]['libs'])) $this->__impersonate[$type]['migration_path']  = Str::replace('\\','/',$this->__impersonate[$type]['paths']['installed'].'/'.$this->__impersonate[$type]['libs']['migration'] ?? 'Migration');
+
+            $this->__data_cache[$type] = (object) [
+                'config' => $this->__impersonate[$type],
+                'model'  => $model
+            ];
+        }
+        return $this;
     }
 
     private function pathGenerator(string $module_path, string $name = ''): self{

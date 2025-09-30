@@ -65,6 +65,7 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                     dd($e->getMessage());
             }
         });
+
         try {
             if (request()->headers->has('AppCode')) {
                 try {
@@ -81,6 +82,8 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                 if (config('micro-tenant.dev_mode') || config('micro-tenant.monolith')) {
                     $cache       = FacadesMicroTenant::getCacheData('impersonate');
                     $impersonate = cache()->tags($cache['tags'])->get($cache['name']);
+                    // dd($impersonate);
+
                     if (isset($impersonate->tenant->model)) {
                         $model = $impersonate?->tenant?->model;
                         FacadesMicroTenant::tenantImpersonate($model);

@@ -56,11 +56,12 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     }
 
     public function getConnectionFlagName(): string{
-        return match($this->flag){
-            static::FLAG_APP_TENANT     => 'central_app',
-            static::FLAG_CENTRAL_TENANT => 'central_tenant',
-            static::FLAG_TENANT         => 'tenant',
-        };
+        switch ($this->flag) {
+            case static::FLAG_APP_TENANT: return 'central_app';break;
+            case static::FLAG_CENTRAL_TENANT: return 'central_tenant';break;
+            case static::FLAG_TENANT: return 'tenant';break;
+            default: return 'tenant';break;
+        }
     }
 
     public function getTenantKey()
