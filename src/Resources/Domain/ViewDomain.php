@@ -11,7 +11,7 @@ class ViewDomain extends ApiResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'domain' => $this->domain,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

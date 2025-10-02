@@ -23,7 +23,7 @@ class Domain extends PackageManagement implements ContractsDomain
 
     public function prepareStoreDomain(DomainData $domain_dto): Model{
         $add   = [
-            'name'           => $domain_dto->name,
+            'domain'           => $domain_dto->domain,
         ];
         if (isset($domain_dto->id)){
             $guard  = ['id' => $domain_dto->id];

@@ -17,9 +17,9 @@ class Domain extends BaseModel
     public $incrementing = false;
     protected $keyType = 'string';
     protected $primaryKey = 'id';
-    protected $list = ['id', 'name', 'created_at', 'updated_at', 'deleted_at'];
+    protected $list = ['id', 'domain', 'tenant_id', 'created_at', 'updated_at', 'deleted_at'];
     protected $casts = [
-        'name' => 'string'
+        'domain' => 'string'
     ];
 
     public function getViewResource(){return ViewDomain::class;}

@@ -62,7 +62,8 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                 }
                 if (isset($tenant)) tenancy()->initialize($tenant);
             } catch (\Exception $e) {
-                    dd($e->getMessage());
+                abort(401);
+                dd($e->getMessage());
             }
         });
 
@@ -70,19 +71,16 @@ class MicroTenantServiceProvider extends MicroServiceProvider
             if (request()->headers->has('AppCode')) {
                 try {
                     FacadesApiAccess::init()->accessOnLogin(function ($api_access) {
-                        $microtenant = FacadesMicroTenant::onLogin($api_access);
                         Auth::setUser($api_access->getUser());
-                        // tenancy()->initialize($microtenant->tenant->model);
                     });
                 } catch (\Exception $e) {
-                    dd($e->getMessage());
+                    abort(401);
                 }
             } else {
                 //FOR TESTING ONLY        
                 if (config('micro-tenant.dev_mode') || config('micro-tenant.monolith')) {
                     $cache       = FacadesMicroTenant::getCacheData('impersonate');
                     $impersonate = cache()->tags($cache['tags'])->get($cache['name']);
-                    // dd($impersonate);
 
                     if (isset($impersonate->tenant->model)) {
                         $model = $impersonate?->tenant?->model;
@@ -96,6 +94,7 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                 }
             }
         } catch (\Exception $e) {
+            abort(401);
             dd($e->getMessage());
         }
     }

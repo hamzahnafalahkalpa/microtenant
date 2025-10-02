@@ -77,6 +77,7 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
 
     //EIGER SECTION
     public function domain(){return $this->belongsToModel('Domain');}
+    public function domains(){return $this->hasManyModel('Domain');}
     public function tenantHasModel(){return $this->hasOneModel('TenantHasModel');}
     public function tenantHasModels(){return $this->hasManyModel('TenantHasModel');}
     public function installationSchema(){return $this->morphOneModel('InstallationSchema','reference');} //ONLY ONE

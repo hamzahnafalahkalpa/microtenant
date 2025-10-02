@@ -61,49 +61,51 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 if ($this->option('tenant')) $field = 'tenant';
                 if (!isset($field)) $field = select('Choose impersonate', ['project', 'group', 'tenant']);
                 $this->__choosed_impersonate = $field ?? 'tenant';
-
-                $impersonate     = $this->__impersonate[$field];
-                $tenant_path     = $impersonate['paths']['base_path'];
-                $migration_path  = $tenant_path.$impersonate['libs']['migration'];
-                switch ($field) {
-                    case 'project':
-                        $this->setupDb($field,$this->__application);
-                        $this->overrideCaller($this->__application,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
-                        $allGroup = $this->getAllGroupWithApp($this->__application->id);
-
-                        if (isset($allGroup) && count($allGroup) > 0) {
-                            $path        = $migration_path.DIRECTORY_SEPARATOR.'centrals';
-                            $tenant_path = $migration_path.DIRECTORY_SEPARATOR.'tenants';
-                            foreach($allGroup as $group) {
-                                $this->setupDb('group',$group);
-                                $this->overrideCaller($group,[$path,$path.DIRECTORY_SEPARATOR.'changes',$path.DIRECTORY_SEPARATOR.'clusters']);
-
-                                $allTenants  = $this->getAllTenantWithGroup($group->id);
-
-                                if(isset($allTenants) && count($allTenants) > 0) {
-                                    foreach($allTenants as $tenant) {
-                                        $this->setupDb('tenant',$tenant);
-                                        $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes',$tenant_path.DIRECTORY_SEPARATOR.'clusters']);
+                if (isset($this->__impersonate[$field])) {
+                    $impersonate     = $this->__impersonate[$field];
+                    $tenant_path     = $impersonate['paths']['base_path'];
+                    $migration_path  = $tenant_path.$impersonate['libs']['migration'];
+                    switch ($field) {
+                        case 'project':
+                            $this->setupDb($field,$this->__application);
+                            $this->overrideCaller($this->__application,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
+                            $allGroup = $this->getAllGroupWithApp($this->__application->id);
+                            if (isset($allGroup) && count($allGroup) > 0) {
+                                $path        = $migration_path.DIRECTORY_SEPARATOR.'centrals';
+                                $tenant_path = $migration_path.DIRECTORY_SEPARATOR.'tenants';
+                                foreach($allGroup as $group) {
+                                    $this->setupDb('group',$group);
+                                    $this->overrideCaller($group,[$path,$path.DIRECTORY_SEPARATOR.'changes',$path.DIRECTORY_SEPARATOR.'clusters']);
+    
+                                    $allTenants  = $this->getAllTenantWithGroup($group->id);
+    
+                                    if(isset($allTenants) && count($allTenants) > 0) {
+                                        foreach($allTenants as $tenant) {
+                                            $this->setupDb('tenant',$tenant);
+                                            $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes',$tenant_path.DIRECTORY_SEPARATOR.'clusters']);
+                                        }
                                     }
                                 }
                             }
-                        }
-                    break;
-                    case 'group':
-                        $this->setupDb($field,$this->__group);
-                        $this->overrideCaller($this->__group,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
-        
-                        $allTenants  = $this->getAllTenantWithGroup($this->__group->id);
-                        $tenant_path = $migration_path.DIRECTORY_SEPARATOR."tenants";
-                        foreach($allTenants as $tenant) {
-                            $this->setupDb('tenant',$tenant);
-                            $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes',$tenant_path.DIRECTORY_SEPARATOR.'clusters']);
-                        }
-                    break;
-                    default:
-                        $this->setupDb('tenant',$this->__tenant);
-                        $this->overrideCaller($this->__tenant,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
-                    break;
+                        break;
+                        case 'group':
+                            $this->setupDb($field,$this->__group);
+                            $this->overrideCaller($this->__group,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
+            
+                            $allTenants  = $this->getAllTenantWithGroup($this->__group->id);
+                            $tenant_path = $migration_path.DIRECTORY_SEPARATOR."tenants";
+                            foreach($allTenants as $tenant) {
+                                $this->setupDb('tenant',$tenant);
+                                $this->overrideCaller($tenant,[$tenant_path,$tenant_path.DIRECTORY_SEPARATOR.'changes',$tenant_path.DIRECTORY_SEPARATOR.'clusters']);
+                            }
+                        break;
+                        default:
+                            $this->setupDb('tenant',$this->__tenant);
+                            $this->overrideCaller($this->__tenant,[$migration_path,$migration_path.DIRECTORY_SEPARATOR.'changes',$migration_path.DIRECTORY_SEPARATOR.'clusters']);
+                        break;
+                    }
+                }else{
+                    $this->info("Impersonate not found");
                 }
             });
         });    

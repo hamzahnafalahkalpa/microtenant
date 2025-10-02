@@ -35,8 +35,8 @@ trait HasImpersonate{
         return $this;
     }
     
-    protected function findGroup($application, callable $callback){
-        if ($application->has_group){
+    protected function findGroup(mixed $application = null, ?callable $callback = null){
+        if (isset($application) && $application->has_group){
             $group = $this->TenantModel()->central()->where('parent_id', $application->getKey())->select($this->__select);
         
             if ($group_id = $this->option('group_id')) {
@@ -57,12 +57,12 @@ trait HasImpersonate{
                 $this->__group = $group;
                 $this->info('Used Group: ' . $group->name);
         
-                $callback($group);
+                if (isset($callback)) $callback($group);
             } else {
                 $this->info('No groups found in central tenant.');
             }
         }else{
-            $callback(null);
+            if (isset($callback)) $callback(null);
         }
     }
     

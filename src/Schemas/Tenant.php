@@ -27,7 +27,7 @@ class Tenant extends PackageManagement implements ContractsTenant
             $tenant_dto->domain_id = $domain->getKey();
             $tenant_dto->props['prop_domain'] = [
                 'id'   => $domain->getKey(),
-                'name' => $domain->name
+                'domain' => $domain->domain
             ];
         }
 
@@ -46,6 +46,10 @@ class Tenant extends PackageManagement implements ContractsTenant
             $create = [$add];
         }
         $tenant = $this->usingEntity()->updateOrCreate(...$create);
+        if (isset($domain)){
+            $domain->tenant_id = $tenant->getKey();
+            $domain->save();
+        }
         if (isset($tenant_dto->childs) && count($tenant_dto->childs) > 0) {
             $childs = &$tenant_dto->childs;
             foreach ($childs as $child) {

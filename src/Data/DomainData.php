@@ -12,9 +12,13 @@ class DomainData extends Data implements DataDomainData{
     #[MapName('id')]
     public mixed $id = null;
 
-    #[MapInputName('name')]
-    #[MapName('name')]
-    public string $name;
+    #[MapInputName('domain')]
+    #[MapName('domain')]
+    public string $domain;
+
+    #[MapInputName('tenant_id')]
+    #[MapName('tenant_id')]
+    public mixed $tenant_id = null;
 
     #[MapInputName('props')]
     #[MapName('props')]
