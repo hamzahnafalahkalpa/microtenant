@@ -71,8 +71,10 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $path          = tenant_path($tenant_folder);
         $this->basePathResolver($path);
         $this->impersonate($tenant);
-        tenancy()->initialize($tenant);
+
         $this->overrideTenantConfig($tenant);            
+        tenancy()->end();
+        tenancy()->initialize($tenant);
         $database = config('micro-tenant.database');
         $db_tenant_name = $database['database_tenant_name'];
         foreach (config('database.clusters') as $key => $cluster) {                
@@ -172,7 +174,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                 ApiAccess::init()->accessOnLogin(function ($api_access) {
                     $microtenant = MicroTenant::onLogin($api_access);
                     Auth::setUser($api_access->getUser());
-                    tenancy()->initialize($microtenant->tenant->model);
+                    tenancy()->initialize($microtenant?->tenant->model ?? $microtenant?->group->model ?? $microtenant?->project->model);
                 });
             }
         });
@@ -191,6 +193,15 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             throw new \Exception('User Invalid');
         }
         return $this->getMicroTenant();
+    }
+
+    public function onLogout(?callable $callback){
+        static::$microtenant = null;
+        $impersonate = $this->getCacheData('impersonate');
+        $this->forgetTags($impersonate['tags']);
+        if (isset($callback)){
+            $callback();
+        }
     }
 
     public function impersonate(Model $tenant): self{

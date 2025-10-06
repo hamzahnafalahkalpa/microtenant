@@ -28,9 +28,10 @@ class BaseModel extends SupportModels\SupportBaseModel
             $this->__model_connections = $model_connections;
             $keys = array_keys($model_connections);
             foreach ($keys as $key) $this->validateConnection($key);
-            if (!isset($this->connection) && isset(tenancy()->tenant) && tenancy()->tenant->flag == Tenant::FLAG_TENANT) {
+            // if (!isset($this->connection) && isset(tenancy()->tenant) && tenancy()->tenant->flag == Tenant::FLAG_TENANT) {
+            if (!isset($this->connection) && isset(tenancy()->tenant)) {
                 $parent_class = new (get_parent_class($this));
-                $this->connection = $parent_class->connection ?? 'tenant';
+                $this->connection = $parent_class?->connection ?? 'tenant';
             }
         }
     }

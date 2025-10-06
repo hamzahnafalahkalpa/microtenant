@@ -44,8 +44,8 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     protected static function booted(): void{
         parent::booted();
         static::creating(function($query){
-            if (!isset($query->uuid)) $query->uuid = Str::orderedUuid();
-            if (!isset($query->flag)) $query->flag = static::FLAG_TENANT;
+            $query->uuid ??= Str::orderedUuid();
+            $query->flag ??= static::FLAG_TENANT;
             $connection = config('database.default');
             $query->db_name ??= config('database.connections.'.$connection.'.database');
         });

@@ -55,8 +55,12 @@ trait NowYouSeeMe
             $micro_tenant = MicroTenant::getMicroTenant();
             $current_tenant_model = null;
             switch ($this->__table->getConnectionName()) {
-                case 'tenant': $current_tenant_model = $micro_tenant->tenant->model;break;
-                case 'central_tenant': $current_tenant_model = $micro_tenant->group->model;break;
+                case 'tenant': 
+                    $current_tenant_model = $micro_tenant?->tenant->model ?? $micro_tenant?->group->model ?? $micro_tenant?->project->model ?? null;
+                break;
+                case 'central_tenant': 
+                    $current_tenant_model = $micro_tenant?->group->model ?? $micro_tenant?->project->model ?? null;
+                break;
                 case 'central_app': $current_tenant_model = $micro_tenant->project->model;break;
             }
             if (isset($current_tenant_model)) {

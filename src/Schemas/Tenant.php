@@ -6,6 +6,7 @@ use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Illuminate\Database\Eloquent\Model;
 use Hanafalah\MicroTenant\Contracts\Schemas\Tenant as ContractsTenant;
 use Hanafalah\MicroTenant\Contracts\Data\TenantData;
+use Illuminate\Support\Str;
 
 class Tenant extends PackageManagement implements ContractsTenant
 {
@@ -43,9 +44,11 @@ class Tenant extends PackageManagement implements ContractsTenant
             $guard = ['id' => $tenant_dto->id];
             $create = [$guard,$add];
         }else{
+            $add['uuid'] ??= Str::orderedUuid();
             $create = [$add];
         }
         $tenant = $this->usingEntity()->updateOrCreate(...$create);
+        $tenant->refresh();
         if (isset($domain)){
             $domain->tenant_id = $tenant->getKey();
             $domain->save();

@@ -26,6 +26,7 @@ trait HasOverrider
         $model         = config('database.models',[]);
         $dbname        = $database['database_tenant_name'];
         config([
+            'database.connections.central'                => config('micro_tenant.database.connections.central_connection'),
             'tenancy'                                     => $this->__config['tenancy'],
             'tenancy.filesystem.asset_helper_tenancy'     => false,
             'tenancy.tenant_model'                        => $model['Tenant'] ?? null,
