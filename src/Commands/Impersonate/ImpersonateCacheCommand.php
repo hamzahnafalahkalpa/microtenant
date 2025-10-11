@@ -23,10 +23,12 @@ class ImpersonateCacheCommand extends EnvironmentCommand
                                 {--app_id= : The id of the application}
                                 {--group_id= : The id of the group}
                                 {--tenant_id= : The id of the tenant}
+                                {--skip= : For skeip if other option not existed}
                             ';
 
     protected $__cache_data;
     protected $__data_cache;
+    protected $__skip;
 
     /**
      * The console command description.
@@ -41,7 +43,7 @@ class ImpersonateCacheCommand extends EnvironmentCommand
     public function handle()
     {
         $this->__cache_data = MicroTenant::getCacheData('impersonate');
-
+        $this->__skip = $this->option('skip') ?? false;
         $forget = $this->option('forget');
         if ($forget) {
             $this->forgetTags($this->__cache_data['tags']);
@@ -60,7 +62,6 @@ class ImpersonateCacheCommand extends EnvironmentCommand
                     });
                 });      
                 $this->__data_cache = [];
-
                 $this->dataInit('tenant',$this->__tenant)
                      ->dataInit('group',$this->__group)
                      ->dataInit('project',$this->__application);

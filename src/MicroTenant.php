@@ -72,9 +72,9 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $this->basePathResolver($path);
         $this->impersonate($tenant);
 
-        $this->overrideTenantConfig($tenant);            
         tenancy()->end();
         tenancy()->initialize($tenant);
+        $this->overrideTenantConfig($tenant);            
         $database = config('micro-tenant.database');
         $db_tenant_name = $database['database_tenant_name'];
         foreach (config('database.clusters') as $key => $cluster) {                
@@ -114,12 +114,13 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     public function setMicroTenant(?Model $tenant = null): self{
         $impersonate = $this->getCacheData('impersonate');
         $tenant      ??= $this->tenant;
+        if (!isset($tenant->flag)) $tenant->refresh();
         $cache  = cache();
         $cache  = $cache->tags($impersonate['tags']);
         $cache  = $cache->get($impersonate['name'],null);
         if (isset($cache)) {
             static::$microtenant = $cache;
-        }else{
+        }else{            
             switch ($tenant->flag) {
                 case 'TENANT':
                     $options = [
@@ -131,12 +132,14 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                 case 'CENTRAL_TENANT':
                     $options = [
                         '--group_id'  => $tenant->getKey(),
-                        '--app_id'    => $tenant->parent_id
+                        '--app_id'    => $tenant->parent_id,
+                        '--skip' => true
                     ];
                 break;
                 case 'APP':
                     $options = [
-                        '--app_id'    => $tenant->getKey()
+                        '--app_id'    => $tenant->getKey(),
+                        '--skip' => true
                     ];
                 break;
             }

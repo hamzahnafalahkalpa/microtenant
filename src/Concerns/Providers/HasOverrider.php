@@ -50,6 +50,7 @@ trait HasOverrider
                 $connection_as = config('database.connections.'.$model_connection['connection_as']);
                 $model_connection['is_cluster'] ??= false;
                 if ($model_connection['is_cluster']){
+                    $connection_as = config('database.connections.tenant');
                     $connection_as['search_path'] = $key.'_'.$header_cluster;
                     $clusters[$key] = $connection_as;
                 }

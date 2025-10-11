@@ -37,27 +37,27 @@ trait HasImpersonate{
     
     protected function findGroup(mixed $application = null, ?callable $callback = null){
         if (isset($application) && $application->has_group){
-            $group = $this->TenantModel()->central()->where('parent_id', $application->getKey())->select($this->__select);
+            $group_model = $this->TenantModel()->central()->where('parent_id', $application->getKey())->select($this->__select);
         
             if ($group_id = $this->option('group_id')) {
-                $group = $group->find($group_id);
+                $group = $group_model->find($group_id);
             } else {
-                $groups = $group->orderBy('name')->get();
+                $groups = $group_model->orderBy('name')->get();
             }
         
             if (isset($group_id) || count($groups) > 0) {
-                if (!isset($group_id)) {
+                if (!isset($group_id) && !$this->__skip) {
                     $choose_group = select(
                         label: 'Choose a group',
                         options: $groups->pluck('name')->toArray()
                     );
-                    $group = $groups->firstWhere('name', $choose_group);
+                    $group = $group_model->firstWhere('name', $choose_group);
                 }
-        
-                $this->__group = $group;
-                $this->info('Used Group: ' . $group->name);
-        
-                if (isset($callback)) $callback($group);
+                if (isset($group)){
+                    $this->__group = $group;
+                    $this->info('Used Group: ' . $group->name);
+                }
+                if (isset($callback)) $callback($group ?? null);
             } else {
                 $this->info('No groups found in central tenant.');
             }
@@ -68,25 +68,26 @@ trait HasImpersonate{
     
     protected function findTenant(mixed $group = null){
         if (isset($group) && $group->has_tenant){
-            $tenant = $this->TenantModel()->select($this->__select)->addSelect('flag')->parentId($group->getKey());
+            $tenant_model = $this->TenantModel()->select($this->__select)->addSelect('flag')->parentId($group->getKey());
             if ($tenant_id = $this->option('tenant_id')) {
-                $tenant = $tenant->find($tenant_id);
+                $tenant = $tenant_model->find($tenant_id);
             } else {
-                $tenants = $tenant->orderBy('name')->get();
+                $tenants = $tenant_model->orderBy('name')->get();
             }
         
             if (isset($tenant_id) || count($tenants) > 0) {
-                if (!isset($tenant_id)) {
+                if (!isset($tenant_id) && !$this->__skip) {
                     $choose_tenant = select(
                         label: 'Choose a tenant',
                         options: $tenants->pluck('name')->toArray()
                     );
-                    $tenant = $tenants->firstWhere('name', $choose_tenant);
+                    $tenant = $tenant_model->firstWhere('name', $choose_tenant);
                 }
-        
-                $this->__tenant = $tenant;
-                $this->__tenant_path = tenant_path($this->__tenant->name);
-                $this->info('Used Tenant: ' . $tenant->name);
+                if (isset($tenant)){
+                    $this->__tenant = $tenant;
+                    $this->__tenant_path = tenant_path($this->__tenant->name);
+                    $this->info('Used Tenant: ' . $tenant->name);
+                }
             } else {
                 $this->info('No tenants found in group.');
             }

@@ -56,14 +56,22 @@ trait NowYouSeeMe
             $current_tenant_model = null;
             switch ($this->__table->getConnectionName()) {
                 case 'tenant': 
+                    $is_impersonate = true;
                     $current_tenant_model = $micro_tenant?->tenant->model ?? $micro_tenant?->group->model ?? $micro_tenant?->project->model ?? null;
                 break;
                 case 'central_tenant': 
+                    $is_impersonate = true;
                     $current_tenant_model = $micro_tenant?->group->model ?? $micro_tenant?->project->model ?? null;
                 break;
-                case 'central_app': $current_tenant_model = $micro_tenant->project->model;break;
+                case 'central_app': 
+                    $is_impersonate = true;
+                    $current_tenant_model = $micro_tenant->project->model;
+                break;
+                case 'central':
+                    $is_impersonate = false;
+                break;
             }
-            if (isset($current_tenant_model)) {
+            if ($is_impersonate && isset($current_tenant_model)) {
                 // tenancy()->initialize($current_tenant_id);
                 // $tenant = tenancy()->tenant;
                 MicroTenant::tenantImpersonate($current_tenant_model);
