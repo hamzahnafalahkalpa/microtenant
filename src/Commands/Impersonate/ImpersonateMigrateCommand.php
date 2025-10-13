@@ -27,10 +27,12 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                                 {--app_id= : The id of the application}
                                 {--group_id= : The id of the group}
                                 {--tenant_id= : The id of the tenant}
+                                {--skip= : The skip other tenant}
                             ';
 
     protected $__cache_data;
     protected $__choosed_impersonate;
+    protected $__skip;
 
     /**
      * The console command description.
