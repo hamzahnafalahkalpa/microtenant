@@ -168,23 +168,21 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     }
 
     public function accessOnLogin(?string $token = null){
-        // Event::listen(\Laravel\Octane\Events\RequestReceived::class, function ($event) use ($token) {
-            // $request = $event->request;
+        // $request = $event->request;
 
-            // if ($request->headers->has('AppCode') && config('micro-tenant.direct_provider_access')) {
-            if (request()->headers->has('AppCode')) {
-                try {
-                    ApiAccess::init($token ?? null)->accessOnLogin(function ($api_access) {
-                        $microtenant = MicroTenant::onLogin($api_access);
-                        Auth::setUser($api_access->getUser());
-                        tenancy()->end();
-                        tenancy()->initialize($microtenant?->tenant->model ?? $microtenant?->group->model ?? $microtenant?->project->model);
-                    });
-                } catch (\Throwable $th) {
-                    abort(401);
-                }
+        // if ($request->headers->has('AppCode') && config('micro-tenant.direct_provider_access')) {
+        if (request()->headers->has('AppCode')) {
+            try {
+                ApiAccess::init($token ?? null)->accessOnLogin(function ($api_access) {
+                    $microtenant = MicroTenant::onLogin($api_access);
+                    Auth::setUser($api_access->getUser());
+                    tenancy()->end();
+                    tenancy()->initialize($microtenant?->tenant->model ?? $microtenant?->group->model ?? $microtenant?->project->model);
+                });
+            } catch (\Throwable $th) {
+                abort(401);
             }
-        // });
+        }
     }
 
     public function onLogin(ModuleApiAccess $api_access){
