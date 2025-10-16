@@ -73,7 +73,7 @@ class MicroTenantServiceProvider extends MicroServiceProvider
                         Auth::setUser($api_access->getUser());
                     });
                 } catch (\Exception $e) {
-                    abort(401);
+                    abort(403);
                 }
             } else {
                 //FOR TESTING ONLY        
