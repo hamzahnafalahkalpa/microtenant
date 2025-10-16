@@ -2,13 +2,11 @@
 
 namespace Hanafalah\MicroTenant;
 
-use GroupInitialPuskesmas\TenantPuskesmas\TenantPuskesmas;
 use Hanafalah\ApiHelper\Contracts\ModuleApiAccess;
 use Hanafalah\ApiHelper\Facades\ApiAccess;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\MicroTenant\Concerns\Providers\HasImpersonate;
 use Hanafalah\MicroTenant\Concerns\Providers\HasOverrider;
-use Hanafalah\MicroTenant\Contracts\Data\TenantData;
 use Hanafalah\MicroTenant\Contracts\MicroTenant as ContractsMicroTenant;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Illuminate\Database\Eloquent\Model;
@@ -169,18 +167,24 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         return $this;
     }
 
-    public function accessOnLogin(){
-        Event::listen(\Laravel\Octane\Events\RequestReceived::class, function ($event) {
-            $request = $event->request;
+    public function accessOnLogin(?string $token = null){
+        // Event::listen(\Laravel\Octane\Events\RequestReceived::class, function ($event) use ($token) {
+            // $request = $event->request;
 
-            if ($request->headers->has('AppCode')) {
-                ApiAccess::init()->accessOnLogin(function ($api_access) {
-                    $microtenant = MicroTenant::onLogin($api_access);
-                    Auth::setUser($api_access->getUser());
-                    tenancy()->initialize($microtenant?->tenant->model ?? $microtenant?->group->model ?? $microtenant?->project->model);
-                });
+            // if ($request->headers->has('AppCode') && config('micro-tenant.direct_provider_access')) {
+            if (request()->headers->has('AppCode')) {
+                try {
+                    ApiAccess::init($token ?? null)->accessOnLogin(function ($api_access) {
+                        $microtenant = MicroTenant::onLogin($api_access);
+                        Auth::setUser($api_access->getUser());
+                        tenancy()->end();
+                        tenancy()->initialize($microtenant?->tenant->model ?? $microtenant?->group->model ?? $microtenant?->project->model);
+                    });
+                } catch (\Throwable $th) {
+                    abort(401);
+                }
             }
-        });
+        // });
     }
 
     public function onLogin(ModuleApiAccess $api_access){

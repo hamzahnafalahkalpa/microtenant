@@ -7,6 +7,7 @@ use Hanafalah\MicroTenant\ModuleUser\UserReference;
 return [
     'enabled'      => true,
     'dev_mode'     => true,
+    'direct_provider_access' => true,
     'login_schema' => null,
     'application'  => [
         /**
