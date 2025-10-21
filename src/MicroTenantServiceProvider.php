@@ -97,7 +97,6 @@ class MicroTenantServiceProvider extends MicroServiceProvider
             }
         } catch (\Exception $e) {
             abort(401);
-            dd($e->getMessage());
         }
     }
 }
