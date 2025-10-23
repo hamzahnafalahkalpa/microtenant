@@ -181,6 +181,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                         tenancy()->initialize($microtenant?->tenant->model ?? $microtenant?->group->model ?? $microtenant?->project->model);
                     });
                 } catch (\Throwable $th) {
+
                 }
             }
         // });
