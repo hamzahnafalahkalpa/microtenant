@@ -8,7 +8,7 @@ use Hanafalah\MicroTenant\MicroTenant as MicroTenantMicroTenant;
 
 /**
  * @property static $microtenant
- * @method static self impersonate(Tenant|string|int $tenant)
+ * @method static self impersonate(Tenant|string|int $tenant, ?bool $recurse = true)
  */
 class MicroTenant extends Facade
 {

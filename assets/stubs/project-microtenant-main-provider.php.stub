@@ -34,7 +34,7 @@ class {{CLASS_BASENAME}}ServiceProvider extends {{CLASS_BASENAME}}Environment
             });
     }
 
-    public function boot(Kernel $kernel){
+    public function boot(){
         $kernel->pushMiddleware(PayloadMonitoring::class);
         $this->app->booted(function(){
             // codes that will be run after the package booted

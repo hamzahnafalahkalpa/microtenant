@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
+use Hanafalah\LaravelSupport\Concerns\Support\HasRegisterConfig;
 
 class MicroTenant extends PackageManagement implements ContractsMicroTenant
 {
-    use HasOverrider, HasImpersonate;
+    use HasOverrider, HasImpersonate, HasRegisterConfig;
 
     protected array $__micro_tenant_config = [];
     protected string $__entity = 'Tenant';
@@ -51,6 +51,34 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             : $cache_data;
     }
 
+    public function impersonate(Model $tenant, ?bool $recurse = true): self{
+        try {
+            $path = $tenant->path.DIRECTORY_SEPARATOR.Str::kebab($tenant->name);
+            $this->basePathResolver($path);
+            if (file_exists($path.'/vendor/autoload.php')){
+                require_once $path.'/vendor/autoload.php';
+            }
+            if ($recurse && isset($tenant->parent)){
+                $this->impersonate($tenant->parent);
+            }
+            $provider = $tenant->provider;
+            if (class_exists($provider)){
+                $provider = $this->replacement($provider);
+                app()->register($provider);
+                $config_name = Str::kebab(Str::before(class_basename($provider),'ServiceProvider'));
+                $this->processRegisterProvider($config_name,$tenant?->packages ?? []);
+                $base_path = rtrim(config($config_name.'.paths.base_path'),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+                $this->processRegisterConfig($config_name, $base_path.config($config_name.'.libs.config'));
+            }
+            tenancy()->end();
+            tenancy()->initialize($tenant);
+            $this->overrideTenantConfig(); 
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+        return $this;
+    }
+
     /**
      * Impersonate a tenant by setting the path and database.
      *
@@ -69,10 +97,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $path          = tenant_path($tenant_folder);
         $this->basePathResolver($path);
         $this->impersonate($tenant);
-
-        tenancy()->end();
-        tenancy()->initialize($tenant);
-        $this->overrideTenantConfig($tenant);            
         $database = config('micro-tenant.database');
         $db_tenant_name = $database['database_tenant_name'];
         foreach (config('database.clusters') as $key => $cluster) {                
@@ -101,6 +125,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $tenant_config = config($tenant_folder.'.libs.migration');
         $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
         $this->setMicroTenant($tenant)->overrideDatabasePath($path);
+        tenancy()->initialize($tenant);
         return $this;
     }
 
@@ -113,9 +138,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $impersonate = $this->getCacheData('impersonate');
         $tenant      ??= $this->tenant;
         if (!isset($tenant->flag)) $tenant->refresh();
-        $cache  = cache();
-        $cache  = $cache->tags($impersonate['tags']);
-        $cache  = $cache->get($impersonate['name'],null);
+        $cache = $this->getCache($impersonate['name'], $impersonate['tags']);
         if (isset($cache)) {
             static::$microtenant = $cache;
         }else{            
@@ -142,9 +165,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                 break;
             }
             if (isset($options)) Artisan::call('impersonate:cache',$options);
-            $cache  = cache();
-            $cache  = $cache->tags($impersonate['tags']);
-            $cache  = $cache->get($impersonate['name'],null);
+            $cache = $this->getCache($impersonate['name'], $impersonate['tags']);
             static::$microtenant = $cache;
         }
         return $this;
@@ -168,23 +189,17 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     }
 
     public function accessOnLogin(?string $token = null){
-        // Event::listen(\Laravel\Octane\Events\RequestReceived::class, function ($event) use ($token) {
-            // $request = $event->request;
-
-            // if ($request->headers->has('AppCode') && config('micro-tenant.direct_provider_access')) {
-            if (request()->headers->has('AppCode')) {
-                try {
-                    ApiAccess::init($token ?? null)->accessOnLogin(function ($api_access) {
-                        $microtenant = MicroTenant::onLogin($api_access);
-                        Auth::setUser($api_access->getUser());
-                        tenancy()->end();
-                        tenancy()->initialize($microtenant?->tenant->model ?? $microtenant?->group->model ?? $microtenant?->project->model);
-                    });
-                } catch (\Throwable $th) {
-
-                }
+        if (request()->headers->has('AppCode')) {
+            try {
+                ApiAccess::init($token ?? null)->accessOnLogin(function ($api_access) {
+                    $this->onLogin($api_access);
+                    Auth::setUser($api_access->getUser());
+                    app(config('laravel-support.service_cache'))->handle();
+                });
+            } catch (\Throwable $th) {
+                dd($th->getMessage());
             }
-        // });
+        }
     }
 
     public function onLogin(ModuleApiAccess $api_access){
@@ -194,7 +209,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         if (isset($current_reference) && isset($tenant)){
             $this->tenant = $tenant;
             (isset($this->tenant))
-                ? $this->tenantImpersonate()
+                ? $this->tenantImpersonate($this->tenant)
                 : throw new \Exception('Tenant not found');
         }else{
             throw new \Exception('User Invalid');
@@ -209,27 +224,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         if (isset($callback)){
             $callback();
         }
-    }
-
-    public function impersonate(Model $tenant): self{
-        try {
-            $path = $tenant->path.DIRECTORY_SEPARATOR.Str::kebab($tenant->name);
-            $this->basePathResolver($path);
-            if (file_exists($path.'/vendor/autoload.php')){
-                require_once $path.'/vendor/autoload.php';
-            }
-            if (isset($tenant->parent)){
-                $this->impersonate($tenant->parent);
-            }
-            $provider = $tenant->provider;
-            if (class_exists($provider)){
-                $provider = $this->replacement($provider);
-                app()->register($provider);
-            }
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-        return $this;
     }
 
         /**

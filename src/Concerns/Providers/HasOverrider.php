@@ -2,10 +2,6 @@
 
 namespace Hanafalah\MicroTenant\Concerns\Providers;
 
-use Hanafalah\MicroTenant\Contracts\Data\TenantData;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
-
 trait HasOverrider
 {
     protected array $__impersonate;
@@ -18,7 +14,7 @@ trait HasOverrider
         ]
     ];
 
-    public function overrideTenantConfig(?Model $tenant = null){
+    public function overrideTenantConfig(){
         $microtenant   = config('micro-tenant');
         $database      = $microtenant['database'];
         $connection    = $database['connections'];
@@ -31,7 +27,7 @@ trait HasOverrider
             'tenancy.filesystem.asset_helper_tenancy'     => false,
             'tenancy.tenant_model'                        => $model['Tenant'] ?? null,
             'tenancy.id_generator'                        => null,
-            'tenancy.domain_model'                        => $model['Domain'],
+            'tenancy.domain_model'                        => $model['Domain'] ?? 'Domain',
             'tenancy.central_domains'                     => $microtenant['domains']['central_domains'],
             'tenancy.database.central_connection'         => 'central',
             'tenancy.database.template_tenant_connection' => null,

@@ -1,14 +1,15 @@
 <?php
 
-use Hanafalah\MicroTenant\Models as MicroTenantModels;
 use Hanafalah\MicroTenant\Commands as Commands;
-use Hanafalah\MicroTenant\ModuleUser\UserReference;
 
 return [
     'enabled'      => true,
     'dev_mode'     => true,
     'direct_provider_access' => true,
     'login_schema' => null,
+    'laravel-support' => [
+        'service_cache'  => \Hanafalah\MicroTenant\Supports\ServiceCache::class,
+    ],
     'application'  => [
         /**
          * pattern for versioning, you can use 1.^, 1.0.^, 1.0.0, 

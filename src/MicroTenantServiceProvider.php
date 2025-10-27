@@ -2,12 +2,7 @@
 
 namespace Hanafalah\MicroTenant;
 
-use Laravel\Sanctum\Sanctum;
 use Hanafalah\MicroTenant\MicroTenant;
-use Hanafalah\ApiHelper\Facades\ApiAccess as FacadesApiAccess;
-use Hanafalah\MicroTenant\Facades\MicroTenant as FacadesMicroTenant;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class MicroTenantServiceProvider extends MicroServiceProvider
 {

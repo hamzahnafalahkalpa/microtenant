@@ -70,7 +70,6 @@ class ImpersonateCacheCommand extends EnvironmentCommand
             $this->info('Impersonate config: '.json_encode($data, JSON_PRETTY_PRINT));
             $tenant = $data?->tenant?->model ?? $this->__tenant ?? $data?->project->model;
             MicroTenant::tenantImpersonate($tenant);
-            tenancy()->initialize($tenant);
         }
     }
 

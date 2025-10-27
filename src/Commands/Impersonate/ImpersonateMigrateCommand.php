@@ -56,6 +56,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                     "tenant"     => $this->__tenant
                 ]);
                 $this->setImpersonateNamespace();
+                MicroTenant::tenantImpersonate($this->__application);
 
                 if ($this->option('app'))    $field = 'project';
                 if ($this->option('group'))  $field = 'group';
@@ -136,11 +137,11 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
     }
 
     private function getAllGroupWithApp($id) {
-        return $this->TenantModel()->central()->where('parent_id',$id)->select('id','name','props')->orderBy('id')->get();
+        return $this->TenantModel()->central()->where('parent_id',$id)->select('id','name','flag','props')->orderBy('id')->get();
     }
 
     private function getAllTenantWithGroup($id) {
-        return$this->TenantModel()->select('id','name','props')->parentId($id)->orderBy('id')->get();
+        return$this->TenantModel()->select('id','name','flag','props')->parentId($id)->orderBy('id')->get();
     }
 
     private function overrideConfig(mixed $path) {
@@ -173,8 +174,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
     }
 
     private function caller($tenant) {
-        MicroTenant::tenantImpersonate($tenant);
-
+        MicroTenant::impersonate($tenant,false);
         $this->call("tenants:migrate", [    
             '--path'    => config('tenancy.migration_parameters.--path'),
             '--tenants' => $tenant->id
