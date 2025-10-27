@@ -197,7 +197,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                     app(config('laravel-support.service_cache'))->handle();
                 });
             } catch (\Throwable $th) {
-                dd($th->getMessage());
             }
         }
     }
