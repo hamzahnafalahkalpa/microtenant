@@ -11,7 +11,7 @@ trait HasImpersonate{
     protected $__impersonate = [];
 
     protected $__application, $__group, $__tenant;
-    protected array $__select = ['id','parent_id','name','props'];
+    protected array $__select = ['id','parent_id','name', 'flag','props'];
     protected string $__tenant_path;
 
 
