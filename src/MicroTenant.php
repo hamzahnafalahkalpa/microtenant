@@ -70,9 +70,10 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                 $base_path = rtrim(config($config_name.'.paths.base_path'),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
                 $this->processRegisterConfig($config_name, $base_path.config($config_name.'.libs.config'));
             }
+            $this->overrideTenantConfig(); 
             tenancy()->end();
             tenancy()->initialize($tenant);
-            $this->overrideTenantConfig(); 
+
         } catch (\Throwable $th) {
             throw $th;
         }

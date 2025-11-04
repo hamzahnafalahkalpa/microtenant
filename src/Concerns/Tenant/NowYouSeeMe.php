@@ -74,7 +74,7 @@ trait NowYouSeeMe
             if ($is_impersonate && isset($current_tenant_model)) {
                 // tenancy()->initialize($current_tenant_id);
                 // $tenant = tenancy()->tenant;
-                MicroTenant::tenantImpersonate($current_tenant_model);
+                MicroTenant::tenantImpersonate($current_tenant_model,false);
             }
         }
         $this->__table_name = $this->__table->getTable();

@@ -63,7 +63,6 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 if ($this->option('tenant')) $field = 'tenant';
                 if (!isset($field)) $field = select('Choose impersonate', ['project', 'group', 'tenant']);
                 $this->__choosed_impersonate = $field ?? 'tenant';
-
                 if (isset($this->__impersonate[$field])) {
                     $impersonate     = $this->__impersonate[$field];
                     $tenant_path     = $impersonate['paths']['base_path'];
