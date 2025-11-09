@@ -2,6 +2,8 @@
 
 namespace Hanafalah\MicroTenant\Concerns\Providers;
 
+use Illuminate\Database\Eloquent\Model;
+
 trait HasOverrider
 {
     protected array $__impersonate;
@@ -14,7 +16,7 @@ trait HasOverrider
         ]
     ];
 
-    public function overrideTenantConfig(){
+    public function overrideTenantConfig(?Model $tenant = null){
         $microtenant   = config('micro-tenant');
         $database      = $microtenant['database'];
         $connection    = $database['connections'];
@@ -22,7 +24,7 @@ trait HasOverrider
         $model         = config('database.models',[]);
         $dbname        = $database['database_tenant_name'];
         config([
-            'database.connections.central'                => config('micro_tenant.database.connections.central_connection'),
+            'database.connections.central'                => config('micro-tenant.database.connections.central_connection'),
             'tenancy'                                     => $this->__config['tenancy'],
             'tenancy.filesystem.asset_helper_tenancy'     => false,
             'tenancy.tenant_model'                        => $model['Tenant'] ?? null,
@@ -38,6 +40,14 @@ trait HasOverrider
             'database.connection_central_tenant_name'     => 'central_tenant',
             'database.connection_central_app_name'        => 'central_app',
         ]);
+        $tenant_connection = config('database.connections.tenant');
+        if ($tenant_connection === null && isset($tenant)){
+            config([
+                'database.connections.tenant' => $connection['central_connection'],
+                'database.connections.tenant.database' => $tenant->db_name,
+                'database.connections.tenant.search_path' => $tenant->tenancy_db_name == $tenant->db_name ? 'public' : $tenant->tenancy_db_name
+            ]);
+        }
         $database_connections = config('database.connections');
         $clusters = [];
         $header_cluster = request()->header('cluster') ?? date('Y');
@@ -45,14 +55,33 @@ trait HasOverrider
             if (isset($model_connection['connection_as'])){
                 $connection_as = config('database.connections.'.$model_connection['connection_as']);
                 $model_connection['is_cluster'] ??= false;
-                if ($model_connection['is_cluster']){
-                    $connection_as = config('database.connections.tenant');
+                if (isset($connection_as) && $model_connection['is_cluster']){
+                    $tenant_connection = config('database.connections.tenant');
+                    if (isset($tenant_connection)){
+                        $connection_as = $tenant_connection;
+                    }
                     $connection_as['search_path'] = $key.'_'.$header_cluster;
                     $clusters[$key] = $connection_as;
                 }
             }
             $connection_as ??= $connection['central_connection'];
-            $database_connections[$key] = $connection_as;
+            if (isset($tenant)){
+                $flag = $tenant->flag;
+                if (
+                    ($flag == 'APP' && $key == 'central_app') ||
+                    ($flag == 'CENTRAL_TENANT' && $key == 'central_tenant') ||
+                    ($flag == 'TENANT' && $key == 'tenant')
+                ) {
+                    $connection_as['database']     = $tenant->db_name;
+                    $connection_as['search_path']  = $tenant->tenancy_db_name == $tenant->db_name ? 'public' : $tenant->tenancy_db_name;
+                    $database_connections[$key] = $connection_as;
+                // }elseif($key == 'central'){
+                }else{
+                    $database_connections[$key] = $connection_as;
+                }
+            }else{
+                $database_connections[$key] = $connection_as;
+            }
             $connection_as = null;
         }
         config([

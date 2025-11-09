@@ -56,7 +56,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                     "tenant"     => $this->__tenant
                 ]);
                 $this->setImpersonateNamespace();
-                MicroTenant::tenantImpersonate($this->__application);
+                MicroTenant::tenantImpersonate($this->__tenant ?? $this->__group ?? $this->__application);
 
                 if ($this->option('app'))    $field = 'project';
                 if ($this->option('group'))  $field = 'group';

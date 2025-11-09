@@ -66,14 +66,17 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                 $provider = $this->replacement($provider);
                 app()->register($provider);
                 $config_name = Str::kebab(Str::before(class_basename($provider),'ServiceProvider'));
+                $own_models = config($config_name.'.database.models',[]);
                 $this->processRegisterProvider($config_name,$tenant?->packages ?? []);
                 $base_path = rtrim(config($config_name.'.paths.base_path'),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
                 $this->processRegisterConfig($config_name, $base_path.config($config_name.'.libs.config'));
+                $models = config('database.models',[]);
+                $models = array_merge($models, $own_models);
+                config(['database.models' => $models]);
             }
-            $this->overrideTenantConfig(); 
             tenancy()->end();
             tenancy()->initialize($tenant);
-
+            $this->overrideTenantConfig($tenant); 
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -101,27 +104,36 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $database = config('micro-tenant.database');
         $db_tenant_name = $database['database_tenant_name'];
         foreach (config('database.clusters') as $key => $cluster) {                
-            $this->setCache([
-                'name' => $cluster['search_path'].'_'.$tenant->getKey(),
-                'tags' => ['cluster','microtenant-cluster'],
-                'forever' => true
-            ],function() use ($key,$cluster,$db_tenant_name){
-                config([
-                    'tenancy.database.prefix' => $cluster['search_path'],
-                    'tenancy.database.suffix' => null,
-                    'tenancy.database.central_connection' => $key
-                ]);
-                $manager = $this->TenantModel()->database()->manager();
-                if (!$manager->databaseExists($this->TenantModel()->database()->getName())){
-                    $manager->createDatabase($this->TenantModel());
+            // $this->setCache([
+            //     'name' => $cluster['search_path'].'_'.$tenant->getKey(),
+            //     'tags' => ['cluster','microtenant-cluster'],
+            //     'forever' => true
+            // ],function() use ($key,$cluster,$db_tenant_name){
+                if (config('database.connections.'.$key.'.driver') === null) continue;
+                $tenant_model = $this->TenantModel();
+                $connection_name = $tenant_model->getConnectionName();
+                if (config('database.connections.'.$connection_name.'.driver') !== null){
+                    config([
+                        'tenancy.database.prefix' => $cluster['search_path'],
+                        'tenancy.database.suffix' => null,
+                        'tenancy.database.central_connection' => $key
+                    ]);
+                    try {
+                        $manager = $this->TenantModel()->database()->manager();
+                        if (!$manager->databaseExists($this->TenantModel()->database()->getName())){
+                            $manager->createDatabase($this->TenantModel());
+                        }
+                    } catch (\Throwable $th) {
+                        throw $th;
+                    }
+                    config([
+                        'tenancy.database.prefix' => $db_tenant_name['prefix'],
+                        'tenancy.database.suffix' => $db_tenant_name['suffix'],
+                        'tenancy.database.central_connection' => 'central'
+                    ]);
                 }
-                config([
-                    'tenancy.database.prefix' => $db_tenant_name['prefix'],
-                    'tenancy.database.suffix' => $db_tenant_name['suffix'],
-                    'tenancy.database.central_connection' => 'central'
-                ]);
-                return true;
-            });
+                // return true;
+            // });
         }
         $tenant_config = config($tenant_folder.'.libs.migration');
         $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
@@ -198,6 +210,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                     app(config('laravel-support.service_cache'))->handle();
                 });
             } catch (\Throwable $th) {
+                throw $th;
             }
         }
     }
