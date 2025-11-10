@@ -50,8 +50,7 @@ trait HasOverrider
         }
         $database_connections = config('database.connections');
         $clusters = [];
-        // $header_cluster = request()->header('cluster') ?? date('Y');
-        $header_cluster = date('Y');
+        $header_cluster = request()->header('cluster') ?? date('Y');
         foreach ($model_connections as $key => $model_connection) {
             if (isset($model_connection['connection_as'])){
                 $connection_as = config('database.connections.'.$model_connection['connection_as']);
