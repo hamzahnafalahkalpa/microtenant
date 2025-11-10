@@ -64,7 +64,7 @@ trait HasOverrider
                     $clusters[$key] = $connection_as;
                 }
             }
-            $connection_as ??= config('database.connections.'.$key) ?? $connection['central_connection'];
+            $connection_as ??= $connection['central_connection'];
             if (isset($tenant)){
                 $flag = $tenant->flag;
                 if (
