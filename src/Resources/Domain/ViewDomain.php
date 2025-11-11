@@ -1,6 +1,6 @@
 <?php
 
-namespace Hanafalah\Microtenant\Resources\Domain;
+namespace Hanafalah\MicroTenant\Resources\Domain;
 
 use Illuminate\Http\Request;
 use Hanafalah\LaravelSupport\Resources\ApiResource;

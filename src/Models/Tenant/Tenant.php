@@ -20,6 +20,8 @@ use Stancl\Tenancy\Events;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Hanafalah\LaravelSupport\Models\BaseModel;
 use Hanafalah\MicroTenant\Concerns\Models\CentralConnection;
+use Hanafalah\MicroTenant\Resources\Tenant\ShowTenant;
+use Hanafalah\MicroTenant\Resources\Tenant\ViewTenant;
 
 class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     use SoftDeletes, HasProps;
@@ -67,6 +69,14 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     public function getTenantKey()
     {
         return $this->getAttribute($this->getTenantKeyName());
+    }
+
+    public function getShowResource(){
+        return ShowTenant::class;
+    }
+
+    public function getViewResource(){
+        return ViewTenant::class;
     }
 
     //SCOPE SECTION

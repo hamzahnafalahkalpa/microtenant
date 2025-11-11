@@ -1,10 +1,10 @@
 <?php
 
-namespace Hanafalah\MicroTenant\Resources\Domain;
+namespace Hanafalah\MicroTenant\Resources\Tenant;
 
 use Illuminate\Http\Request;
 
-class ShowDomain extends ViewDomain
+class ShowTenant extends ViewTenant
 {
     public function toArray(Request $request): array
     {
