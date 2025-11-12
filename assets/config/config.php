@@ -4,8 +4,8 @@ use Hanafalah\MicroTenant\Commands as Commands;
 
 return [
     'enabled'      => true,
-    'dev_mode'     => true,
-    'direct_provider_access' => true,
+    'dev_mode'     => false,
+    'direct_provider_access' => false,
     'login_schema' => null,
     'laravel-support' => [
         'service_cache'  => \Hanafalah\MicroTenant\Supports\ServiceCache::class,
