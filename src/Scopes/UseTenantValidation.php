@@ -17,6 +17,8 @@ class UseTenantValidation implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->where($model->getTableName() . '.tenant_id', tenancy()->tenant->getKey());
+        $builder->where(function($query) use ($model){
+            $query->whereNull($model->getTableName() . '.tenant_id')->orWhere($model->getTableName() . '.tenant_id', tenancy()->tenant->getKey());
+        });
     }
 }
