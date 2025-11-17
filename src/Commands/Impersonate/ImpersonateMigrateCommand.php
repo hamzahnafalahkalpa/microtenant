@@ -68,7 +68,6 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 $this->__choosed_impersonate = $field ?? 'tenant';
                 if (isset($this->__impersonate[$field])) {
                     $impersonate     = $this->__impersonate[$field];
-                    \Log::info(json_encode($impersonate));
                     $tenant_path     = $impersonate['paths']['base_path'];
                     $migration_path  = $tenant_path.$impersonate['libs']['migration'];
                     switch ($field) {

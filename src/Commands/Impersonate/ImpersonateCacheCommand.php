@@ -68,9 +68,10 @@ class ImpersonateCacheCommand extends EnvironmentCommand
                 $data = (Object) $this->__data_cache;  
                 return $data;
             },false);
-            $this->info('Impersonate config: '.json_encode($data, JSON_PRETTY_PRINT));
+            $this->info('Impersonate Cache Completed');
             $tenant = $data?->tenant?->model ?? $this->__tenant ?? $data?->project->model;
             MicroTenant::tenantImpersonate($tenant);
+            $this->info('Tenant Impersonate: '.$tenant->name.' with id '.$tenant->getKey());
         }
     }
 
