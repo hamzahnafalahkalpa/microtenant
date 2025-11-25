@@ -58,6 +58,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 $this->setImpersonateNamespace();
                 $direct_access = config('micro-tenant.direct_provider_access', true);
                 config(['micro-tenant.direct_provider_access' => true]);
+
                 MicroTenant::tenantImpersonate($this->__tenant ?? $this->__group ?? $this->__application);
                 config(['micro-tenant.direct_provider_access' => $direct_access]);
 
