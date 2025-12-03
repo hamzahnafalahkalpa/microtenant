@@ -131,7 +131,7 @@ class AddTenantCommand extends EnvironmentCommand
         $this->call("micro:add-package",[
             'namespace' => $message."s\\".Str::studly($name),
             '--package-author' => 'hamzah',
-            '--package-email' => 'hamzahnafalah@gmail.com',
+            '--package-email' => 'hamzah nur al falah@mail.com',
             '--pattern' => Str::lower($message),
             '--main-id' => $tenant->getKey()
         ]);
