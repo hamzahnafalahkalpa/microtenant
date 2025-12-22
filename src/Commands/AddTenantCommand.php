@@ -101,7 +101,7 @@ class AddTenantCommand extends EnvironmentCommand
                         'subdistrict_id' => null,
                         'village_id'     => null
                     ],
-                    'email'   => 'hamzahnuralfalah@gmail.com',
+                    'email'   => 'hamzahnafalah@gmail.com',
                     'phone'   => '0819-0652-1808',
                     'owner_id' => null,
                     'owner' => [
