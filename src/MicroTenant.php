@@ -103,6 +103,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $this->impersonate($tenant);
         $database = config('micro-tenant.database');
         $db_tenant_name = $database['database_tenant_name'];
+        $generate_db = false;
         foreach (config('database.clusters') as $key => $cluster) {                
             // $this->setCache([
             //     'name' => $cluster['search_path'].'_'.$tenant->getKey(),
@@ -121,7 +122,28 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                     try {
                         $manager = $this->TenantModel()->database()->manager();
                         if (!$manager->databaseExists($this->TenantModel()->database()->getName())){
+                            // $generator_config = config('laravel-package-generator');
+                            // $central_connection = config('tenancy.database.central_connection');
+                            // config([])
+                            // $cluster_tenant = app(config('app.contracts.Tenant'))->prepareStoreTenant($this->requestDTO(config('app.contracts.TenantData'),[
+                            //     'parent_id'      => $tenant->getKey(),
+                            //     'name'           => 'Cluster '.$cluster['search_path'],
+                            //     'flag'           => 'CLUSTER',
+                            //     'reference_id'   => null,
+                            //     'reference_type' => null,
+                            //     'provider'       => null,
+                            //     'app'            => ['provider' => $tenant->app['provider']],
+                            //     'path'           => $generator_config['patterns']['group']['published_at'],
+                            //     'has_tenant'     => true,
+                            //     'product_type'   => $tenant->product_type,
+                            //     'packages'       => [],
+                            //     'config'         => $generator_config['patterns']['group']
+                            // ]));
+                            // config([
+                            //     'tenancy.database.central_connection' => $central_connection
+                            // ]);
                             $manager->createDatabase($this->TenantModel());
+                            $generate_db = true;
                         }
                     } catch (\Throwable $th) {
                         throw $th;
@@ -133,14 +155,35 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                     ]);
                 }
                 // return true;
-            // });
+                // });
+            }
+            $tenant_config = config($tenant_folder.'.libs.migration');
+            $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
+            $this->setMicroTenant($tenant)->overrideDatabasePath($path);
+            tenancy()->initialize($tenant);
+            if ($generate_db){
+                try {
+                    if ($tenant->flag == 'TENANT'){
+                        $parent = $tenant->parent;
+                        $data = [
+                            '--app'       => true,
+                            '--app_id'    => $parent->parent_id,
+                            '--group_id'  => $tenant->parent_id,
+                            '--tenant_id' => $tenant->getKey(),
+                        ];
+                    }else{
+                        $data = [
+                            '--app'       => true,
+                            '--app_id'    => $tenant->getKey(),
+                        ];
+                    }
+                    Artisan::call(config('micro-tenant.impersonate_command'),$data);
+                } catch (\Throwable $th) {
+                    throw $th;
+                }
+            }
+            return $this;
         }
-        $tenant_config = config($tenant_folder.'.libs.migration');
-        $path = tenant_path($tenant_folder.'/src/'.$tenant_config);
-        $this->setMicroTenant($tenant)->overrideDatabasePath($path);
-        tenancy()->initialize($tenant);
-        return $this;
-    }
 
     /**
      * Set the micro tenant based on the cached data of the impersonate feature.

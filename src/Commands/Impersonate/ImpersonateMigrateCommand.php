@@ -9,6 +9,8 @@ use Hanafalah\MicroTenant\Commands\EnvironmentCommand;
 use Hanafalah\MicroTenant\Commands\Impersonate\Concerns\HasImpersonate;
 use Hanafalah\MicroTenant\Facades\MicroTenant;
 use Illuminate\Support\Str;
+use Illuminate\Database\Migrations\MigrationRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 use function Laravel\Prompts\select;
 
 class ImpersonateMigrateCommand extends EnvironmentCommand
@@ -70,6 +72,7 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                     $impersonate     = $this->__impersonate[$field];
                     $tenant_path     = $impersonate['paths']['base_path'];
                     $migration_path  = $tenant_path.$impersonate['libs']['migration'];
+                    // dd(config('database.connections'));
                     switch ($field) {
                         case 'project':
                             $this->setupDb($field,$this->__application);
@@ -165,10 +168,35 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 if (is_dir($path)){
                     $directories = array_diff(scandir($path, SCANDIR_SORT_NONE), ['.', '..']);
                     $dir_paths = [];
-                    foreach ($directories as $directory) $dir_paths[] = $path.DIRECTORY_SEPARATOR.$directory;
+                    foreach ($directories as $directory) {
+                        $yearDir = $path.DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.$directory.'_'.date('Y');
+                        if (is_dir($yearDir)) {
+                            array_map('unlink', glob("$yearDir/*.*"));
+                            rmdir($yearDir);
+                        }
+                        mkdir($yearDir, 0755, true);
+
+                        $sourceDir = $path.DIRECTORY_SEPARATOR.$directory;
+                        if (is_dir($sourceDir)) {
+                            $files = array_diff(scandir($sourceDir, SCANDIR_SORT_NONE), ['.', '..']);
+                            foreach ($files as $file) {
+                                $sourceFile = $sourceDir.DIRECTORY_SEPARATOR.$file;
+                                if (is_file($sourceFile)) {
+                                    $fileInfo = pathinfo($file);
+                                    $newFileName = $fileInfo['filename'].'_'.date('Y').($fileInfo['extension'] ? '.'.$fileInfo['extension'] : '');
+                                    copy($sourceFile, $yearDir.DIRECTORY_SEPARATOR.$newFileName);
+                                }
+                            }
+                        }
+                        $directory = 'tmp'.DIRECTORY_SEPARATOR.$directory.'_'.date('Y');
+                        $dir_paths[] = $path.DIRECTORY_SEPARATOR.$directory;
+                    }
                     $this->overrideCaller($tenant, $dir_paths);
                 }
             }else{
+                if (Str::contains($path, 'clusters')){
+
+                }
                 $this->overrideConfig($path);
                 $this->caller($tenant);
             }
