@@ -122,26 +122,6 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                     try {
                         $manager = $this->TenantModel()->database()->manager();
                         if (!$manager->databaseExists($this->TenantModel()->database()->getName())){
-                            // $generator_config = config('laravel-package-generator');
-                            // $central_connection = config('tenancy.database.central_connection');
-                            // config([])
-                            // $cluster_tenant = app(config('app.contracts.Tenant'))->prepareStoreTenant($this->requestDTO(config('app.contracts.TenantData'),[
-                            //     'parent_id'      => $tenant->getKey(),
-                            //     'name'           => 'Cluster '.$cluster['search_path'],
-                            //     'flag'           => 'CLUSTER',
-                            //     'reference_id'   => null,
-                            //     'reference_type' => null,
-                            //     'provider'       => null,
-                            //     'app'            => ['provider' => $tenant->app['provider']],
-                            //     'path'           => $generator_config['patterns']['group']['published_at'],
-                            //     'has_tenant'     => true,
-                            //     'product_type'   => $tenant->product_type,
-                            //     'packages'       => [],
-                            //     'config'         => $generator_config['patterns']['group']
-                            // ]));
-                            // config([
-                            //     'tenancy.database.central_connection' => $central_connection
-                            // ]);
                             $manager->createDatabase($this->TenantModel());
                             $generate_db = true;
                         }
