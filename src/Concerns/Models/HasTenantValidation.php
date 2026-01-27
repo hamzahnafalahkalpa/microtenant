@@ -12,7 +12,7 @@ trait HasTenantValidation
     {
         static::addGlobalScope(new UseTenantValidation);
         static::creating(function ($query) {
-            $query->whenTenantCreation();
+            // $query->whenTenantCreation();
         });
     }
 
