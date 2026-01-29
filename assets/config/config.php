@@ -254,6 +254,15 @@ return [
         ],
     ],
     'impersonate_command' => 'wellmed-backbone:impersonate-migrate',
+    'jobs' => [
+        'cluster_generation' => [
+            'enabled' => env('MICROTENANT_CLUSTER_JOB_ENABLED', true),
+            'queue' => env('MICROTENANT_CLUSTER_QUEUE', 'installation'),
+            'connection' => env('MICROTENANT_CLUSTER_QUEUE_CONNECTION', 'rabbitmq'),
+            'job_class' => \Hanafalah\MicroTenant\Jobs\GenerateClusterSchemas::class,
+            'migration_command' => 'wellmed-backbone:impersonate-migrate',
+        ],
+    ],
     'commands' => [
         Commands\Impersonate\ImpersonateCacheCommand::class,
         Commands\Impersonate\ImpersonateMigrateCommand::class,
