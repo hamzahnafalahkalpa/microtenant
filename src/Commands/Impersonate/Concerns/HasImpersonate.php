@@ -13,7 +13,7 @@ trait HasImpersonate{
     protected $__application, $__group, $__tenant;
     protected array $__select = ['id','parent_id','name', 'flag','props'];
     protected string $__tenant_path;
-
+    protected $__skip;
 
     protected function findApplication(callable $callback): self{
         $application = $this->TenantModel()->whereNull('parent_id')->select($this->__select);

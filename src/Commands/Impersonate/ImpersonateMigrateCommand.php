@@ -4,13 +4,10 @@ namespace Hanafalah\MicroTenant\Commands\Impersonate;
 
 use Hanafalah\LaravelSupport\Concerns\Support\HasArray;
 use Hanafalah\LaravelSupport\Concerns\Support\HasCache;
-use Hanafalah\LaravelSupport\Supports\Data;
-use Hanafalah\MicroTenant\Commands\EnvironmentCommand;
 use Hanafalah\MicroTenant\Commands\Impersonate\Concerns\HasImpersonate;
+use Hanafalah\MicroTenant\Commands\EnvironmentCommand;
 use Hanafalah\MicroTenant\Facades\MicroTenant;
 use Illuminate\Support\Str;
-use Illuminate\Database\Migrations\MigrationRepositoryInterface;
-use Illuminate\Support\Facades\DB;
 use function Laravel\Prompts\select;
 
 class ImpersonateMigrateCommand extends EnvironmentCommand
@@ -34,7 +31,6 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
 
     protected $__cache_data;
     protected $__choosed_impersonate;
-    protected $__skip;
 
     /**
      * The console command description.

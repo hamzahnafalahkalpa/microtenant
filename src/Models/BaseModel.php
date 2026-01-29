@@ -56,21 +56,28 @@ class BaseModel extends SupportModels\SupportBaseModel
 
     public function getTable(){
         $connection_name = $this->getConnectionName();
-        $connection      = config('database.connections.' . ($connection_name ?? config('database.default')));
-        if ($connection['driver'] == 'pgsql') {
-            // $db_name = $connection['database'];
-            // if (config('micro-tenant.use-db-name',true)){
-            //     $db_name .= '.'.$connection['search_path'];
-            // }else{
-            //     return parent::getTable();
-            // }
-            if (config('micro-tenant.use-db-name',true)){
-                $db_name = $connection['search_path'];
+        try {
+            $connection      = config('database.connections.' . ($connection_name ?? config('database.default')));
+            //code...
+            if ($connection['driver'] == 'pgsql') {
+                // $db_name = $connection['database'];
+                // if (config('micro-tenant.use-db-name',true)){
+                //     $db_name .= '.'.$connection['search_path'];
+                // }else{
+                //     return parent::getTable();
+                // }
+                if (config('micro-tenant.use-db-name',true)){
+                    $db_name = $connection['search_path'];
+                }else{
+                    return parent::getTable();
+                }
             }else{
-                return parent::getTable();
+                $db_name = $connection['database'];
             }
-        }else{
-            $db_name = $connection['database'];
+        } catch (\Throwable $th) {
+            return parent::getTable();
+            // dd($this->getMorphClass(),$connections);
+            //throw $th;
         }
 
         $table           = $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
