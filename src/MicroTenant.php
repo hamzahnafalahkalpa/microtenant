@@ -379,7 +379,7 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             try {
                 ApiAccess::init($token ?? null)->accessOnLogin(function ($api_access) {
                     $this->onLogin($api_access);
-                    Auth::setUser($api_access->getUser());
+                    // Auth::setUser($api_access->getUser());
                     app(config('laravel-support.service_cache'))->handle();
                 });
             } catch (\Throwable $th) {
@@ -390,7 +390,8 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
 
     public function onLogin(ModuleApiAccess $api_access){
         $this->api_access  = $api_access;
-        $current_reference = $this->api_access->getUser()->userReference;
+        // $current_reference = $this->api_access->getUser()->userReference;
+        $current_reference = auth()->user()->userReference;
         $tenant            = $current_reference->tenant;
         if (isset($current_reference) && isset($tenant)){
             $this->tenant = $tenant;
@@ -430,3 +431,5 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         return $this->__exception;
     }
 }
+
+
