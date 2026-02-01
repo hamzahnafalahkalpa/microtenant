@@ -75,8 +75,12 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
                 $models = array_merge($models, $own_models);
                 config(['database.models' => $models]);
             }
-            tenancy()->end();
-            tenancy()->initialize($tenant);
+            try {
+                tenancy()->end();
+                tenancy()->initialize($tenant);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
             $this->overrideTenantConfig($tenant); 
         } catch (\Throwable $th) {
             throw $th;
