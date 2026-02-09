@@ -167,10 +167,15 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                     foreach ($directories as $directory) {
                         $yearDir = $path.DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.$directory.'_'.date('Y');
                         if (is_dir($yearDir)) {
-                            array_map('unlink', glob("$yearDir/*.*"));
-                            rmdir($yearDir);
+                            $this->cleanupTmpDirectory($yearDir);
                         }
-                        mkdir($yearDir, 0755, true);
+
+                        // Create directory with full permissions (0777) to avoid permission issues in Docker
+                        if (!is_dir($yearDir)) {
+                            mkdir($yearDir, 0777, true);
+                        }
+                        // Ensure directory is writable
+                        @chmod($yearDir, 0777);
 
                         $sourceDir = $path.DIRECTORY_SEPARATOR.$directory;
                         if (is_dir($sourceDir)) {
@@ -180,7 +185,10 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                                 if (is_file($sourceFile)) {
                                     $fileInfo = pathinfo($file);
                                     $newFileName = $fileInfo['filename'].'_'.date('Y').($fileInfo['extension'] ? '.'.$fileInfo['extension'] : '');
-                                    copy($sourceFile, $yearDir.DIRECTORY_SEPARATOR.$newFileName);
+                                    $destFile = $yearDir.DIRECTORY_SEPARATOR.$newFileName;
+                                    copy($sourceFile, $destFile);
+                                    // Ensure copied file is writable for later cleanup
+                                    @chmod($destFile, 0666);
                                 }
                             }
                         }
@@ -196,6 +204,47 @@ class ImpersonateMigrateCommand extends EnvironmentCommand
                 $this->overrideConfig($path);
                 $this->caller($tenant);
             }
+        }
+    }
+
+    /**
+     * Safely cleanup temporary migration directory
+     *
+     * @param string $directory
+     * @return void
+     */
+    private function cleanupTmpDirectory(string $directory): void
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        $files = glob("$directory/*.*");
+        if ($files === false) {
+            return;
+        }
+
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                try {
+                    // Try to make file writable before deleting
+                    @chmod($file, 0666);
+                    if (!@unlink($file)) {
+                        // If unlink fails, log but don't throw
+                        $this->warn("Could not delete temporary file: $file");
+                    }
+                } catch (\Throwable $e) {
+                    // Log the error but continue with migration
+                    $this->warn("Error deleting temporary file $file: " . $e->getMessage());
+                }
+            }
+        }
+
+        // Try to remove the directory
+        try {
+            @rmdir($directory);
+        } catch (\Throwable $e) {
+            $this->warn("Could not remove temporary directory: $directory");
         }
     }
 
