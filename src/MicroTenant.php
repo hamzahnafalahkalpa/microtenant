@@ -52,40 +52,119 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             : $cache_data;
     }
 
-    public function impersonate(Model $tenant, ?bool $recurse = true): self{
+    /**
+     * Track registered providers to avoid re-registration
+     */
+    protected static array $registeredProviders = [];
+
+    /**
+     * Track registered autoloaders to avoid re-loading
+     */
+    protected static array $loadedAutoloaders = [];
+
+    /**
+     * Impersonate a tenant by loading its providers and config.
+     *
+     * @param Model $tenant The tenant to impersonate
+     * @param bool $recurse Whether to recurse to parent tenants
+     * @param bool $initTenancy Whether to initialize tenancy (false during recursion)
+     * @return self
+     */
+    public function impersonate(Model $tenant, ?bool $recurse = true, ?bool $initTenancy = true): self{
+        $profiling = config('micro-tenant.profiling.enabled', false);
+        $timings = [];
+
         try {
+            // Setup path
+            $t = $profiling ? microtime(true) : 0;
             $path = $tenant->path.DIRECTORY_SEPARATOR.Str::kebab($tenant->name);
             $this->basePathResolver($path);
-            if (file_exists($path.'/vendor/autoload.php')){
-                require_once $path.'/vendor/autoload.php';
+
+            // Load autoloader only once per path
+            $autoloadPath = $path.'/vendor/autoload.php';
+            if (!isset(static::$loadedAutoloaders[$autoloadPath]) && file_exists($autoloadPath)){
+                require_once $autoloadPath;
+                static::$loadedAutoloaders[$autoloadPath] = true;
             }
+            if ($profiling) $timings['path_setup'] = round((microtime(true) - $t) * 1000, 2);
+
+            // Recurse to parent WITHOUT tenancy init (skip redundant tenancy operations)
             if ($recurse && isset($tenant->parent)){
-                $this->impersonate($tenant->parent);
+                $t = $profiling ? microtime(true) : 0;
+                $this->impersonate($tenant->parent, true, false); // Pass false to skip tenancy init
+                if ($profiling) $timings['parent_impersonate'] = round((microtime(true) - $t) * 1000, 2);
             }
+
+            // Register service provider only if not already registered
+            $t = $profiling ? microtime(true) : 0;
             $provider = $tenant->provider;
             if (class_exists($provider)){
                 $provider = $this->replacement($provider);
-                app()->register($provider);
-                $config_name = Str::kebab(Str::before(class_basename($provider),'ServiceProvider'));
-                $own_models = config($config_name.'.database.models',[]);
-                $this->processRegisterProvider($config_name,$tenant?->packages ?? []);
-                $base_path = rtrim(config($config_name.'.paths.base_path'),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
-                $this->processRegisterConfig($config_name, $base_path.config($config_name.'.libs.config'));
-                $models = config('database.models',[]);
-                $models = array_merge($models, $own_models);
-                config(['database.models' => $models]);
+
+                // Skip if already registered
+                if (!isset(static::$registeredProviders[$provider])) {
+                    app()->register($provider);
+                    static::$registeredProviders[$provider] = true;
+
+                    $config_name = Str::kebab(Str::before(class_basename($provider),'ServiceProvider'));
+                    $own_models = config($config_name.'.database.models',[]);
+                    $this->processRegisterProvider($config_name,$tenant?->packages ?? []);
+                    $base_path = rtrim(config($config_name.'.paths.base_path'),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+                    $this->processRegisterConfig($config_name, $base_path.config($config_name.'.libs.config'));
+                    $models = config('database.models',[]);
+                    $models = array_merge($models, $own_models);
+                    config(['database.models' => $models]);
+                }
             }
-            try {
-                tenancy()->end();
-                tenancy()->initialize($tenant);
-            } catch (\Throwable $th) {
-                throw $th;
+            if ($profiling) $timings['provider_registration'] = round((microtime(true) - $t) * 1000, 2);
+
+            // Tenancy operations - ONLY for the final tenant (skip during recursion)
+            if ($initTenancy) {
+                $t = $profiling ? microtime(true) : 0;
+                try {
+                    // Skip if already initialized with the same tenant
+                    $currentTenant = tenancy()->tenant;
+                    $alreadyInitialized = $currentTenant &&
+                                          $currentTenant->getKey() === $tenant->getKey();
+
+                    if (!$alreadyInitialized) {
+                        // Only end if there's an active tenant
+                        if (tenancy()->initialized) {
+                            tenancy()->end();
+                        }
+                        tenancy()->initialize($tenant);
+                    }
+                } catch (\Throwable $th) {
+                    throw $th;
+                }
+                if ($profiling) $timings['tenancy_init'] = round((microtime(true) - $t) * 1000, 2);
             }
-            $this->overrideTenantConfig($tenant); 
+
+            // Config override - only for final tenant when initTenancy is true
+            if ($initTenancy) {
+                $t = $profiling ? microtime(true) : 0;
+                $this->overrideTenantConfig($tenant);
+                if ($profiling) $timings['override_config'] = round((microtime(true) - $t) * 1000, 2);
+            }
+
+            // Log profiling for this tenant level
+            if ($profiling && !empty($timings)) {
+                \Illuminate\Support\Facades\Log::debug("[MicroTenant::impersonate {$tenant->flag}]" . ($initTenancy ? "" : " (skip tenancy)") . " " . json_encode($timings));
+            }
         } catch (\Throwable $th) {
             throw $th;
         }
         return $this;
+    }
+
+    /**
+     * Reset static caches (for Octane worker recycling)
+     */
+    public static function flushStaticCaches(): void
+    {
+        static::$registeredProviders = [];
+        static::$loadedAutoloaders = [];
+        static::$microtenant = null;
     }
 
     /**
@@ -96,16 +175,23 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
      * @return self
      */
     public function tenantImpersonate($tenant = null): self{
+        $profiling = config('micro-tenant.profiling.enabled', false);
+        $timings = [];
+
         // Initialize tenant
+        $t = $profiling ? microtime(true) : 0;
         $tenant = $this->resolveTenant($tenant);
         $this->getCacheData('impersonate');
         $this->initialize($tenant);
+        if ($profiling) $timings['resolve_tenant'] = round((microtime(true) - $t) * 1000, 2);
 
         // Setup paths
+        $t = $profiling ? microtime(true) : 0;
         $tenant_folder = Str::kebab($tenant->name);
         $path = tenant_path($tenant_folder);
         $this->basePathResolver($path);
         $this->impersonate($tenant);
+        if ($profiling) $timings['impersonate'] = round((microtime(true) - $t) * 1000, 2);
 
         // Get configuration
         $database = config('micro-tenant.database');
@@ -118,25 +204,36 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $clusters_to_generate = [];
 
         if (!empty($clusters)) {
+            $t = $profiling ? microtime(true) : 0;
             $result = $this->processClusters($clusters, $db_tenant_name, $current_year, $tenant);
             $generate_db = $result['generate_db'];
             $clusters_to_generate = $result['clusters_to_generate'];
+            if ($profiling) $timings['process_clusters'] = round((microtime(true) - $t) * 1000, 2);
         }
 
         // Setup migration path and initialize tenancy
+        $t = $profiling ? microtime(true) : 0;
         $tenant_config = config($tenant_folder.'.libs.migration');
         $migration_path = tenant_path($tenant_folder.'/src/'.$tenant_config);
         $this->setMicroTenant($tenant)->overrideDatabasePath($migration_path);
         tenancy()->initialize($tenant);
+        if ($profiling) $timings['set_micro_tenant'] = round((microtime(true) - $t) * 1000, 2);
 
         // Handle database generation and cluster schema generation
         if ($generate_db) {
+            $t = $profiling ? microtime(true) : 0;
             $this->runImpersonateMigration($tenant);
+            if ($profiling) $timings['run_migration'] = round((microtime(true) - $t) * 1000, 2);
         }
 
         // Dispatch job to generate missing cluster schemas asynchronously
         if (!empty($clusters_to_generate) && $this->isClusterJobEnabled()) {
             $this->dispatchClusterGenerationJob($tenant, $current_year, $clusters_to_generate);
+        }
+
+        // Log profiling results
+        if ($profiling && !empty($timings)) {
+            \Illuminate\Support\Facades\Log::info('[MicroTenant::tenantImpersonate Profiling]', $timings);
         }
 
         return $this;
@@ -175,44 +272,64 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $tenant_model = $this->TenantModel();
         $connection_name = $tenant_model->getConnectionName();
 
+        // Filter valid clusters first
+        $validClusters = [];
         foreach ($clusters as $key => $cluster) {
-            // Skip if connection driver is not configured
-            if (config('database.connections.'.$key.'.driver') === null) {
-                continue;
+            if (config('database.connections.'.$key.'.driver') !== null &&
+                config('database.connections.'.$connection_name.'.driver') !== null) {
+                $validClusters[$key] = $cluster;
             }
+        }
 
-            // Skip if tenant model connection is not configured
-            if (config('database.connections.'.$connection_name.'.driver') === null) {
-                continue;
+        if (empty($validClusters)) {
+            return ['generate_db' => false, 'clusters_to_generate' => []];
+        }
+
+        // Check database exists once (reuse result)
+        $dbExists = null;
+        $firstKey = array_key_first($validClusters);
+        $firstCluster = $validClusters[$firstKey];
+
+        // Configure tenancy once for initial check
+        config([
+            'tenancy.database.prefix' => $firstCluster['search_path'],
+            'tenancy.database.suffix' => null,
+            'tenancy.database.central_connection' => $firstKey
+        ]);
+
+        try {
+            $manager = $tenant_model->database()->manager();
+            $dbExists = $manager->databaseExists($tenant_model->database()->getName());
+
+            if (!$dbExists) {
+                $manager->createDatabase($tenant_model);
+                $generate_db = true;
             }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
 
-            // Configure tenancy for cluster
-            config([
-                'tenancy.database.prefix' => $cluster['search_path'],
-                'tenancy.database.suffix' => null,
-                'tenancy.database.central_connection' => $key
-            ]);
+        // Restore tenancy configuration
+        config([
+            'tenancy.database.prefix' => $db_tenant_name['prefix'],
+            'tenancy.database.suffix' => $db_tenant_name['suffix'],
+            'tenancy.database.central_connection' => 'central'
+        ]);
 
-            // Check and create database if not exists
-            try {
-                $manager = $tenant_model->database()->manager();
-                if (!$manager->databaseExists($tenant_model->database()->getName())) {
-                    $manager->createDatabase($tenant_model);
-                    $generate_db = true;
-                }
-            } catch (\Throwable $th) {
-                throw $th;
-            }
+        // If database was just created, skip schema existence check
+        if ($generate_db) {
+            return ['generate_db' => true, 'clusters_to_generate' => []];
+        }
 
-            // Restore tenancy configuration
-            config([
-                'tenancy.database.prefix' => $db_tenant_name['prefix'],
-                'tenancy.database.suffix' => $db_tenant_name['suffix'],
-                'tenancy.database.central_connection' => 'central'
-            ]);
+        // Batch check all schema existence in a single query
+        $schemaNames = array_column($validClusters, 'search_path');
+        $driver = $this->getDatabaseDriver('tenant');
+        $schemaExistence = $this->schemaExistsBatch($schemaNames, $driver, 'tenant');
 
-            // Check if cluster schema needs to be generated
-            if (!$generate_db && $this->shouldGenerateClusterSchema($cluster, $current_year, $tenant)) {
+        // Determine which clusters need generation
+        foreach ($validClusters as $key => $cluster) {
+            $schemaName = $cluster['search_path'];
+            if (!($schemaExistence[$schemaName] ?? false)) {
                 $clusters_to_generate[$key] = $cluster;
             }
         }
@@ -331,34 +448,75 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
         $cache = $this->getCache($impersonate['name'], $impersonate['tags']);
         if (isset($cache)) {
             static::$microtenant = $cache;
-        }else{            
-            switch ($tenant->flag) {
-                case 'TENANT':
-                    $options = [
-                        '--tenant_id' => $tenant->getKey(),
-                        '--group_id'  => $tenant->parent_id,
-                        '--app_id'    => $tenant->parent->parent_id
-                    ];
-                break;
-                case 'CENTRAL_TENANT':
-                    $options = [
-                        '--group_id'  => $tenant->getKey(),
-                        '--app_id'    => $tenant->parent_id,
-                        '--skip' => true
-                    ];
-                break;
-                case 'APP':
-                    $options = [
-                        '--app_id'    => $tenant->getKey(),
-                        '--skip' => true
-                    ];
-                break;
-            }
+        }else{
+            // Build options using already-loaded relations to avoid N+1 queries
+            $options = $this->buildImpersonateOptions($tenant);
             if (isset($options)) Artisan::call('impersonate:cache',$options);
             $cache = $this->getCache($impersonate['name'], $impersonate['tags']);
             static::$microtenant = $cache;
         }
         return $this;
+    }
+
+    /**
+     * Build impersonate cache command options from tenant.
+     * Uses already-loaded parent relations to avoid additional queries.
+     *
+     * @param Model $tenant
+     * @return array|null
+     */
+    protected function buildImpersonateOptions(Model $tenant): ?array
+    {
+        switch ($tenant->flag) {
+            case 'TENANT':
+                // Use loaded relation or fetch parent_id from already-loaded parent
+                $parent = $tenant->relationLoaded('parent') ? $tenant->parent : null;
+                $appId = $parent?->parent_id ?? $this->getAppIdForTenant($tenant);
+                return [
+                    '--tenant_id' => $tenant->getKey(),
+                    '--group_id'  => $tenant->parent_id,
+                    '--app_id'    => $appId
+                ];
+
+            case 'CENTRAL_TENANT':
+                return [
+                    '--group_id'  => $tenant->getKey(),
+                    '--app_id'    => $tenant->parent_id,
+                    '--skip' => true
+                ];
+
+            case 'APP':
+                return [
+                    '--app_id'    => $tenant->getKey(),
+                    '--skip' => true
+                ];
+
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Get app ID for tenant when parent relation is not loaded.
+     * Uses single optimized query instead of triggering relation loading.
+     *
+     * @param Model $tenant
+     * @return int|null
+     */
+    protected function getAppIdForTenant(Model $tenant): ?int
+    {
+        // If we have the parent loaded, use it
+        if ($tenant->relationLoaded('parent') && $tenant->parent) {
+            return $tenant->parent->parent_id;
+        }
+
+        // Otherwise do a single query to get the app_id
+        $parent = $this->TenantModel()
+            ->select('parent_id')
+            ->where('id', $tenant->parent_id)
+            ->first();
+
+        return $parent?->parent_id;
     }
 
     public function getMicroTenant(){
@@ -380,12 +538,36 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
 
     public function accessOnLogin(?string $token = null){
         if (request()->headers->has('AppCode')) {
+            $profiling = config('micro-tenant.profiling.enabled', false);
+            $timings = [];
+            $totalStart = $profiling ? microtime(true) : 0;
+
             try {
-                ApiAccess::init($token ?? null)->accessOnLogin(function ($api_access) {
+                // Time ApiAccess::init() - JWT/token validation
+                $t = $profiling ? microtime(true) : 0;
+                $apiAccessInstance = ApiAccess::init($token ?? null);
+                if ($profiling) $timings['api_access_init'] = round((microtime(true) - $t) * 1000, 2);
+
+                // Time the accessOnLogin callback execution
+                $t = $profiling ? microtime(true) : 0;
+                $apiAccessInstance->accessOnLogin(function ($api_access) use ($profiling, &$timings) {
+                    // Time onLogin (includes tenantImpersonate)
+                    $t2 = $profiling ? microtime(true) : 0;
                     $this->onLogin($api_access);
-                    // Auth::setUser($api_access->getUser());
+                    if ($profiling) $timings['onLogin'] = round((microtime(true) - $t2) * 1000, 2);
+
+                    // Time service cache handling
+                    $t2 = $profiling ? microtime(true) : 0;
                     app(config('laravel-support.service_cache'))->handle();
+                    if ($profiling) $timings['service_cache'] = round((microtime(true) - $t2) * 1000, 2);
                 });
+                if ($profiling) $timings['access_on_login_callback'] = round((microtime(true) - $t) * 1000, 2);
+
+                // Log the breakdown
+                if ($profiling) {
+                    $timings['total'] = round((microtime(true) - $totalStart) * 1000, 2);
+                    \Illuminate\Support\Facades\Log::info('[MicroTenant::accessOnLogin Breakdown]', $timings);
+                }
             } catch (\Throwable $th) {
                 throw $th;
             }
@@ -393,18 +575,45 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
     }
 
     public function onLogin(ModuleApiAccess $api_access){
+        $profiling = config('micro-tenant.profiling.enabled', false);
+        $timings = [];
+
         $this->api_access  = $api_access;
-        // $current_reference = $this->api_access->getUser()->userReference;
-        $current_reference = auth()->user()->userReference;
-        $tenant            = $current_reference->tenant;
-        if (isset($current_reference) && isset($tenant)){
-            $this->tenant = $tenant;
-            (isset($this->tenant))
-                ? $this->tenantImpersonate($this->tenant)
-                : throw new \Exception('Tenant not found');
-        }else{
+
+        // Time: get auth user
+        $t = $profiling ? microtime(true) : 0;
+        $user = auth()->user();
+        if ($profiling) $timings['auth_user'] = round((microtime(true) - $t) * 1000, 2);
+
+        // Time: load user relations if not loaded
+        $t = $profiling ? microtime(true) : 0;
+        if (!$user->relationLoaded('userReference')) {
+            $user->load(['userReference.tenant.parent.parent']);
+        }
+        if ($profiling) $timings['load_user_relations'] = round((microtime(true) - $t) * 1000, 2);
+
+        $current_reference = $user->userReference;
+        if (!isset($current_reference)) {
             throw new \Exception('User Invalid');
         }
+
+        $tenant = $current_reference->tenant;
+        if (!isset($tenant)) {
+            throw new \Exception('Tenant not found');
+        }
+
+        $this->tenant = $tenant;
+
+        // Time: tenantImpersonate
+        $t = $profiling ? microtime(true) : 0;
+        $this->tenantImpersonate($this->tenant);
+        if ($profiling) $timings['tenantImpersonate'] = round((microtime(true) - $t) * 1000, 2);
+
+        // Log profiling
+        if ($profiling && !empty($timings)) {
+            \Illuminate\Support\Facades\Log::info('[MicroTenant::onLogin Breakdown]', $timings);
+        }
+
         return $this->getMicroTenant();
     }
 

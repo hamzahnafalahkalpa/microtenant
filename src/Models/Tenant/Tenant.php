@@ -94,7 +94,13 @@ class Tenant extends BaseModel implements ContractsTenant, TenantWithDatabase{
     public function modelHasFeatures(){return $this->hasManyModel('ModelHasFeature');}
     public function modelHasApp(){return $this->morphOneModel('ModelHasApp','model');}
     public function reference(){return $this->morphTo();}
-    public function parent(){return $this->belongsToModel('Tenant','parent_id')->with('parent');}
+    public function parent(){return $this->belongsToModel('Tenant','parent_id');}
+
+    /**
+     * Get parent with full hierarchy (parent->parent) loaded efficiently.
+     * Use this when you need the full tenant hierarchy.
+     */
+    public function parentWithHierarchy(){return $this->belongsToModel('Tenant','parent_id')->with('parent');}
     //END EIGER SECTION
 
     public function newCollection(array $models = []): TenantCollection

@@ -61,6 +61,102 @@ trait HasDatabaseDriver
     }
 
     /**
+     * Batch check if PostgreSQL schemas exist (single query for multiple schemas)
+     *
+     * @param array $schemaNames
+     * @param string $connection
+     * @return array<string, bool> Map of schema name to existence status
+     */
+    protected function postgresSchemaExistsBatch(array $schemaNames, string $connection = 'tenant'): array
+    {
+        if (empty($schemaNames)) {
+            return [];
+        }
+
+        try {
+            $placeholders = implode(',', array_fill(0, count($schemaNames), '?'));
+            $result = DB::connection($connection)
+                ->select("SELECT schema_name FROM information_schema.schemata WHERE schema_name IN ($placeholders)", $schemaNames);
+
+            $existingSchemas = array_column($result, 'schema_name');
+            $existence = [];
+            foreach ($schemaNames as $name) {
+                $existence[$name] = in_array($name, $existingSchemas);
+            }
+            return $existence;
+        } catch (\Throwable $th) {
+            Log::error("Error batch checking schema existence: " . $th->getMessage());
+            // Fallback to individual checks on error
+            $existence = [];
+            foreach ($schemaNames as $name) {
+                $existence[$name] = $this->postgresSchemaExists($name, $connection);
+            }
+            return $existence;
+        }
+    }
+
+    /**
+     * Batch check if schemas exist based on driver type
+     *
+     * @param array $schemaNames
+     * @param string $driver
+     * @param string $connection
+     * @return array<string, bool>
+     */
+    protected function schemaExistsBatch(array $schemaNames, string $driver, string $connection = 'tenant'): array
+    {
+        try {
+            switch ($driver) {
+                case 'pgsql':
+                    return $this->postgresSchemaExistsBatch($schemaNames, $connection);
+                case 'mysql':
+                case 'mariadb':
+                    return $this->mysqlDatabaseExistsBatch($schemaNames, $connection);
+                default:
+                    Log::warning("Unsupported database driver for batch schema check: {$driver}");
+                    return array_fill_keys($schemaNames, false);
+            }
+        } catch (\Throwable $th) {
+            Log::error("Error in batch schema check: " . $th->getMessage());
+            return array_fill_keys($schemaNames, false);
+        }
+    }
+
+    /**
+     * Batch check if MySQL databases exist
+     *
+     * @param array $databaseNames
+     * @param string $connection
+     * @return array<string, bool>
+     */
+    protected function mysqlDatabaseExistsBatch(array $databaseNames, string $connection = 'tenant'): array
+    {
+        if (empty($databaseNames)) {
+            return [];
+        }
+
+        try {
+            $placeholders = implode(',', array_fill(0, count($databaseNames), '?'));
+            $result = DB::connection($connection)
+                ->select("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME IN ($placeholders)", $databaseNames);
+
+            $existingDbs = array_column($result, 'SCHEMA_NAME');
+            $existence = [];
+            foreach ($databaseNames as $name) {
+                $existence[$name] = in_array($name, $existingDbs);
+            }
+            return $existence;
+        } catch (\Throwable $th) {
+            Log::error("Error batch checking MySQL database existence: " . $th->getMessage());
+            $existence = [];
+            foreach ($databaseNames as $name) {
+                $existence[$name] = $this->mysqlDatabaseExists($name, $connection);
+            }
+            return $existence;
+        }
+    }
+
+    /**
      * Check if MySQL database exists
      *
      * @param string $databaseName
