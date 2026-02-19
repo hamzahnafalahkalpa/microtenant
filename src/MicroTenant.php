@@ -211,12 +211,12 @@ class MicroTenant extends PackageManagement implements ContractsMicroTenant
             if ($profiling) $timings['process_clusters'] = round((microtime(true) - $t) * 1000, 2);
         }
 
-        // Setup migration path and initialize tenancy
+        // Setup migration path (tenancy already initialized in impersonate())
         $t = $profiling ? microtime(true) : 0;
         $tenant_config = config($tenant_folder.'.libs.migration');
         $migration_path = tenant_path($tenant_folder.'/src/'.$tenant_config);
         $this->setMicroTenant($tenant)->overrideDatabasePath($migration_path);
-        tenancy()->initialize($tenant);
+        // NOTE: tenancy()->initialize() removed - already called in impersonate()
         if ($profiling) $timings['set_micro_tenant'] = round((microtime(true) - $t) * 1000, 2);
 
         // Handle database generation and cluster schema generation
